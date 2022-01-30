@@ -2,20 +2,16 @@
     <head>
         <title>D3 Test</title>
         <script src="https://d3js.org/d3.v7.min.js"></script>
-        <style>
-            div.bar {
-                display: inline-block;
-                width: 20px;
-                height: 75px;   /* We'll override this later */
-                background-color: teal;
-            }
-        </style>
     </head>
     <body>
+        <h1>Game</h1>
+        <div id="game-date"></div>
         <h1>ATT vs $/BUZ</h1>
-        <div id="scatter1"></div>
+        <div id="scatter-att-score-buzz"></div>
         <h1>ATT vs BUZZ%</h1>
-        <div id="scatter2"></div>
+        <div id="scatter-att-buzz-pct"></div>
+        <h1>Correct on Buzz → Daily Doubles Found (difference from expected)</h1>
+        <div id="bar-correct-on-buzz"></div>
         <script type="text/javascript">
             d3.csv("/JBoxScores.csv").then(function(data) {
                 var margin = {top: 20, right: 20, bottom: 50, left: 70},
@@ -23,28 +19,40 @@
                     height = 500 - margin.top - margin.bottom;
                 var dateParse = d3.timeParse("%m/%d/%Y");
                 var dateFormat = d3.timeFormat("%m/%d/%Y");
-                var svg = d3.select("#scatter1").append("svg")
-                                .attr("width", width + margin.left + margin.right)
-                                .attr("height", height + margin.top + margin.bottom)
-                            .append("g")
-                            .attr("transform",
-                                "translate(" + margin.left + "," + margin.top + ")");
-                var x = d3.scaleLinear().range([0, width]);
-                var y = d3.scaleLinear().range([height, 0]);
 
                 console.log(data);
-                var highlightDate = dateParse("1/26/2022");
+                var highlightDate = dateParse("1/28/2022");
+                d3.select("#game-date").selectAll('span')
+                    .data([highlightDate])
+                    .enter()
+                    .append('span')
+                    .text(d => dateFormat(d));
                 data.forEach(function(d) {
                     d['Date'] = dateParse(d['Date']);
                     d['Total Buzz %'] = 100.0 * d['Total Buzz'] / d['Total Attempt'];
                     d['highlightDate'] = d['Date'].getTime() == highlightDate.getTime();
                 });
-                data = d3.filter(data, d => d['Date'] <= highlightDate);
-                var highlightDateContestants = d3.map(d3.filter(data, d => d['highlightDate']), d => d['Contestant']);
+                //data = d3.filter(data, d => d['Date'] <= highlightDate);
+                var highlightDateData = d3.filter(data, d => d['highlightDate']);
+                var highlightDateContestants = d3.map(highlightDateData, d => d['Contestant']);
                 data.forEach(function(d) {
                     d['highlightContestant'] = highlightDateContestants.includes(d['Contestant']);
                 });
+                var color = d3.scaleOrdinal()
+                    .domain(highlightDateContestants)
+                    .range(['#377eb8','#e41a1c','#4daf4a'])
 
+
+                //ATT vs $/BUZ
+                var svg = d3.select("#scatter-att-score-buzz").append("svg")
+                                .attr("width", width + margin.left + margin.right)
+                                .attr("height", height + margin.top + margin.bottom)
+                            .append("g")
+                            .attr("transform",
+                                "translate(" + margin.left + "," + margin.top + ")");
+
+                var x = d3.scaleLinear().range([0, width]);
+                var y = d3.scaleLinear().range([height, 0]);
                 x.domain([0, 60]);
                 y.domain([-300, 1000]);
 
@@ -57,10 +65,8 @@
                     .attr("cy", function(d) { return y(d['Total Score/Buzz']); })
                     .style("stroke", "black")
                     .style("fill", function(d) {
-                        if (d['highlightDate']) {
-                            return "blue";
-                        } else if (d['highlightContestant']) {
-                            return "yellow";
+                        if (d['highlightDate'] || d['highlightContestant']) {
+                            return color(d['Contestant']);
                         } else {
                             return "black";
                         }
@@ -92,7 +98,7 @@
                     })
                     .attr("font-family", "sans-serif")
                     .attr("font-size", "11px")
-                    .attr("fill", "red");
+                    .attr("fill", d => color(d['Contestant']));
 
                 svg.append("g")
                     .attr("transform", "translate(0," + height + ")")
@@ -114,9 +120,10 @@
                     .attr("x",0 - (height / 2))
                     .attr("dy", "1em")
                     .style("text-anchor", "middle")
-                    .text("$/BUZ");   
+                    .text("$/BUZ");              
 
-                svg = d3.select("#scatter2").append("svg")
+                //ATT vs Buzz%
+                svg = d3.select("#scatter-att-buzz-pct").append("svg")
                                 .attr("width", width + margin.left + margin.right)
                                 .attr("height", height + margin.top + margin.bottom)
                             .append("g")
@@ -136,10 +143,8 @@
                     .attr("cy", function(d) { return y(d['Total Buzz %']); })
                     .style("stroke", "black")
                     .style("fill", function(d) {
-                        if (d['highlightDate']) {
-                            return "blue";
-                        } else if (d['highlightContestant']) {
-                            return "yellow";
+                        if (d['highlightDate'] || d['highlightContestant']) {
+                            return color(d['Contestant']);
                         } else {
                             return "black";
                         }
@@ -171,7 +176,7 @@
                     })
                     .attr("font-family", "sans-serif")
                     .attr("font-size", "11px")
-                    .attr("fill", "red");
+                    .attr("fill", d => color(d['Contestant']));
 
                 svg.append("g")
                     .attr("transform", "translate(0," + height + ")")
@@ -193,7 +198,100 @@
                     .attr("x",0 - (height / 2))
                     .attr("dy", "1em")
                     .style("text-anchor", "middle")
-                    .text("Buzz %");   
+                    .text("Buzz %");
+
+                //J! Correct on Buzz
+                svg = d3.select("#bar-correct-on-buzz").append("svg")
+                                .attr("width", width + margin.left + margin.right)
+                                .attr("height", height + margin.top + margin.bottom)
+                            .append("g")
+                            .attr("transform",
+                                "translate(" + margin.left + "," + margin.top + ")");
+                var x = d3.scaleBand()
+                    .domain(['J!', 'DJ!'])
+                    .range([0, width])
+                    .padding([0.2]);
+                var y = d3.scaleLinear().range([height, 0]);
+                y.domain([0, 29]);
+                svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x).tickSize(0));
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+
+                var xSubgroup = d3.scaleBand()
+                    .domain(highlightDateContestants)
+                    .range([0, x.bandwidth()])
+                    .padding([0.05]);
+
+                var sum = (previousValue, currentValue) => previousValue + currentValue;
+                var jCorrectSum = d3.map(highlightDateData, d => +d['J! Correct on Buzz']).reduce(sum, 0);
+                var jDDExpectedPerCorrect = 1.0 / jCorrectSum;
+                var jG = svg.append('g')
+                    .attr("transform", function(d) { return "translate(" + x('J!') + ",0)"; });
+                jG.selectAll('rect')
+                    .data(highlightDateData)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['J! Correct on Buzz']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['J! Correct on Buzz']); })
+                    .attr("fill", function(d) { return color(d['Contestant']); });
+                jG.selectAll('text')
+                    .data(highlightDateData)
+                    .enter()
+                    .append('text')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']) + 2; })
+                    .attr('y', function(d) { return y(d['J! Correct on Buzz']) - 10; })
+                    .style('fill', d => color(d['Contestant']))
+                    .text(d => d['J! Correct on Buzz'] + " → " + d['J! DDs found'] + " (" + 
+                            ((+d['J! DDs found'] - (jDDExpectedPerCorrect * d['J! Correct on Buzz'])) > 0 ? "+" : "") +
+                            (+d['J! DDs found'] - (jDDExpectedPerCorrect * d['J! Correct on Buzz'])).toFixed(2) + 
+                            ")");
+
+                var djCorrectSum = d3.map(highlightDateData, d => +d['DJ! Correct on Buzz']).reduce(sum, 0);
+                var djDDExpectedPerCorrect = 2.0 / djCorrectSum;
+                var djG = svg.append('g')
+                    .attr("transform", function(d) { return "translate(" + x('DJ!') + ",0)"; });
+                djG.selectAll('rect')
+                    .data(highlightDateData)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['DJ! Correct on Buzz']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['DJ! Correct on Buzz']); })
+                    .attr("fill", function(d) { return color(d['Contestant']); });
+                    djG.selectAll('text')
+                    .data(highlightDateData)
+                    .enter()
+                    .append('text')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']) + 2; })
+                    .attr('y', function(d) { return y(d['DJ! Correct on Buzz']) - 10; })
+                    .style('fill', d => color(d['Contestant']))
+                    .text(d => d['DJ! Correct on Buzz'] + " → " + d['DJ! DDs found'] + " (" + 
+                            ((+d['DJ! DDs found'] - (djDDExpectedPerCorrect * d['DJ! Correct on Buzz'])) > 0 ? "+" : "") +
+                            (+d['DJ! DDs found'] - (djDDExpectedPerCorrect * d['DJ! Correct on Buzz'])).toFixed(2) + 
+                            ")");               
+                
+                var legend = svg.append("g")
+                    .attr("font-size", 13)
+                    .attr("text-anchor", "end")
+                    .selectAll("g")
+                    .data(highlightDateContestants)
+                    .enter().append("g")
+                    .attr("transform", function(d, i) { return "translate(0," + i * 24 + ")"; });
+                legend.append("rect")
+                    .attr("x", width - 142)
+                    .attr("width", 8)
+                    .attr("height", 8)
+                    .attr("fill", color);
+                legend.append("text")
+                        .attr("x", d => d.length > 7 ? (width + 5) : (width - 80))
+                        .attr("y", 5.5)
+                        .attr("dy", "0.22em")
+                        .text(d => (d));
             });
         </script>
     </body>
