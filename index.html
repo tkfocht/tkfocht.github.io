@@ -1,6 +1,6 @@
 <html>
     <head>
-        <title>D3 Test</title>
+        <title>Daily Jeopardy Visualizations</title>
         <script src="https://d3js.org/d3.v7.min.js"></script>
     </head>
     <body>
@@ -10,7 +10,7 @@
         <div id="scatter-att-score-buzz"></div>
         <h1>ATT vs BUZZ%</h1>
         <div id="scatter-att-buzz-pct"></div>
-        <h1>Correct on Buzz → Daily Doubles Found (difference from expected)</h1>
+        <h1>Correct on Buzz &rarr; Daily Doubles Found (difference from expected)</h1>
         <div id="bar-correct-on-buzz"></div>
         <script type="text/javascript">
             d3.csv("/JBoxScores.csv").then(function(data) {
@@ -245,7 +245,7 @@
                     .attr('x', function(d) { return xSubgroup(d['Contestant']) + 2; })
                     .attr('y', function(d) { return y(d['J! Correct on Buzz']) - 10; })
                     .style('fill', d => color(d['Contestant']))
-                    .text(d => d['J! Correct on Buzz'] + " → " + d['J! DDs found'] + " (" + 
+                    .html(d => d['J! Correct on Buzz'] + " &rarr; " + d['J! DDs found'] + " (" + 
                             ((+d['J! DDs found'] - (jDDExpectedPerCorrect * d['J! Correct on Buzz'])) > 0 ? "+" : "") +
                             (+d['J! DDs found'] - (jDDExpectedPerCorrect * d['J! Correct on Buzz'])).toFixed(2) + 
                             ")");
@@ -270,7 +270,7 @@
                     .attr('x', function(d) { return xSubgroup(d['Contestant']) + 2; })
                     .attr('y', function(d) { return y(d['DJ! Correct on Buzz']) - 10; })
                     .style('fill', d => color(d['Contestant']))
-                    .text(d => d['DJ! Correct on Buzz'] + " → " + d['DJ! DDs found'] + " (" + 
+                    .html(d => d['DJ! Correct on Buzz'] + " &rarr; " + d['DJ! DDs found'] + " (" + 
                             ((+d['DJ! DDs found'] - (djDDExpectedPerCorrect * d['DJ! Correct on Buzz'])) > 0 ? "+" : "") +
                             (+d['DJ! DDs found'] - (djDDExpectedPerCorrect * d['DJ! Correct on Buzz'])).toFixed(2) + 
                             ")");               
