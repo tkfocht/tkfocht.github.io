@@ -56,7 +56,13 @@ var byRoundScatter = function(
         .data(data)
         .enter()
         .append("text")
-        .text(labelFunction)
+        .text(function(d) {
+            var label = labelFunction(d);
+            if (label) {
+                return label + ", J!";
+            }
+            return label;
+        })
         .attr("x", function(d) {
             return x(d[xFields[0]]) + 7;
         })
@@ -83,7 +89,13 @@ var byRoundScatter = function(
         .data(data)
         .enter()
         .append("text")
-        .text(labelFunction)
+        .text(function(d) {
+            var label = labelFunction(d);
+            if (label) {
+                return label + ", DJ!";
+            }
+            return label;
+        })
         .attr("x", function(d) {
             return x(d[xFields[1]]) + 7;
         })

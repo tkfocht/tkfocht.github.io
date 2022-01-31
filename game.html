@@ -2,6 +2,7 @@
     <head>
         <title>J!ometry: Daily Jeopardy Visualizations</title>
         <meta charset="utf-8">
+        <link rel="stylesheet" href="css/site.css"></link>
         <link rel="stylesheet" href="css/game.css"></link>
         <script src="/js/d3/d3.v7.min.js"></script>
         <script src="/js/util/util.js"></script>
@@ -72,6 +73,9 @@
                 contestant performances are labeled. Other games by the same contestants are in the same color, but faded.
             </div>
             <div id="scatter-att-score-buzz-by-round"></div>
+        </div>
+        <div id="footer">
+            <p>This site is not affiliated with Jeopardy!. Data is taken from their published <a href="https://www.jeopardy.com/jbuzz/news-events/jeopardy-daily-box-scores">box scores.</a></p>
         </div>
         <script type="text/javascript">
             d3.csv("/JBoxScores.csv").then(function(data) {
