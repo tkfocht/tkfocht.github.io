@@ -202,7 +202,7 @@
                     .range([0, width])
                     .padding([0.2]);
                 var y = d3.scaleLinear().range([height, 0]);
-                y.domain([0, 29]);
+                y.domain([0, 25]);
                 svg.append("g")
                     .attr("transform", "translate(0," + height + ")")
                     .call(d3.axisBottom(x).tickSize(0));
