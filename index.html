@@ -1,22 +1,22 @@
 <html>
     <head>
-        <title>Daily Jeopardy Visualizations</title>
+        <title>J!ometry: Daily Jeopardy Visualizations</title>
         <script src="/js/d3/d3.v7.min.js"></script>
+        <script src="/js/util/util.js"></script>
     </head>
     <body>
+        <h1>J!ometry</h1>
+        <h1>Recorded Games</h1>
         <div id="game-list"></div>
         <script type="text/javascript">
             d3.csv("/JBoxScores.csv").then(function(data) {
-                var dateParse = d3.timeParse("%m/%d/%Y");
-                var dateFormat = d3.timeFormat("%m/%d/%Y");
                 data.forEach(function(d) {
-                    d['Date'] = dateParse(d['Date']);
+                    d['Date'] = csvDateParse(d['Date']);
                 });
                 console.log(data);
                 data = Array.from(d3.group(data, d => d['Date']), ([date,dateData]) => [date, dateData[0]['Contestant'], dateData[1]['Contestant'], dateData[2]['Contestant']]);
                 data.sort(d => d[0]);
                 data.reverse();
-                console.log(data);
 
                 d3.select("#game-list").selectAll('div')
                     .data(data)

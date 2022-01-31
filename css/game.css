@@ -1,0 +1,18 @@
+#game-summary table {
+    width: 960px;
+    border-collapse: collapse;
+}
+
+#game-summary table th, #game-summary table td {
+    padding: 5px 15px;
+    border: 1px solid #999999;
+}
+
+#game-summary table td {
+    text-align: right;
+}
+
+#game-summary table td:first-child {
+    text-align: left;
+    width: 20%;
+}
