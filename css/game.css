@@ -6,6 +6,7 @@
 .section .graph-description {
     font-size: smaller;
     font-style: italic;
+    max-width: 960px;
 }
 
 #game-summary table {
