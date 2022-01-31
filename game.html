@@ -1,0 +1,653 @@
+<html>
+    <head>
+        <title>Daily Jeopardy Visualizations</title>
+        <script src="/js/d3/d3.v7.min.js"></script>
+    </head>
+    <body>
+        <h1>Game Summary</h1>
+        <div id="game-date"></div>
+        <div id="game-summary">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Contestant</th>
+                        <th>J! Score on Buzz</th>
+                        <th>DJ! Score on Buzz</th>
+                        <th>Total Score on Buzz</th>
+                        <th>Daily Doubles</th>
+                        <th>DJ! Final Score</th>
+                        <th>FJ! Final Score</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <h1>ATT vs $/BUZ</h1>
+        <div id="scatter-att-score-buzz"></div>
+        <h1>ATT vs BUZZ%</h1>
+        <div id="scatter-att-buzz-pct"></div>
+        <h1>Correct on Buzz &rarr; Daily Doubles Found (difference from expected)</h1>
+        <div id="bar-correct-on-buzz"></div>
+        <script type="text/javascript">
+            d3.csv("/JBoxScores.csv").then(function(data) {
+                var margin = {top: 20, right: 20, bottom: 50, left: 70},
+                    width = 960 - margin.left - margin.right,
+                    height = 500 - margin.top - margin.bottom;
+                var dateParse = d3.timeParse("%m/%d/%Y");
+                var dateFormat = d3.timeFormat("%m/%d/%Y");
+
+                console.log(new URLSearchParams(window.location.search).get('date'));
+                var highlightDate = dateParse(new URLSearchParams(window.location.search).get('date'));
+                d3.select("#game-date").selectAll('span')
+                    .data([highlightDate])
+                    .enter()
+                    .append('span')
+                    .text(d => dateFormat(d));
+                data.forEach(function(d) {
+                    d['Date'] = dateParse(d['Date']);
+                    d['J! Buzz %'] = 100.0 * d['J! Buzzes'] / d['J! Attempts'];
+                    d['DJ! Buzz %'] = 100.0 * d['DJ! Buzzes'] / d['DJ! Attempts'];
+                    d['Total Buzz %'] = 100.0 * d['Total Buzz'] / d['Total Attempt'];
+                    d['highlightDate'] = d['Date'].getTime() == highlightDate.getTime();
+                });
+                //data = d3.filter(data, d => d['Date'] <= highlightDate);
+                var highlightDateData = d3.filter(data, d => d['highlightDate']);
+                var highlightDateContestants = d3.map(highlightDateData, d => d['Contestant']);
+                data.forEach(function(d) {
+                    d['highlightContestant'] = highlightDateContestants.includes(d['Contestant']);
+                });
+                var color = d3.scaleOrdinal()
+                    .domain(highlightDateContestants)
+                    .range(['#0072B2','#E69F00','#009E73'])
+
+                var summaryTr = d3.select("#game-summary table tbody")
+                    .selectAll("tr")
+                    .data(highlightDateData)
+                    .enter()
+                    .append("tr");
+                summaryTr.selectAll("td")
+                    .data(function(d,i) {
+                        return [
+                            d['Contestant'],
+                            d['J! Score on Buzz'],
+                            d['DJ! Score on Buzz'],
+                            d['Total Score on Buzz'],
+                            d['J! DDs found'] + " " + d['DJ! DDs found'],
+                            d['DJ! End Score'],
+                            d['FJ! End Score']
+                        ];
+                    })
+                    .enter()
+                    .append("td")
+                    .html(function(d,i) {
+                        if (i>0) return d;
+                        return '<span style="color: ' + color(d) + '">&#9632;</span>&nbsp;' + d;
+                    });
+
+                //ATT vs $/BUZ
+                var svg = d3.select("#scatter-att-score-buzz").append("svg")
+                                .attr("width", width + margin.left + margin.right)
+                                .attr("height", height + margin.top + margin.bottom)
+                            .append("g")
+                            .attr("transform",
+                                "translate(" + margin.left + "," + margin.top + ")");
+
+                var x = d3.scaleLinear().range([0, width]);
+                var y = d3.scaleLinear().range([height, 0]);
+                x.domain([0, 60]);
+                y.domain([-300, 1000]);
+
+                svg.selectAll("dot")
+                    .data(data)
+                    .enter()
+                    .append("circle")
+                    .attr("r", 5)
+                    .attr("cx", function(d) { return x(d['Total Attempt']); })
+                    .attr("cy", function(d) { return y(d['Total Score/Buzz']); })
+                    .style("stroke", "black")
+                    .style("fill", function(d) {
+                        if (d['highlightDate'] || d['highlightContestant']) {
+                            return color(d['Contestant']);
+                        } else {
+                            return "black";
+                        }
+                    })
+                    .style("opacity", function(d) {
+                        if (d['highlightDate']) {
+                            return 1.0;
+                        } else if (d['highlightContestant']) {
+                            return 0.5;
+                        } else {
+                            return 0.25;
+                        }
+                    });
+
+                svg.selectAll("text")
+                    .data(data)
+                    .enter()
+                    .append("text")
+                    .text(function(d) {
+                        if (d['highlightDate']) {
+                            return d['Contestant'];
+                        }
+                    })
+                    .attr("x", function(d) {
+                            return x(d['Total Attempt']) + 7;
+                    })
+                    .attr("y", function(d) {
+                            return y(d['Total Score/Buzz']) + 2;
+                    })
+                    .attr("font-family", "sans-serif")
+                    .attr("font-size", "11px")
+                    .attr("fill", d => color(d['Contestant']));
+
+                svg.append("g")
+                    .attr("transform", "translate(0," + y(0) + ")")
+                    .call(d3.axisBottom(x).ticks(10));
+                
+                svg.append("text")             
+                    .attr("transform",
+                            "translate(" + (width/2) + " ," + 
+                                        (height + margin.top + 20) + ")")
+                    .style("text-anchor", "middle")
+                    .text("ATT");
+
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+
+                svg.append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 0 - margin.left)
+                    .attr("x",0 - (height / 2))
+                    .attr("dy", "1em")
+                    .style("text-anchor", "middle")
+                    .text("$/BUZ");              
+
+                //ATT vs $/BUZ by Round
+                var svg = d3.select("#scatter-att-score-buzz").append("svg")
+                                .attr("width", width + margin.left + margin.right)
+                                .attr("height", height + margin.top + margin.bottom)
+                            .append("g")
+                            .attr("transform",
+                                "translate(" + margin.left + "," + margin.top + ")");
+
+                var x = d3.scaleLinear().range([0, width]);
+                var y = d3.scaleLinear().range([height, 0]);
+                x.domain([0, 30]);
+                y.domain([-750, 1500]);
+
+                pathLayer = svg.append('g');
+                pathLayer.selectAll("path")
+                    .data(data)
+                    .enter()
+                    .append("path")
+                    .attr("d", function(d) {
+                        var path = d3.path();
+                        path.moveTo(x(d['J! Attempts']), y(d['J! Score/Buzz']));
+                        path.lineTo(x(d['DJ! Attempts']), y(d['DJ! Score/Buzz']));
+                        path.closePath();
+                        return path;
+                    })
+                    .style("stroke", function(d) {
+                        if (d['highlightDate'] || d['highlightContestant']) {
+                            return color(d['Contestant']);
+                        } else {
+                            return "black";
+                        }
+                    })
+                    .style("opacity", function(d) {
+                        if (d['highlightDate']) {
+                            return 1.0;
+                        } else if (d['highlightContestant']) {
+                            return 0.5;
+                        } else {
+                            return 0.1;
+                        }
+                    });
+
+                jGroup = svg.append('g');
+                jGroup.selectAll("dot")
+                    .data(data)
+                    .enter()
+                    .append("circle")
+                    .attr("r", 5)
+                    .attr("cx", function(d) { return x(d['J! Attempts']); })
+                    .attr("cy", function(d) { return y(d['J! Score/Buzz']); })
+                    .style("stroke", "black")
+                    .style("fill", function(d) {
+                        if (d['highlightDate'] || d['highlightContestant']) {
+                            return color(d['Contestant']);
+                        } else {
+                            return "black";
+                        }
+                    })
+                    .style("opacity", function(d) {
+                        if (d['highlightDate']) {
+                            return 1.0;
+                        } else if (d['highlightContestant']) {
+                            return 0.5;
+                        } else {
+                            return 0.1;
+                        }
+                    });
+
+                jGroup.selectAll("text")
+                    .data(data)
+                    .enter()
+                    .append("text")
+                    .text(function(d) {
+                        if (d['highlightDate']) {
+                            return d['Contestant'];
+                        }
+                    })
+                    .attr("x", function(d) {
+                            return x(d['J! Attempts']) + 7;
+                    })
+                    .attr("y", function(d) {
+                            return y(d['J! Score/Buzz']) + 2;
+                    })
+                    .attr("font-family", "sans-serif")
+                    .attr("font-size", "11px")
+                    .attr("fill", d => color(d['Contestant']));
+
+                djGroup = svg.append('g');
+                djGroup.selectAll("rect")
+                    .data(data)
+                    .enter()
+                    .append("rect")
+                    .attr("width", 10)
+                    .attr("height", 10)
+                    .attr("x", function(d) { return x(d['DJ! Attempts']) - 5; })
+                    .attr("y", function(d) { return y(d['DJ! Score/Buzz']) - 5; })
+                    .style("stroke", "black")
+                    .style("fill", function(d) {
+                        if (d['highlightDate'] || d['highlightContestant']) {
+                            return color(d['Contestant']);
+                        } else {
+                            return "black";
+                        }
+                    })
+                    .style("opacity", function(d) {
+                        if (d['highlightDate']) {
+                            return 1.0;
+                        } else if (d['highlightContestant']) {
+                            return 0.5;
+                        } else {
+                            return 0.1;
+                        }
+                    });
+
+                djGroup.selectAll("text")
+                    .data(data)
+                    .enter()
+                    .append("text")
+                    .text(function(d) {
+                        if (d['highlightDate']) {
+                            return d['Contestant'];
+                        }
+                    })
+                    .attr("x", function(d) {
+                            return x(d['DJ! Attempts']) + 7;
+                    })
+                    .attr("y", function(d) {
+                            return y(d['DJ! Score/Buzz']) + 2;
+                    })
+                    .attr("font-family", "sans-serif")
+                    .attr("font-size", "11px")
+                    .attr("fill", d => color(d['Contestant']));
+                    
+                svg.append("g")
+                    .attr("transform", "translate(0," + y(0) + ")")
+                    .call(d3.axisBottom(x).ticks(10));
+                
+                svg.append("text")             
+                    .attr("transform",
+                            "translate(" + (width/2) + " ," + 
+                                        (height + margin.top + 20) + ")")
+                    .style("text-anchor", "middle")
+                    .text("ATT");
+
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+
+                svg.append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 0 - margin.left)
+                    .attr("x",0 - (height / 2))
+                    .attr("dy", "1em")
+                    .style("text-anchor", "middle")
+                    .text("$/BUZ");
+
+
+
+                //ATT vs Buzz%
+                svg = d3.select("#scatter-att-buzz-pct").append("svg")
+                                .attr("width", width + margin.left + margin.right)
+                                .attr("height", height + margin.top + margin.bottom)
+                            .append("g")
+                            .attr("transform",
+                                "translate(" + margin.left + "," + margin.top + ")");
+                var x = d3.scaleLinear().range([0, width]);
+                var y = d3.scaleLinear().range([height, 0]);
+                x.domain([0, 60]);
+                y.domain([0, 100]);
+
+                svg.selectAll("dot")
+                    .data(data)
+                    .enter()
+                    .append("circle")
+                    .attr("r", 5)
+                    .attr("cx", function(d) { return x(d['Total Attempt']); })
+                    .attr("cy", function(d) { return y(d['Total Buzz %']); })
+                    .style("stroke", "black")
+                    .style("fill", function(d) {
+                        if (d['highlightDate'] || d['highlightContestant']) {
+                            return color(d['Contestant']);
+                        } else {
+                            return "black";
+                        }
+                    })
+                    .style("opacity", function(d) {
+                        if (d['highlightDate']) {
+                            return 1.0;
+                        } else if (d['highlightContestant']) {
+                            return 0.5;
+                        } else {
+                            return 0.25;
+                        }
+                    });
+
+                svg.selectAll("text")
+                    .data(data)
+                    .enter()
+                    .append("text")
+                    .text(function(d) {
+                        if (d['highlightDate']) {
+                            return d['Contestant'];
+                        }
+                    })
+                    .attr("x", function(d) {
+                            return x(d['Total Attempt']) + 7;
+                    })
+                    .attr("y", function(d) {
+                            return y(d['Total Buzz %']) + 2;
+                    })
+                    .attr("font-family", "sans-serif")
+                    .attr("font-size", "11px")
+                    .attr("fill", d => color(d['Contestant']));
+
+                svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x).ticks(10));
+                
+                svg.append("text")             
+                    .attr("transform",
+                            "translate(" + (width/2) + " ," + 
+                                        (height + margin.top + 20) + ")")
+                    .style("text-anchor", "middle")
+                    .text("ATT");
+
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+
+                svg.append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 0 - margin.left)
+                    .attr("x",0 - (height / 2))
+                    .attr("dy", "1em")
+                    .style("text-anchor", "middle")
+                    .text("Buzz %");
+
+
+
+                svg = d3.select("#scatter-att-buzz-pct").append("svg")
+                                .attr("width", width + margin.left + margin.right)
+                                .attr("height", height + margin.top + margin.bottom)
+                            .append("g")
+                            .attr("transform",
+                                "translate(" + margin.left + "," + margin.top + ")");
+                var x = d3.scaleLinear().range([0, width]);
+                var y = d3.scaleLinear().range([height, 0]);
+                x.domain([0, 30]);
+                y.domain([0, 100]);
+
+                pathLayer = svg.append('g');
+                pathLayer.selectAll("path")
+                    .data(data)
+                    .enter()
+                    .append("path")
+                    .attr("d", function(d) {
+                        var path = d3.path();
+                        path.moveTo(x(d['J! Attempts']), y(d['J! Buzz %']));
+                        path.lineTo(x(d['DJ! Attempts']), y(d['DJ! Buzz %']));
+                        path.closePath();
+                        return path;
+                    })
+                    .style("stroke", function(d) {
+                        if (d['highlightDate'] || d['highlightContestant']) {
+                            return color(d['Contestant']);
+                        } else {
+                            return "black";
+                        }
+                    })
+                    .style("opacity", function(d) {
+                        if (d['highlightDate']) {
+                            return 1.0;
+                        } else if (d['highlightContestant']) {
+                            return 0.5;
+                        } else {
+                            return 0.1;
+                        }
+                    });
+
+                jGroup = svg.append('g');
+                jGroup.selectAll("dot")
+                    .data(data)
+                    .enter()
+                    .append("circle")
+                    .attr("r", 5)
+                    .attr("cx", function(d) { return x(d['J! Attempts']); })
+                    .attr("cy", function(d) { return y(d['J! Buzz %']); })
+                    .style("stroke", "black")
+                    .style("fill", function(d) {
+                        if (d['highlightDate'] || d['highlightContestant']) {
+                            return color(d['Contestant']);
+                        } else {
+                            return "black";
+                        }
+                    })
+                    .style("opacity", function(d) {
+                        if (d['highlightDate']) {
+                            return 1.0;
+                        } else if (d['highlightContestant']) {
+                            return 0.5;
+                        } else {
+                            return 0.1;
+                        }
+                    });
+
+                jGroup.selectAll("text")
+                    .data(data)
+                    .enter()
+                    .append("text")
+                    .text(function(d) {
+                        if (d['highlightDate']) {
+                            return d['Contestant'];
+                        }
+                    })
+                    .attr("x", function(d) {
+                            return x(d['J! Attempts']) + 7;
+                    })
+                    .attr("y", function(d) {
+                            return y(d['J! Buzz %']) + 2;
+                    })
+                    .attr("font-family", "sans-serif")
+                    .attr("font-size", "11px")
+                    .attr("fill", d => color(d['Contestant']));
+
+                djGroup = svg.append('g');
+                djGroup.selectAll("rect")
+                    .data(data)
+                    .enter()
+                    .append("rect")
+                    .attr("width", 10)
+                    .attr("height", 10)
+                    .attr("x", function(d) { return x(d['DJ! Attempts']) - 5; })
+                    .attr("y", function(d) { return y(d['DJ! Buzz %']) - 5; })
+                    .style("stroke", "black")
+                    .style("fill", function(d) {
+                        if (d['highlightDate'] || d['highlightContestant']) {
+                            return color(d['Contestant']);
+                        } else {
+                            return "black";
+                        }
+                    })
+                    .style("opacity", function(d) {
+                        if (d['highlightDate']) {
+                            return 1.0;
+                        } else if (d['highlightContestant']) {
+                            return 0.5;
+                        } else {
+                            return 0.1;
+                        }
+                    });
+
+                djGroup.selectAll("text")
+                    .data(data)
+                    .enter()
+                    .append("text")
+                    .text(function(d) {
+                        if (d['highlightDate']) {
+                            return d['Contestant'];
+                        }
+                    })
+                    .attr("x", function(d) {
+                            return x(d['DJ! Attempts']) + 7;
+                    })
+                    .attr("y", function(d) {
+                            return y(d['DJ! Buzz %']) + 2;
+                    })
+                    .attr("font-family", "sans-serif")
+                    .attr("font-size", "11px")
+                    .attr("fill", d => color(d['Contestant']));
+
+                svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x).ticks(10));
+                
+                svg.append("text")             
+                    .attr("transform",
+                            "translate(" + (width/2) + " ," + 
+                                        (height + margin.top + 20) + ")")
+                    .style("text-anchor", "middle")
+                    .text("ATT");
+
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+
+                svg.append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 0 - margin.left)
+                    .attr("x",0 - (height / 2))
+                    .attr("dy", "1em")
+                    .style("text-anchor", "middle")
+                    .text("Buzz %");
+
+
+
+                //J! Correct on Buzz
+                svg = d3.select("#bar-correct-on-buzz").append("svg")
+                                .attr("width", width + margin.left + margin.right)
+                                .attr("height", height + margin.top + margin.bottom)
+                            .append("g")
+                            .attr("transform",
+                                "translate(" + margin.left + "," + margin.top + ")");
+                var x = d3.scaleBand()
+                    .domain(['J!', 'DJ!'])
+                    .range([0, width])
+                    .padding([0.2]);
+                var y = d3.scaleLinear().range([height, 0]);
+                y.domain([0, 29]);
+                svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x).tickSize(0));
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+
+                var xSubgroup = d3.scaleBand()
+                    .domain(highlightDateContestants)
+                    .range([0, x.bandwidth()])
+                    .padding([0.05]);
+
+                var sum = (previousValue, currentValue) => previousValue + currentValue;
+                var jCorrectSum = d3.map(highlightDateData, d => +d['J! Correct on Buzz']).reduce(sum, 0);
+                var jDDExpectedPerCorrect = 1.0 / jCorrectSum;
+                var jG = svg.append('g')
+                    .attr("transform", function(d) { return "translate(" + x('J!') + ",0)"; });
+                jG.selectAll('rect')
+                    .data(highlightDateData)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['J! Correct on Buzz']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['J! Correct on Buzz']); })
+                    .attr("fill", function(d) { return color(d['Contestant']); });
+                jG.selectAll('text')
+                    .data(highlightDateData)
+                    .enter()
+                    .append('text')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']) + 2; })
+                    .attr('y', function(d) { return y(d['J! Correct on Buzz']) - 10; })
+                    .style('fill', d => color(d['Contestant']))
+                    .html(d => d['J! Correct on Buzz'] + " &rarr; " + d['J! DDs found'] + " (" + 
+                            ((+d['J! DDs found'] - (jDDExpectedPerCorrect * d['J! Correct on Buzz'])) > 0 ? "+" : "") +
+                            (+d['J! DDs found'] - (jDDExpectedPerCorrect * d['J! Correct on Buzz'])).toFixed(2) + 
+                            ")");
+
+                var djCorrectSum = d3.map(highlightDateData, d => +d['DJ! Correct on Buzz']).reduce(sum, 0);
+                var djDDExpectedPerCorrect = 2.0 / djCorrectSum;
+                var djG = svg.append('g')
+                    .attr("transform", function(d) { return "translate(" + x('DJ!') + ",0)"; });
+                djG.selectAll('rect')
+                    .data(highlightDateData)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['DJ! Correct on Buzz']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['DJ! Correct on Buzz']); })
+                    .attr("fill", function(d) { return color(d['Contestant']); });
+                    djG.selectAll('text')
+                    .data(highlightDateData)
+                    .enter()
+                    .append('text')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']) + 2; })
+                    .attr('y', function(d) { return y(d['DJ! Correct on Buzz']) - 10; })
+                    .style('fill', d => color(d['Contestant']))
+                    .html(d => d['DJ! Correct on Buzz'] + " &rarr; " + d['DJ! DDs found'] + " (" + 
+                            ((+d['DJ! DDs found'] - (djDDExpectedPerCorrect * d['DJ! Correct on Buzz'])) > 0 ? "+" : "") +
+                            (+d['DJ! DDs found'] - (djDDExpectedPerCorrect * d['DJ! Correct on Buzz'])).toFixed(2) + 
+                            ")");               
+                
+                var legend = svg.append("g")
+                    .attr("font-size", 13)
+                    .attr("text-anchor", "end")
+                    .selectAll("g")
+                    .data(highlightDateContestants)
+                    .enter().append("g")
+                    .attr("transform", function(d, i) { return "translate(0," + i * 24 + ")"; });
+                legend.append("rect")
+                    .attr("x", width - 142)
+                    .attr("width", 8)
+                    .attr("height", 8)
+                    .attr("fill", color);
+                legend.append("text")
+                        .attr("x", d => d.length > 7 ? (width + 5) : (width - 80))
+                        .attr("y", 5.5)
+                        .attr("dy", "0.22em")
+                        .text(d => (d));
+            });
+        </script>
+    </body>
+</html>
