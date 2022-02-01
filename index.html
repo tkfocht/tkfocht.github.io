@@ -14,7 +14,7 @@
             <p>This site is not affiliated with Jeopardy!. Data is taken from their published <a href="https://www.jeopardy.com/jbuzz/news-events/jeopardy-daily-box-scores">box scores.</a></p>
         </div>
         <script type="text/javascript">
-            d3.csv("/JBoxScores.csv").then(function(data) {
+            d3.csv("https://docs.google.com/spreadsheets/d/19HyOyYXHlYe_GI_b_gjfjTRF5OrXTH8S25btYGyPgdM/gviz/tq?tqx=out:csv&sheet=JBoxScores").then(function(data) {
                 data.forEach(function(d) {
                     d['Date'] = csvDateParse(d['Date']);
                 });
