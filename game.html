@@ -41,6 +41,14 @@
             <div id="bar-correct-on-buzz"></div>
         </div>
         <div class="section">
+            <h1>Attempt Distribution</h1>
+            <div class="graph-description">
+                All buzz attempts, by contestant and round. Correct responses are at the bottom, incorrect responses are lighter and
+                in the middle, and attempts where the contestant was locked out are lightest and at the top.
+            </div>
+            <div id="bar-attempts"></div>
+        </div>
+        <div class="section">
             <h1>ATT vs BUZZ%</h1>
             <div class="graph-description">
                 Number of attempts to buzz and percent of successful buzzes, over the whole game. This game's
@@ -194,6 +202,17 @@
                     width, height, margin
                 );
 
+                //ATT vs Correct on Buzz by round
+                byRoundScatter(
+                    '#scatter-att-correct-by-round',
+                    data,
+                    ['J! Attempts','DJ! Attempts'], [0, 30], 'ATT',
+                    ['J! Correct on Buzz','DJ! Correct on Buzz'], [0, 30], 'Correct on Buzz',
+                    highlightDateColorFunction, highlightDateOpacityFunction, highlightDateLabelFunction,
+                    width, height, margin
+                );
+
+
                 //J! Correct on Buzz
                 svg = d3.select("#bar-correct-on-buzz").append("svg")
                                 .attr("width", width + margin.left + margin.right)
@@ -293,6 +312,130 @@
                         .attr("y", 5.5)
                         .attr("dy", "0.22em")
                         .text(d => (d));
+
+                //Attempt Distribution
+                svg = d3.select("#bar-attempts").append("svg")
+                                .attr("width", width + margin.left + margin.right)
+                                .attr("height", height + margin.top + margin.bottom)
+                            .append("g")
+                            .attr("transform",
+                                "translate(" + margin.left + "," + margin.top + ")");
+                var x = d3.scaleBand()
+                    .domain(['J!', 'DJ!'])
+                    .range([0, width])
+                    .padding([0.2]);
+                var y = d3.scaleLinear().range([height, 0]);
+                y.domain([0, 30]);
+                svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x).tickSize(0));
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+                svg.append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 0 - margin.left)
+                    .attr("x",0 - (height / 2))
+                    .attr("dy", "1em")
+                    .style("text-anchor", "middle")
+                    .text("Correct");  
+
+                var xSubgroup = d3.scaleBand()
+                    .domain(highlightDateContestants)
+                    .range([0, x.bandwidth()])
+                    .padding([0.05]);
+
+                var jG = svg.append('g')
+                    .attr("transform", function(d) { return "translate(" + x('J!') + ",0)"; });
+                var jGCorrectG = jG.append('g');
+                var jGIncorrectG = jG.append('g');
+                var jGLockedG = jG.append('g');
+                jGCorrectG.selectAll('rect')
+                    .data(highlightDateData)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['J! Correct on Buzz']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['J! Correct on Buzz']); })
+                    .attr("fill", highlightDateColorFunction);
+                jGIncorrectG.selectAll('rect')
+                    .data(highlightDateData)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['J! Buzzes']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['J! Buzzes'] - d['J! Correct on Buzz']); })
+                    .attr("fill", highlightDateColorFunction)
+                    .attr("opacity", 0.7);
+                jGLockedG.selectAll('rect')
+                    .data(highlightDateData)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['J! Attempts']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['J! Attempts'] - d['J! Buzzes']); })
+                    .attr("fill", highlightDateColorFunction)
+                    .attr("opacity", 0.3);
+
+                var djG = svg.append('g')
+                    .attr("transform", function(d) { return "translate(" + x('DJ!') + ",0)"; });
+                var djGCorrectG = djG.append('g');
+                var djGIncorrectG = djG.append('g');
+                var djGLockedG = djG.append('g');
+                djGCorrectG.selectAll('rect')
+                    .data(highlightDateData)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['DJ! Correct on Buzz']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['DJ! Correct on Buzz']); })
+                    .attr("fill", highlightDateColorFunction);
+                djGIncorrectG.selectAll('rect')
+                    .data(highlightDateData)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['DJ! Buzzes']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['DJ! Buzzes'] - d['DJ! Correct on Buzz']); })
+                    .attr("fill", highlightDateColorFunction)
+                    .attr("opacity", 0.7);
+                djGLockedG.selectAll('rect')
+                    .data(highlightDateData)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['DJ! Attempts']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['DJ! Attempts'] - d['DJ! Buzzes']); })
+                    .attr("fill", highlightDateColorFunction)
+                    .attr("opacity", 0.3);
+
+                var legend = svg.append("g")
+                    .attr("font-size", 13)
+                    .attr("text-anchor", "end")
+                    .selectAll("g")
+                    .data(highlightDateContestants)
+                    .enter().append("g")
+                    .attr("transform", function(d, i) { return "translate(0," + i * 24 + ")"; });
+                legend.append("rect")
+                    .attr("x", width - 142)
+                    .attr("width", 8)
+                    .attr("height", 8)
+                    .attr("fill", color);
+                legend.append("text")
+                        .attr("x", d => d.length > 7 ? (width + 5) : (width - 80))
+                        .attr("y", 5.5)
+                        .attr("dy", "0.22em")
+                        .text(d => (d));
+
+
+
+
+
             });
         </script>
     </body>
