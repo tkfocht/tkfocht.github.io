@@ -66,6 +66,23 @@
             <div id="scatter-att-buzz-pct-by-round"></div>
         </div>
         <div class="section">
+            <h1>ATT vs $/ATT</h1>
+            <div class="graph-description">
+                Number of attempts to buzz and money earned on buzzes per attempt, over the whole game. This game's
+                contestant performances are labeled. Other games by the same contestants are in the same color, but faded.
+            </div>
+            <div id="scatter-att-score-att"></div>
+        </div>
+        <div class="section">
+            <h1>ATT vs $/ATT by Round</h1>
+            <div class="graph-description">
+                Number of attempts to buzz and money earned on buzzes per attempt, over the whole game. Jeopardy! round
+                is circles, connected to Double Jeopardy! round as squares. This game's
+                contestant performances are labeled. Other games by the same contestants are in the same color, but faded.
+            </div>
+            <div id="scatter-att-score-att-by-round"></div>
+        </div>
+        <div class="section">
             <h1>ATT vs $/BUZ</h1>
             <div class="graph-description">
                 Number of attempts to buzz and money earned per buzz, over the whole game. This game's
@@ -161,6 +178,26 @@
                         if (i>0) return d;
                         return '<span style="color: ' + color(d) + '">&#9632;</span>&nbsp;' + d;
                     });
+
+                //ATT vs $/ATT
+                fullGameScatter(
+                    '#scatter-att-score-att',
+                    data,
+                    'Total Attempt', [0, 60], 'ATT',
+                    'Total Score/Attempt', [-200,800], '$/ATT',
+                    highlightDateColorFunction, highlightDateOpacityFunction, highlightDateLabelFunction,
+                    width, height, margin
+                );
+
+                //ATT vs $/ATT by Round
+                byRoundScatter(
+                    '#scatter-att-score-att-by-round',
+                    data,
+                    ['J! Attempts','DJ! Attempts'], [0, 30], 'ATT',
+                    ['J! Score/Attempt','DJ! Score/Attempt'], [-400,1200], '$/ATT',
+                    highlightDateColorFunction, highlightDateOpacityFunction, highlightDateLabelFunction,
+                    width, height, margin
+                );
 
                 //ATT vs $/BUZ
                 fullGameScatter(
