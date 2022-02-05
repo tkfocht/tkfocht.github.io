@@ -9,30 +9,51 @@
     <body>
         <h1>J!ometry</h1>
         <h1>Recorded Games</h1>
-        <div id="game-list"></div>
+        <div class="season" id="S38R">
+            <h2>Season 38 Regular Play</h2>
+            <div class="game-list"></div>
+        </div>
+        <div class="season" id="NCC2022">
+            <h2>National College Championship 2022</h2>
+            <div class="game-list"></div>
+        </div>
         <div id="footer">
             <p>This site is not affiliated with Jeopardy!. Data is taken from their published <a href="https://www.jeopardy.com/jbuzz/news-events/jeopardy-daily-box-scores">box scores.</a></p>
         </div>
         <script type="text/javascript">
-            d3.csv("https://docs.google.com/spreadsheets/d/19HyOyYXHlYe_GI_b_gjfjTRF5OrXTH8S25btYGyPgdM/gviz/tq?tqx=out:csv&sheet=JBoxScores").then(function(data) {
+            var renderSeason = function(
+                seasonId,
+                data
+            ) {
+                console.log(seasonId);
+                console.log(data);
                 data.forEach(function(d) {
                     d['Date'] = csvDateParse(d['Date']);
                 });
-                console.log(data);
-                data = Array.from(d3.group(data, d => d['Date']), ([date,dateData]) => [date, dateData[0]['Contestant'], dateData[1]['Contestant'], dateData[2]['Contestant']]);
+                data = Array.from(d3.group(data, d => d['Game Id']),
+                    ([gameId,gameData]) => [
+                        gameId,
+                        gameData[0]['Date'],
+                        gameData[0]['Contestant'], gameData[1]['Contestant'], gameData[2]['Contestant']]);
                 data.sort(d => d[0]);
                 data.reverse();
 
-                d3.select("#game-list").selectAll('div')
+                d3.select("#" + seasonId + " .game-list").selectAll('div')
                     .data(data)
                     .enter()
                     .append('div')
                     .html(function(d) {
-                        return '<a href="game.html?date=' + encodeURIComponent(dateFormat(d[0])) + '">' + dateFormat(d[0]) + '</a>&nbsp;' +
-                            d.slice(1).join(' vs ');
+                        return '<a href="game.html?season=' + seasonId + '&game_id=' + d[0] + '">Game ' + d[0] + '</a>&nbsp;' +
+                            dateFormat(d[1]) + '&nbsp;' +
+                            d.slice(2).join(' vs ');
                     });
+            };
 
-            });
+            for (const seasonId of ['S38R', 'NCC2022']) {
+                d3.csv(csvUrlForSeason(seasonId)).then(function(data) {
+                    renderSeason(seasonId, data);
+                });
+            }
         </script>
     </body>
 </html>

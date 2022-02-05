@@ -12,7 +12,7 @@
     <body>
         <h1><a href="index.html">J!ometry</a></h1>
         <div class="section">
-            <h1>Game Summary <span id="game-date"></span></h1>
+            <h1><span id="season-id"></span> Game <span id="game-number"></span> Summary <span id="game-date"></span></h1>
             <div id="game-summary">
                 <table>
                     <thead>
@@ -103,43 +103,52 @@
             <p>This site is not affiliated with Jeopardy!. Data is taken from their published <a href="https://www.jeopardy.com/jbuzz/news-events/jeopardy-daily-box-scores">box scores.</a></p>
         </div>
         <script type="text/javascript">
-            d3.csv("https://docs.google.com/spreadsheets/d/19HyOyYXHlYe_GI_b_gjfjTRF5OrXTH8S25btYGyPgdM/gviz/tq?tqx=out:csv&sheet=JBoxScores").then(function(data) {
+            var seasonId = new URLSearchParams(window.location.search).get('season');
+            var highlightGame = new URLSearchParams(window.location.search).get('game_id');
+            d3.select("#season-id")
+                .data([seasonId])
+                .text(d => d);
+            d3.select("#game-number")
+                .data([highlightGame])
+                .text(d => d);
+            d3.csv(csvUrlForSeason(seasonId)).then(function(data) {
                 //Baseline for graphs
                 var margin = {top: 20, right: 20, bottom: 50, left: 70},
                     width = 960 - margin.left - margin.right,
                     height = 500 - margin.top - margin.bottom;
 
                 //Data transformations
-                var highlightDate = urlDateParse(new URLSearchParams(window.location.search).get('date'));
-                d3.select("#game-date")
-                    .data([highlightDate])
-                    .text(d => dateFormat(d));
                 data.forEach(function(d) {
                     d['Date'] = csvDateParse(d['Date']);
                     d['J! Buzz %'] = 100.0 * d['J! Buzzes'] / d['J! Attempts'];
                     d['DJ! Buzz %'] = 100.0 * d['DJ! Buzzes'] / d['DJ! Attempts'];
                     d['Total Buzz %'] = 100.0 * d['Total Buzz'] / d['Total Attempt'];
-                    d['highlightDate'] = d['Date'].getTime() == highlightDate.getTime();
+                    d['highlightGame'] = d['Game Id'] == highlightGame;
                 });
-                var highlightDateData = d3.filter(data, d => d['highlightDate']);
-                var highlightDateContestants = d3.map(highlightDateData, d => d['Contestant']);
+                console.log(data);
+                var highlightGameData = d3.filter(data, d => d['highlightGame']);
+                d3.select("#game-date")
+                    .data([highlightGameData[0]])
+                    .text(d => dateFormat(d['Date']));
+                console.log(highlightGameData);
+                var highlightGameContestants = d3.map(highlightGameData, d => d['Contestant']);
                 data.forEach(function(d) {
-                    d['highlightContestant'] = highlightDateContestants.includes(d['Contestant']);
+                    d['highlightContestant'] = highlightGameContestants.includes(d['Contestant']);
                 });
 
                 //Graphics functions
                 var color = d3.scaleOrdinal()
-                    .domain(highlightDateContestants)
+                    .domain(highlightGameContestants)
                     .range(['#0072B2','#E69F00','#009E73'])
-                var highlightDateColorFunction = function(d) {
-                    if (d['highlightDate'] || d['highlightContestant']) {
+                var highlightGameColorFunction = function(d) {
+                    if (d['highlightGame'] || d['highlightContestant']) {
                         return color(d['Contestant']);
                     } else {
                         return "black";
                     }
                 };
-                var highlightDateOpacityFunction = function(d) {
-                    if (d['highlightDate']) {
+                var highlightGameOpacityFunction = function(d) {
+                    if (d['highlightGame']) {
                         return 1.0;
                     } else if (d['highlightContestant']) {
                         return 0.5;
@@ -147,8 +156,8 @@
                         return 0.1;
                     }
                 };
-                var highlightDateLabelFunction = function(d) {
-                    if (d['highlightDate']) {
+                var highlightGameLabelFunction = function(d) {
+                    if (d['highlightGame']) {
                         return d['Contestant'];
                     }
                 };
@@ -156,7 +165,7 @@
                 //Summary table
                 var summaryTr = d3.select("#game-summary table tbody")
                     .selectAll("tr")
-                    .data(highlightDateData)
+                    .data(highlightGameData)
                     .enter()
                     .append("tr");
                 summaryTr.selectAll("td")
@@ -185,7 +194,7 @@
                     data,
                     'Total Attempt', [0, 60], 'ATT',
                     'Total Score/Attempt', [-200,800], '$/ATT',
-                    highlightDateColorFunction, highlightDateOpacityFunction, highlightDateLabelFunction,
+                    highlightGameColorFunction, highlightGameOpacityFunction, highlightGameLabelFunction,
                     width, height, margin
                 );
 
@@ -195,7 +204,7 @@
                     data,
                     ['J! Attempts','DJ! Attempts'], [0, 30], 'ATT',
                     ['J! Score/Attempt','DJ! Score/Attempt'], [-400,1200], '$/ATT',
-                    highlightDateColorFunction, highlightDateOpacityFunction, highlightDateLabelFunction,
+                    highlightGameColorFunction, highlightGameOpacityFunction, highlightGameLabelFunction,
                     width, height, margin
                 );
 
@@ -205,7 +214,7 @@
                     data,
                     'Total Attempt', [0, 60], 'ATT',
                     'Total Score/Buzz', [-300,1000], '$/BUZ',
-                    highlightDateColorFunction, highlightDateOpacityFunction, highlightDateLabelFunction,
+                    highlightGameColorFunction, highlightGameOpacityFunction, highlightGameLabelFunction,
                     width, height, margin
                 );
 
@@ -215,7 +224,7 @@
                     data,
                     ['J! Attempts','DJ! Attempts'], [0, 30], 'ATT',
                     ['J! Score/Buzz','DJ! Score/Buzz'], [-750,1500], '$/BUZ',
-                    highlightDateColorFunction, highlightDateOpacityFunction, highlightDateLabelFunction,
+                    highlightGameColorFunction, highlightGameOpacityFunction, highlightGameLabelFunction,
                     width, height, margin
                 );
 
@@ -225,7 +234,7 @@
                     data,
                     'Total Attempt', [0, 60], 'ATT',
                     'Total Buzz %', [0, 100], 'BUZZ %',
-                    highlightDateColorFunction, highlightDateOpacityFunction, highlightDateLabelFunction,
+                    highlightGameColorFunction, highlightGameOpacityFunction, highlightGameLabelFunction,
                     width, height, margin
                 );
 
@@ -235,7 +244,7 @@
                     data,
                     ['J! Attempts','DJ! Attempts'], [0, 30], 'ATT',
                     ['J! Buzz %','DJ! Buzz %'], [0, 100], 'BUZZ %',
-                    highlightDateColorFunction, highlightDateOpacityFunction, highlightDateLabelFunction,
+                    highlightGameColorFunction, highlightGameOpacityFunction, highlightGameLabelFunction,
                     width, height, margin
                 );
 
@@ -245,7 +254,7 @@
                     data,
                     ['J! Attempts','DJ! Attempts'], [0, 30], 'ATT',
                     ['J! Correct on Buzz','DJ! Correct on Buzz'], [0, 30], 'Correct on Buzz',
-                    highlightDateColorFunction, highlightDateOpacityFunction, highlightDateLabelFunction,
+                    highlightGameColorFunction, highlightGameOpacityFunction, highlightGameLabelFunction,
                     width, height, margin
                 );
 
@@ -277,56 +286,56 @@
                     .text("Correct");  
 
                 var xSubgroup = d3.scaleBand()
-                    .domain(highlightDateContestants)
+                    .domain(highlightGameContestants)
                     .range([0, x.bandwidth()])
                     .padding([0.05]);
 
                 var sum = (previousValue, currentValue) => previousValue + currentValue;
-                var jCorrectSum = d3.map(highlightDateData, d => +d['J! Correct on Buzz']).reduce(sum, 0);
+                var jCorrectSum = d3.map(highlightGameData, d => +d['J! Correct on Buzz']).reduce(sum, 0);
                 var jDDExpectedPerCorrect = 1.0 / jCorrectSum;
                 var jG = svg.append('g')
                     .attr("transform", function(d) { return "translate(" + x('J!') + ",0)"; });
                 jG.selectAll('rect')
-                    .data(highlightDateData)
+                    .data(highlightGameData)
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
                     .attr('y', function(d) { return y(d['J! Correct on Buzz']); })
                     .attr("width", xSubgroup.bandwidth())
                     .attr("height", function(d) { return height - y(d['J! Correct on Buzz']); })
-                    .attr("fill", highlightDateColorFunction);
+                    .attr("fill", highlightGameColorFunction);
                 jG.selectAll('text')
-                    .data(highlightDateData)
+                    .data(highlightGameData)
                     .enter()
                     .append('text')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']) + 2; })
                     .attr('y', function(d) { return y(d['J! Correct on Buzz']) - 10; })
-                    .style('fill', highlightDateColorFunction)
+                    .style('fill', highlightGameColorFunction)
                     .html(d => d['J! Correct on Buzz'] + " &rarr; " + d['J! DDs found'] + " (" + 
                             ((+d['J! DDs found'] - (jDDExpectedPerCorrect * d['J! Correct on Buzz'])) > 0 ? "+" : "") +
                             (+d['J! DDs found'] - (jDDExpectedPerCorrect * d['J! Correct on Buzz'])).toFixed(2) + 
                             ")");
 
-                var djCorrectSum = d3.map(highlightDateData, d => +d['DJ! Correct on Buzz']).reduce(sum, 0);
+                var djCorrectSum = d3.map(highlightGameData, d => +d['DJ! Correct on Buzz']).reduce(sum, 0);
                 var djDDExpectedPerCorrect = 2.0 / djCorrectSum;
                 var djG = svg.append('g')
                     .attr("transform", function(d) { return "translate(" + x('DJ!') + ",0)"; });
                 djG.selectAll('rect')
-                    .data(highlightDateData)
+                    .data(highlightGameData)
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
                     .attr('y', function(d) { return y(d['DJ! Correct on Buzz']); })
                     .attr("width", xSubgroup.bandwidth())
                     .attr("height", function(d) { return height - y(d['DJ! Correct on Buzz']); })
-                    .attr("fill", highlightDateColorFunction);
+                    .attr("fill", highlightGameColorFunction);
                 djG.selectAll('text')
-                    .data(highlightDateData)
+                    .data(highlightGameData)
                     .enter()
                     .append('text')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']) + 2; })
                     .attr('y', function(d) { return y(d['DJ! Correct on Buzz']) - 10; })
-                    .style('fill', highlightDateColorFunction)
+                    .style('fill', highlightGameColorFunction)
                     .html(d => d['DJ! Correct on Buzz'] + " &rarr; " + d['DJ! DDs found'] + " (" + 
                             ((+d['DJ! DDs found'] - (djDDExpectedPerCorrect * d['DJ! Correct on Buzz'])) > 0 ? "+" : "") +
                             (+d['DJ! DDs found'] - (djDDExpectedPerCorrect * d['DJ! Correct on Buzz'])).toFixed(2) + 
@@ -336,7 +345,7 @@
                     .attr("font-size", 13)
                     .attr("text-anchor", "end")
                     .selectAll("g")
-                    .data(highlightDateContestants)
+                    .data(highlightGameContestants)
                     .enter().append("g")
                     .attr("transform", function(d, i) { return "translate(0," + i * 24 + ")"; });
                 legend.append("rect")
@@ -377,7 +386,7 @@
                     .text("Correct");  
 
                 var xSubgroup = d3.scaleBand()
-                    .domain(highlightDateContestants)
+                    .domain(highlightGameContestants)
                     .range([0, x.bandwidth()])
                     .padding([0.05]);
 
@@ -387,33 +396,33 @@
                 var jGIncorrectG = jG.append('g');
                 var jGLockedG = jG.append('g');
                 jGCorrectG.selectAll('rect')
-                    .data(highlightDateData)
+                    .data(highlightGameData)
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
                     .attr('y', function(d) { return y(d['J! Correct on Buzz']); })
                     .attr("width", xSubgroup.bandwidth())
                     .attr("height", function(d) { return height - y(d['J! Correct on Buzz']); })
-                    .attr("fill", highlightDateColorFunction);
+                    .attr("fill", highlightGameColorFunction);
                 jGIncorrectG.selectAll('rect')
-                    .data(highlightDateData)
+                    .data(highlightGameData)
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
                     .attr('y', function(d) { return y(d['J! Buzzes']); })
                     .attr("width", xSubgroup.bandwidth())
                     .attr("height", function(d) { return height - y(d['J! Buzzes'] - d['J! Correct on Buzz']); })
-                    .attr("fill", highlightDateColorFunction)
+                    .attr("fill", highlightGameColorFunction)
                     .attr("opacity", 0.7);
                 jGLockedG.selectAll('rect')
-                    .data(highlightDateData)
+                    .data(highlightGameData)
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
                     .attr('y', function(d) { return y(d['J! Attempts']); })
                     .attr("width", xSubgroup.bandwidth())
                     .attr("height", function(d) { return height - y(d['J! Attempts'] - d['J! Buzzes']); })
-                    .attr("fill", highlightDateColorFunction)
+                    .attr("fill", highlightGameColorFunction)
                     .attr("opacity", 0.3);
 
                 var djG = svg.append('g')
@@ -422,40 +431,40 @@
                 var djGIncorrectG = djG.append('g');
                 var djGLockedG = djG.append('g');
                 djGCorrectG.selectAll('rect')
-                    .data(highlightDateData)
+                    .data(highlightGameData)
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
                     .attr('y', function(d) { return y(d['DJ! Correct on Buzz']); })
                     .attr("width", xSubgroup.bandwidth())
                     .attr("height", function(d) { return height - y(d['DJ! Correct on Buzz']); })
-                    .attr("fill", highlightDateColorFunction);
+                    .attr("fill", highlightGameColorFunction);
                 djGIncorrectG.selectAll('rect')
-                    .data(highlightDateData)
+                    .data(highlightGameData)
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
                     .attr('y', function(d) { return y(d['DJ! Buzzes']); })
                     .attr("width", xSubgroup.bandwidth())
                     .attr("height", function(d) { return height - y(d['DJ! Buzzes'] - d['DJ! Correct on Buzz']); })
-                    .attr("fill", highlightDateColorFunction)
+                    .attr("fill", highlightGameColorFunction)
                     .attr("opacity", 0.7);
                 djGLockedG.selectAll('rect')
-                    .data(highlightDateData)
+                    .data(highlightGameData)
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
                     .attr('y', function(d) { return y(d['DJ! Attempts']); })
                     .attr("width", xSubgroup.bandwidth())
                     .attr("height", function(d) { return height - y(d['DJ! Attempts'] - d['DJ! Buzzes']); })
-                    .attr("fill", highlightDateColorFunction)
+                    .attr("fill", highlightGameColorFunction)
                     .attr("opacity", 0.3);
 
                 var legend = svg.append("g")
                     .attr("font-size", 13)
                     .attr("text-anchor", "end")
                     .selectAll("g")
-                    .data(highlightDateContestants)
+                    .data(highlightGameContestants)
                     .enter().append("g")
                     .attr("transform", function(d, i) { return "translate(0," + i * 24 + ")"; });
                 legend.append("rect")
