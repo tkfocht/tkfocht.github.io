@@ -125,4 +125,6 @@ var byRoundScatter = function(
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text(yAxisLabel); 
+    
+    return svg;
 };

@@ -1,0 +1,277 @@
+<html>
+    <head>
+        <title>J!ometry: Daily Jeopardy Visualizations</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="css/site.css"></link>
+        <link rel="stylesheet" href="css/season.css"></link>
+        <script src="/js/d3/d3.v7.min.js"></script>
+        <script src="/js/util/util.v1.js"></script>
+        <script src="/js/graphs/full_game_scatter.v1.js"></script>
+        <script src="/js/graphs/by_round_scatter.v1.js"></script>
+    </head>
+    <body>
+        <h1><a href="index.html">J!ometry</a></h1>
+        <div class="section">
+            <h1><span id="season-id"></span> Season Summary</h1>
+            <div id="season-contestant-summary">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Contestant</th>
+                            <th>Games</th>
+                            <th>Avg J! Attempts</th>
+                            <th>Avg J! Correct on Buzz</th>
+                            <th>Avg J! Score on Buzz</th>
+                            <th>Avg J! DDs Found</th>
+                            <th>Avg DJ! Attempts</th>
+                            <th>Avg DJ! Correct on Buzz</th>
+                            <th>Avg DJ! Score on Buzz</th>
+                            <th>Avg DJ! DDs Found</th>
+                            <th>Total Buzz %</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="section">
+            <h1>ATT vs BUZZ%</h1>
+            <div class="graph-description">
+                Number of attempts to buzz and percent of successful buzzes, over the whole game.
+            </div>
+            <div id="scatter-att-buzz-pct"></div>
+        </div>
+        <div class="section">
+            <h1>ATT vs BUZZ% by Round</h1>
+            <div class="graph-description">
+                Number of attempts to buzz and percent of successful buzzes, over the whole game. Jeopardy! round
+                is circles, connected to Double Jeopardy! round as squares.
+            </div>
+            <div id="scatter-att-buzz-pct-by-round"></div>
+        </div>
+        <div class="section">
+            <h1>ATT vs $/ATT</h1>
+            <div class="graph-description">
+                Number of attempts to buzz and money earned on buzzes per attempt, over the whole game.
+            </div>
+            <div id="scatter-att-score-att"></div>
+        </div>
+        <div class="section">
+            <h1>ATT vs $/ATT by Round</h1>
+            <div class="graph-description">
+                Number of attempts to buzz and money earned on buzzes per attempt, over the whole game. Jeopardy! round
+                is circles, connected to Double Jeopardy! round as squares.
+            </div>
+            <div id="scatter-att-score-att-by-round"></div>
+        </div>
+        <div class="section">
+            <h1>ATT vs $/BUZ</h1>
+            <div class="graph-description">
+                Number of attempts to buzz and money earned per buzz, over the whole game.
+            </div>
+            <div id="scatter-att-score-buzz"></div>
+        </div>
+        <div class="section">
+            <h1>ATT vs $/BUZ by Round</h1>
+            <div class="graph-description">
+                Number of attempts to buzz and money earned per buzz, over the whole game. Jeopardy! round
+                is circles, connected to Double Jeopardy! round as squares.
+            </div>
+            <div id="scatter-att-score-buzz-by-round"></div>
+        </div>
+        <div id="footer">
+            <p>This site is not affiliated with Jeopardy!. Data is taken from their published <a href="https://www.jeopardy.com/jbuzz/news-events/jeopardy-daily-box-scores">box scores.</a></p>
+        </div>
+        <script type="text/javascript">
+            var seasonId = new URLSearchParams(window.location.search).get('season');
+            d3.select("#season-id")
+                .data([seasonId])
+                .text(d => d);
+            d3.csv(csvUrlForSeason(seasonId)).then(function(data) {
+                //Baseline for graphs
+                var margin = {top: 20, right: 20, bottom: 50, left: 70},
+                    width = 960 - margin.left - margin.right,
+                    height = 500 - margin.top - margin.bottom;
+
+                //Data transformations
+                data.forEach(function(d) {
+                    d['Date'] = csvDateParse(d['Date']);
+                    d['J! Buzz %'] = 100.0 * d['J! Buzzes'] / d['J! Attempts'];
+                    d['DJ! Buzz %'] = 100.0 * d['DJ! Buzzes'] / d['DJ! Attempts'];
+                    d['Total Buzz %'] = 100.0 * d['Total Buzz'] / d['Total Attempt'];
+                });
+                var highlightContestantCounts = d3.rollup(data, v => v.length, d => d['Contestant']);
+                var gameThreshold = 1;
+                highlightContestants = d3.filter(highlightContestantCounts.keys(), k => highlightContestantCounts.get(k) >= gameThreshold);
+                while (highlightContestants.length > 10) {
+                    gameThreshold += 1;
+                    highlightContestants = d3.filter(highlightContestantCounts.keys(), k => highlightContestantCounts.get(k) >= gameThreshold);
+                }
+                highlightContestants.sort(function(a,b) { return highlightContestantCounts.get(b) - highlightContestantCounts.get(a); });
+                data.forEach(function(d) {
+                    d['highlightContestant'] = highlightContestants.includes(d['Contestant']);
+                });
+
+                //Graphics functions
+                var color = d3.scaleOrdinal()
+                    .domain(highlightContestants)
+                    .range(d3.schemeCategory10);
+                var colorFunction = function(d) {
+                    if (d['highlightContestant']) {
+                        return color(d['Contestant']);
+                    } else {
+                        return "black";
+                    }
+                };
+                var opacityFunction = function(d) {
+                    if (d['highlightContestant']) {
+                        return 1;
+                    } else {
+                        return 0.1;
+                    }
+                };
+                var labelFunction = function(d) {
+                    return "";
+                };
+
+
+                //Summary table
+                var summaryData = Array.from(
+                    d3.group(d3.filter(data, d => d['highlightContestant']), d => d['Contestant']),
+                    ([contestant, contestantData]) => ({
+                        'Contestant': contestant,
+                        'Games': contestantData.length,
+                        'Avg J! Attempts': d3.map(contestantData, cd => (+cd['J! Attempts'])).reduce((a, b) => a + b) / contestantData.length,
+                        'Avg J! Correct on Buzz': d3.map(contestantData, cd => (+cd['J! Correct on Buzz'])).reduce((a, b) => a + b) / contestantData.length,
+                        'Avg J! Score on Buzz': d3.map(contestantData, cd => (+cd['J! Score on Buzz'])).reduce((a, b) => a + b) / contestantData.length,
+                        'Avg J! DDs found': d3.map(contestantData, cd => (+cd['J! DDs found'])).reduce((a, b) => a + b) / contestantData.length,
+                        'Avg DJ! Attempts': d3.map(contestantData, cd => (+cd['DJ! Attempts'])).reduce((a, b) => a + b) / contestantData.length,
+                        'Avg DJ! Correct on Buzz': d3.map(contestantData, cd => (+cd['DJ! Correct on Buzz'])).reduce((a, b) => a + b) / contestantData.length,
+                        'Avg DJ! Score on Buzz': d3.map(contestantData, cd => (+cd['DJ! Score on Buzz'])).reduce((a, b) => a + b) / contestantData.length,
+                        'Avg DJ! DDs found': d3.map(contestantData, cd => (+cd['DJ! DDs found'])).reduce((a, b) => a + b) / contestantData.length,
+                        'Total Buzz %': 100.0 * d3.map(contestantData, cd => (+cd['Total Buzz'])).reduce((a, b) => a + b) / d3.map(contestantData, cd => (+cd['Total Attempt'])).reduce((a, b) => a + b)
+                    }));
+                summaryData.sort(function(a,b) { return highlightContestantCounts.get(b['Contestant']) - highlightContestantCounts.get(a['Contestant']); });
+                console.log(summaryData);
+                var summaryTr = d3.select("#season-contestant-summary table tbody")
+                    .selectAll("tr")
+                    .data(summaryData)
+                    .enter()
+                    .append("tr");
+                summaryTr.selectAll("td")
+                    .data(function(d,i) {
+                        console.log(d);
+                        return [
+                            d['Contestant'],
+                            d['Games'],
+                            d['Avg J! Attempts'].toFixed(1),
+                            d['Avg J! Correct on Buzz'].toFixed(1),
+                            d['Avg J! Score on Buzz'].toFixed(0),
+                            d['Avg J! DDs found'].toFixed(1),
+                            d['Avg DJ! Attempts'].toFixed(1),
+                            d['Avg DJ! Correct on Buzz'].toFixed(1),
+                            d['Avg DJ! Score on Buzz'].toFixed(0),
+                            d['Avg DJ! DDs found'].toFixed(1),
+                            d['Total Buzz %'].toFixed(1)
+                        ];
+                    })
+                    .enter()
+                    .append("td")
+                    .html(function(d,i) {
+                        if (i>0) return d;
+                        return '<span style="color: ' + color(d) + '">&#9632;</span>&nbsp;' + d;
+                    });
+
+
+                var addLegend = function(svg) {
+                    var legend = svg.append("g")
+                        .attr("transform", "translate(-" + (width - 175) + ",0)")
+                        .attr("font-size", 13)
+                        .attr("text-anchor", "end")
+                        .selectAll("g")
+                        .data(highlightContestants)
+                        .enter().append("g")
+                        .attr("transform", function(d, i) { return "translate(0," + i * 24 + ")"; });
+                    legend.append("circle")
+                        .attr("cx", width - 142)
+                        .attr("cy", 4)
+                        .attr("r", 5)
+                        .attr("fill", color);
+                    legend.append("text")
+                        .attr("x", d => d.length > 7 ? (width + 5) : (width - 80))
+                        .attr("y", 5.5)
+                        .attr("dy", "0.22em")
+                        .text(d => (d));
+                }
+
+                //ATT vs $/ATT
+                var attAttSvg = fullGameScatter(
+                    '#scatter-att-score-att',
+                    data,
+                    'Total Attempt', [0, 60], 'ATT',
+                    'Total Score/Attempt', [-200,800], '$/ATT',
+                    colorFunction, opacityFunction, labelFunction,
+                    width, height, margin
+                );
+                addLegend(attAttSvg);
+
+
+                //ATT vs $/ATT by Round
+                var attAttByRoundSvg = byRoundScatter(
+                    '#scatter-att-score-att-by-round',
+                    data,
+                    ['J! Attempts','DJ! Attempts'], [0, 30], 'ATT',
+                    ['J! Score/Attempt','DJ! Score/Attempt'], [-400,1200], '$/ATT',
+                    colorFunction, opacityFunction, labelFunction,
+                    width, height, margin
+                );
+                addLegend(attAttByRoundSvg);
+
+                //ATT vs $/BUZ
+                var attBuzSvg = fullGameScatter(
+                    '#scatter-att-score-buzz',
+                    data,
+                    'Total Attempt', [0, 60], 'ATT',
+                    'Total Score/Buzz', [-300,1000], '$/BUZ',
+                    colorFunction, opacityFunction, labelFunction,
+                    width, height, margin
+                );
+                addLegend(attBuzSvg);
+
+                //ATT vs $/BUZ by Round
+                var attBuzByRoundSvg = byRoundScatter(
+                    '#scatter-att-score-buzz-by-round',
+                    data,
+                    ['J! Attempts','DJ! Attempts'], [0, 30], 'ATT',
+                    ['J! Score/Buzz','DJ! Score/Buzz'], [-750,1500], '$/BUZ',
+                    colorFunction, opacityFunction, labelFunction,
+                    width, height, margin
+                );
+                addLegend(attBuzByRoundSvg);
+
+                //ATT vs Buzz%
+                var attBuzPctSvg = fullGameScatter(
+                    '#scatter-att-buzz-pct',
+                    data,
+                    'Total Attempt', [0, 60], 'ATT',
+                    'Total Buzz %', [0, 100], 'BUZZ %',
+                    colorFunction, opacityFunction, labelFunction,
+                    width, height, margin
+                );
+                addLegend(attBuzPctSvg);
+
+                //ATT vs Buzz% by round
+                var attBuzPctByRoundSvg = byRoundScatter(
+                    '#scatter-att-buzz-pct-by-round',
+                    data,
+                    ['J! Attempts','DJ! Attempts'], [0, 30], 'ATT',
+                    ['J! Buzz %','DJ! Buzz %'], [0, 100], 'BUZZ %',
+                    colorFunction, opacityFunction, labelFunction,
+                    width, height, margin
+                );
+                addLegend(attBuzPctByRoundSvg);
+
+            });
+        </script>
+    </body>
+</html>

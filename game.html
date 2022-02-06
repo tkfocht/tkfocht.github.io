@@ -6,8 +6,8 @@
         <link rel="stylesheet" href="css/game.css"></link>
         <script src="/js/d3/d3.v7.min.js"></script>
         <script src="/js/util/util.v1.js"></script>
-        <script src="/js/graphs/full_game_scatter.js"></script>
-        <script src="/js/graphs/by_round_scatter.js"></script>
+        <script src="/js/graphs/full_game_scatter.v1.js"></script>
+        <script src="/js/graphs/by_round_scatter.v1.js"></script>
     </head>
     <body>
         <h1><a href="index.html">J!ometry</a></h1>
@@ -125,12 +125,10 @@
                     d['Total Buzz %'] = 100.0 * d['Total Buzz'] / d['Total Attempt'];
                     d['highlightGame'] = d['Game Id'] == highlightGame;
                 });
-                console.log(data);
                 var highlightGameData = d3.filter(data, d => d['highlightGame']);
                 d3.select("#game-date")
                     .data([highlightGameData[0]])
                     .text(d => dateFormat(d['Date']));
-                console.log(highlightGameData);
                 var highlightGameContestants = d3.map(highlightGameData, d => d['Contestant']);
                 data.forEach(function(d) {
                     d['highlightContestant'] = highlightGameContestants.includes(d['Contestant']);
