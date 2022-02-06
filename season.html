@@ -35,6 +35,14 @@
             </div>
         </div>
         <div class="section">
+            <h1>Average Attempt Distribution</h1>
+            <div class="graph-description">
+                Average buzz attempts, by contestant and round. Correct responses are at the bottom, incorrect responses are lighter and
+                in the middle, and attempts where the contestant was locked out are lightest and at the top.
+            </div>
+            <div id="bar-attempts"></div>
+        </div>
+        <div class="section">
             <h1>ATT vs BUZZ%</h1>
             <div class="graph-description">
                 Number of attempts to buzz and percent of successful buzzes, over the whole game.
@@ -134,33 +142,49 @@
                     return "";
                 };
 
-
-                //Summary table
-                var summaryData = Array.from(
-                    d3.group(d3.filter(data, d => d['highlightContestant']), d => d['Contestant']),
-                    ([contestant, contestantData]) => ({
+                var summarizeContestantData = function(contestant, contestantData) {
+                    return {
                         'Contestant': contestant,
                         'Games': contestantData.length,
                         'Avg J! Attempts': d3.map(contestantData, cd => (+cd['J! Attempts'])).reduce((a, b) => a + b) / contestantData.length,
+                        'Avg J! Buzzes': d3.map(contestantData, cd => (+cd['J! Buzzes'])).reduce((a, b) => a + b) / contestantData.length,
                         'Avg J! Correct on Buzz': d3.map(contestantData, cd => (+cd['J! Correct on Buzz'])).reduce((a, b) => a + b) / contestantData.length,
                         'Avg J! Score on Buzz': d3.map(contestantData, cd => (+cd['J! Score on Buzz'])).reduce((a, b) => a + b) / contestantData.length,
                         'Avg J! DDs found': d3.map(contestantData, cd => (+cd['J! DDs found'])).reduce((a, b) => a + b) / contestantData.length,
                         'Avg DJ! Attempts': d3.map(contestantData, cd => (+cd['DJ! Attempts'])).reduce((a, b) => a + b) / contestantData.length,
+                        'Avg DJ! Buzzes': d3.map(contestantData, cd => (+cd['DJ! Buzzes'])).reduce((a, b) => a + b) / contestantData.length,
                         'Avg DJ! Correct on Buzz': d3.map(contestantData, cd => (+cd['DJ! Correct on Buzz'])).reduce((a, b) => a + b) / contestantData.length,
                         'Avg DJ! Score on Buzz': d3.map(contestantData, cd => (+cd['DJ! Score on Buzz'])).reduce((a, b) => a + b) / contestantData.length,
                         'Avg DJ! DDs found': d3.map(contestantData, cd => (+cd['DJ! DDs found'])).reduce((a, b) => a + b) / contestantData.length,
                         'Total Buzz %': 100.0 * d3.map(contestantData, cd => (+cd['Total Buzz'])).reduce((a, b) => a + b) / d3.map(contestantData, cd => (+cd['Total Attempt'])).reduce((a, b) => a + b)
-                    }));
+                    };
+                }
+
+
+                //Summary table
+                var summaryData = Array.from(
+                    d3.group(d3.filter(data, d => d['highlightContestant']), d => d['Contestant']),
+                    ([contestant, contestantData]) => summarizeContestantData(contestant, contestantData));
                 summaryData.sort(function(a,b) { return highlightContestantCounts.get(b['Contestant']) - highlightContestantCounts.get(a['Contestant']); });
-                console.log(summaryData);
+
+                var averageSummary = summarizeContestantData("Average", data);
+                averageSummary['Games'] = "";
+                var summaryDataWithAverage = summaryData.concat(averageSummary);
+                var summaryColorFunction = function(d) {
+                    if (d['Contestant'] === 'Average') {
+                        return "black";
+                    } else {
+                        return color(d['Contestant']);
+                    }
+                }
+
                 var summaryTr = d3.select("#season-contestant-summary table tbody")
                     .selectAll("tr")
-                    .data(summaryData)
+                    .data(summaryDataWithAverage)
                     .enter()
                     .append("tr");
                 summaryTr.selectAll("td")
                     .data(function(d,i) {
-                        console.log(d);
                         return [
                             d['Contestant'],
                             d['Games'],
@@ -179,6 +203,7 @@
                     .append("td")
                     .html(function(d,i) {
                         if (i>0) return d;
+                        if (d === 'Average') return '<span style="color:black">&#9632;</span>&nbsp;' + d;
                         return '<span style="color: ' + color(d) + '">&#9632;</span>&nbsp;' + d;
                     });
 
@@ -270,6 +295,125 @@
                     width, height, margin
                 );
                 addLegend(attBuzPctByRoundSvg);
+
+
+                //Attempt Distribution
+                svg = d3.select("#bar-attempts").append("svg")
+                                .attr("width", width + margin.left + margin.right)
+                                .attr("height", height + margin.top + margin.bottom)
+                            .append("g")
+                            .attr("transform",
+                                "translate(" + margin.left + "," + margin.top + ")");
+                var x = d3.scaleBand()
+                    .domain(['J!', 'DJ!'])
+                    .range([0, width])
+                    .padding([0.2]);
+                var y = d3.scaleLinear().range([height, 0]);
+                y.domain([0, 30]);
+                svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x).tickSize(0));
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+                svg.append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 0 - margin.left)
+                    .attr("x",0 - (height / 2))
+                    .attr("dy", "1em")
+                    .style("text-anchor", "middle")
+                    .text("Correct");  
+
+                var xSubgroup = d3.scaleBand()
+                    .domain(highlightContestants.concat(['Average']))
+                    .range([0, x.bandwidth()])
+                    .padding([0.05]);
+
+                var jG = svg.append('g')
+                    .attr("transform", function(d) { return "translate(" + x('J!') + ",0)"; });
+                var jGCorrectG = jG.append('g');
+                var jGIncorrectG = jG.append('g');
+                var jGLockedG = jG.append('g');
+                jGCorrectG.selectAll('rect')
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['Avg J! Correct on Buzz']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['Avg J! Correct on Buzz']); })
+                    .attr("fill", summaryColorFunction);
+                jGIncorrectG.selectAll('rect')
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['Avg J! Buzzes']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['Avg J! Buzzes'] - d['Avg J! Correct on Buzz']); })
+                    .attr("fill", summaryColorFunction)
+                    .attr("opacity", 0.7);
+                jGLockedG.selectAll('rect')
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['Avg J! Attempts']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['Avg J! Attempts'] - d['Avg J! Buzzes']); })
+                    .attr("fill", summaryColorFunction)
+                    .attr("opacity", 0.3);
+                jG.selectAll('text')
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append('text')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']) + 5; })
+                    .attr('y', function(d) { return y(d['Avg J! Attempts']); })
+                    .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Contestant']) + 5) + ',' + y(d['Avg J! Attempts']) + ')'; })
+                    .text(d => d['Contestant']);
+
+                var djG = svg.append('g')
+                    .attr("transform", function(d) { return "translate(" + x('DJ!') + ",0)"; });
+                var djGCorrectG = djG.append('g');
+                var djGIncorrectG = djG.append('g');
+                var djGLockedG = djG.append('g');
+                djGCorrectG.selectAll('rect')
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['Avg DJ! Correct on Buzz']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['Avg DJ! Correct on Buzz']); })
+                    .attr("fill", summaryColorFunction);
+                djGIncorrectG.selectAll('rect')
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['Avg DJ! Buzzes']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['Avg DJ! Buzzes'] - d['Avg DJ! Correct on Buzz']); })
+                    .attr("fill", summaryColorFunction)
+                    .attr("opacity", 0.7);
+                djGLockedG.selectAll('rect')
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['Avg DJ! Attempts']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['Avg DJ! Attempts'] - d['Avg DJ! Buzzes']); })
+                    .attr("fill", summaryColorFunction)
+                    .attr("opacity", 0.3);
+                djG.selectAll('text')
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append('text')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']) + 5; })
+                    .attr('y', function(d) { return y(d['Avg DJ! Attempts']); })
+                    .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Contestant']) + 5) + ',' + y(d['Avg DJ! Attempts']) + ')'; })
+                    .text(d => d['Contestant']);
+
 
             });
         </script>
