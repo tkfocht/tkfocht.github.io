@@ -14,7 +14,8 @@
         <div class="section">
             <h1><span id="season-id"></span> Season Summary</h1>
             <div class="graph-description">
-                "Average" is the average of all contestant performances, not just those shown individually.
+                "Average" is the average of all contestant performances, not just those shown individually. Each game performace
+                is a separate data point, so champions are included separately in the average for each of their games.
             </div>
             <div id="season-contestant-summary">
                 <table>
@@ -42,7 +43,8 @@
             <div class="graph-description">
                 Average buzz attempts, by contestant and round. Correct responses are at the bottom, incorrect responses are lighter and
                 in the middle, and attempts where the contestant was locked out are lightest and at the top. "Average" is the average of
-                all contestant performances, not just those shown individually.
+                all contestant performances, not just those shown individually. Each game performance is a separate
+                data point, so champions are included separately in the average for each of their games.
             </div>
             <div id="bar-attempts"></div>
         </div>
@@ -96,6 +98,7 @@
         </div>
         <script type="text/javascript">
             var seasonId = new URLSearchParams(window.location.search).get('season');
+            var seasonAverageLabel = seasonId + " Average";
             d3.select("#season-id")
                 .data([seasonId])
                 .text(d => d);
@@ -150,17 +153,17 @@
                     return {
                         'Contestant': contestant,
                         'Games': contestantData.length,
-                        'Avg J! Attempts': d3.map(contestantData, cd => (+cd['J! Attempts'])).reduce((a, b) => a + b) / contestantData.length,
-                        'Avg J! Buzzes': d3.map(contestantData, cd => (+cd['J! Buzzes'])).reduce((a, b) => a + b) / contestantData.length,
-                        'Avg J! Correct on Buzz': d3.map(contestantData, cd => (+cd['J! Correct on Buzz'])).reduce((a, b) => a + b) / contestantData.length,
-                        'Avg J! Score on Buzz': d3.map(contestantData, cd => (+cd['J! Score on Buzz'])).reduce((a, b) => a + b) / contestantData.length,
-                        'Avg J! DDs found': d3.map(contestantData, cd => (+cd['J! DDs found'])).reduce((a, b) => a + b) / contestantData.length,
-                        'Avg DJ! Attempts': d3.map(contestantData, cd => (+cd['DJ! Attempts'])).reduce((a, b) => a + b) / contestantData.length,
-                        'Avg DJ! Buzzes': d3.map(contestantData, cd => (+cd['DJ! Buzzes'])).reduce((a, b) => a + b) / contestantData.length,
-                        'Avg DJ! Correct on Buzz': d3.map(contestantData, cd => (+cd['DJ! Correct on Buzz'])).reduce((a, b) => a + b) / contestantData.length,
-                        'Avg DJ! Score on Buzz': d3.map(contestantData, cd => (+cd['DJ! Score on Buzz'])).reduce((a, b) => a + b) / contestantData.length,
-                        'Avg DJ! DDs found': d3.map(contestantData, cd => (+cd['DJ! DDs found'])).reduce((a, b) => a + b) / contestantData.length,
-                        'Total Buzz %': 100.0 * d3.map(contestantData, cd => (+cd['Total Buzz'])).reduce((a, b) => a + b) / d3.map(contestantData, cd => (+cd['Total Attempt'])).reduce((a, b) => a + b)
+                        'Avg J! Attempts': d3.mean(d3.map(contestantData, cd => (+cd['J! Attempts']))),
+                        'Avg J! Buzzes': d3.mean(d3.map(contestantData, cd => (+cd['J! Buzzes']))),
+                        'Avg J! Correct on Buzz': d3.mean(d3.map(contestantData, cd => (+cd['J! Correct on Buzz']))),
+                        'Avg J! Score on Buzz': d3.mean(d3.map(contestantData, cd => (+cd['J! Score on Buzz']))),
+                        'Avg J! DDs found': d3.mean(d3.map(contestantData, cd => (+cd['J! DDs found']))),
+                        'Avg DJ! Attempts': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Attempts']))),
+                        'Avg DJ! Buzzes': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Buzzes']))),
+                        'Avg DJ! Correct on Buzz': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Correct on Buzz']))),
+                        'Avg DJ! Score on Buzz': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Score on Buzz']))),
+                        'Avg DJ! DDs found': d3.mean(d3.map(contestantData, cd => (+cd['DJ! DDs found']))),
+                        'Total Buzz %': 100.0 * d3.sum(d3.map(contestantData, cd => (+cd['Total Buzz']))) / d3.sum(d3.map(contestantData, cd => (+cd['Total Attempt'])))
                     };
                 }
 
@@ -171,11 +174,11 @@
                     ([contestant, contestantData]) => summarizeContestantData(contestant, contestantData));
                 summaryData.sort(function(a,b) { return highlightContestantCounts.get(b['Contestant']) - highlightContestantCounts.get(a['Contestant']); });
 
-                var averageSummary = summarizeContestantData("Average", data);
+                var averageSummary = summarizeContestantData(seasonAverageLabel, data);
                 averageSummary['Games'] = "";
                 var summaryDataWithAverage = summaryData.concat(averageSummary);
                 var summaryColorFunction = function(d) {
-                    if (d['Contestant'] === 'Average') {
+                    if (d['Contestant'] === seasonAverageLabel) {
                         return "black";
                     } else {
                         return color(d['Contestant']);
@@ -207,7 +210,7 @@
                     .append("td")
                     .html(function(d,i) {
                         if (i>0) return d;
-                        if (d === 'Average') return '<span style="color:black">&#9632;</span>&nbsp;' + d;
+                        if (d === seasonAverageLabel) return '<span style="color:black">&#9632;</span>&nbsp;' + d;
                         return '<span style="color: ' + color(d) + '">&#9632;</span>&nbsp;<a href="contestant.html?season=' + seasonId + '&contestant=' + d + '">' + d + "</a>";
                     });
 
@@ -328,7 +331,7 @@
                     .text("Correct");  
 
                 var xSubgroup = d3.scaleBand()
-                    .domain(highlightContestants.concat(['Average']))
+                    .domain(highlightContestants.concat([seasonAverageLabel]))
                     .range([0, x.bandwidth()])
                     .padding([0.05]);
 
