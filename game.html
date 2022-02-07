@@ -183,7 +183,7 @@
                     .append("td")
                     .html(function(d,i) {
                         if (i>0) return d;
-                        return '<span style="color: ' + color(d) + '">&#9632;</span>&nbsp;' + d;
+                        return '<span style="color: ' + color(d) + '">&#9632;</span>&nbsp;<a href="contestant.html?season=' + seasonId + '&contestant=' + d + '">' + d + "</a>";
                     });
 
                 //ATT vs $/ATT

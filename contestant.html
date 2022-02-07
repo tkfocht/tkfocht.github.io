@@ -12,7 +12,7 @@
     <body>
         <h1><a href="index.html">J!ometry</a></h1>
         <div class="section">
-            <h1><span id="contestant-id"></span> Summary</h1>
+            <h1><span id="contestant-id"></span> <span id="season-id"></span> Summary</h1>
             <div id="season-contestant-summary">
                 <table>
                     <thead>
@@ -96,6 +96,9 @@
             d3.select("#contestant-id")
                 .data([contestantId])
                 .text(d => d);
+            d3.select("#season-id")
+                .data([seasonId])
+                .text(d => d);
             d3.csv(csvUrlForSeason(seasonId)).then(function(data) {
                 //Baseline for graphs
                 var margin = {top: 20, right: 20, bottom: 50, left: 70},
@@ -139,6 +142,7 @@
                     d3.group(d3.filter(data, d => d['highlightContestant']), d => d['Game Id']),
                     ([gameId, gameData]) => ({
                         'Game Id': gameId,
+                        'Date': gameData[0]['Date'],
                         'J! Attempts': +gameData[0]['J! Attempts'],
                         'J! Buzzes': +gameData[0]['J! Buzzes'],
                         'J! Correct on Buzz': +gameData[0]['J! Correct on Buzz'],
@@ -182,7 +186,7 @@
                 summaryTr.selectAll("td")
                     .data(function(d,i) {
                         return [
-                            d['Game Id'],
+                            d['Game Id'] === 'Average' ? d['Game Id'] : '<a href="game.html?season=' + seasonId + '&game_id=' + d['Game Id'] + '">#' + d['Game Id'] + '</a>&nbsp;' + dateFormat(d['Date']),
                             d['J! Attempts'],
                             d['J! Correct on Buzz'],
                             d['J! Score on Buzz'],
@@ -369,7 +373,7 @@
                     .attr('x', function(d) { return xSubgroup(d['Game Id']) + 5; })
                     .attr('y', function(d) { return y(d['J! Attempts']); })
                     .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Game Id']) + 5) + ',' + y(d['J! Attempts']) + ')'; })
-                    .text(d => d['Game Id']);
+                    .text(d => (d['Game Id'] === 'Average' ? '' : '#') + d['Game Id']);
 
                 var djG = svg.append('g')
                     .attr("transform", function(d) { return "translate(" + x('DJ!') + ",0)"; });
@@ -412,7 +416,7 @@
                     .attr('x', function(d) { return xSubgroup(d['Game Id']) + 5; })
                     .attr('y', function(d) { return y(d['DJ! Attempts']); })
                     .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Game Id']) + 5) + ',' + y(d['DJ! Attempts']) + ')'; })
-                    .text(d => d['Game Id']);
+                    .text(d => (d['Game Id'] === 'Average' ? '' : '#') + d['Game Id']);
 
 
             });
