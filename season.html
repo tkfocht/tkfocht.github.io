@@ -22,7 +22,7 @@
                     <thead>
                         <tr>
                             <th>Contestant</th>
-                            <th>Games</th>
+                            <th>Wins</th>
                             <th>Avg J! Attempts</th>
                             <th>Avg J! Correct on Buzz</th>
                             <th>Avg J! Score on Buzz</th>
@@ -115,7 +115,7 @@
                     d['DJ! Buzz %'] = 100.0 * d['DJ! Buzzes'] / d['DJ! Attempts'];
                     d['Total Buzz %'] = 100.0 * d['Total Buzz'] / d['Total Attempt'];
                 });
-                var highlightContestantCounts = d3.rollup(data, v => v.length, d => d['Contestant']);
+                var highlightContestantCounts = d3.rollup(data, v => d3.sum(d3.map(v, cd => (+cd['Wins']))), d => d['Contestant']);
                 var gameThreshold = 1;
                 highlightContestants = d3.filter(highlightContestantCounts.keys(), k => highlightContestantCounts.get(k) >= gameThreshold);
                 while (highlightContestants.length > 10) {
@@ -152,7 +152,7 @@
                 var summarizeContestantData = function(contestant, contestantData) {
                     return {
                         'Contestant': contestant,
-                        'Games': contestantData.length,
+                        'Wins': d3.sum(d3.map(contestantData, cd => (+cd['Wins']))),
                         'Avg J! Attempts': d3.mean(d3.map(contestantData, cd => (+cd['J! Attempts']))),
                         'Avg J! Buzzes': d3.mean(d3.map(contestantData, cd => (+cd['J! Buzzes']))),
                         'Avg J! Correct on Buzz': d3.mean(d3.map(contestantData, cd => (+cd['J! Correct on Buzz']))),
@@ -175,7 +175,7 @@
                 summaryData.sort(function(a,b) { return highlightContestantCounts.get(b['Contestant']) - highlightContestantCounts.get(a['Contestant']); });
 
                 var averageSummary = summarizeContestantData(seasonAverageLabel, data);
-                averageSummary['Games'] = "";
+                averageSummary['Wins'] = "";
                 var summaryDataWithAverage = summaryData.concat(averageSummary);
                 var summaryColorFunction = function(d) {
                     if (d['Contestant'] === seasonAverageLabel) {
@@ -194,7 +194,7 @@
                     .data(function(d,i) {
                         return [
                             d['Contestant'],
-                            d['Games'],
+                            d['Wins'],
                             d['Avg J! Attempts'].toFixed(1),
                             d['Avg J! Correct on Buzz'].toFixed(1),
                             d['Avg J! Score on Buzz'].toFixed(0),
