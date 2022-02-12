@@ -228,7 +228,8 @@
                         .attr("cx", width - 142)
                         .attr("cy", 4)
                         .attr("r", 5)
-                        .attr("fill", color);
+                        .attr("fill", color)
+                        .attr("stroke", "black");
                     legend.append("text")
                         .attr("x", d => d.length > 7 ? (width + 5) : (width - 80))
                         .attr("y", 5.5)
