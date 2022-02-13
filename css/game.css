@@ -12,6 +12,7 @@
 #game-summary table {
     width: 960px;
     border-collapse: collapse;
+    font-size: smaller;
 }
 
 #game-summary table th, #game-summary table td {

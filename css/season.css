@@ -12,11 +12,16 @@
 #season-contestant-summary table {
     width: 960px;
     border-collapse: collapse;
+    font-size: smaller;
 }
 
 #season-contestant-summary table th, #season-contestant-summary table td {
     padding: 5px 15px;
     border: 1px solid #999999;
+}
+
+#season-contestant-summary table th.empty {
+    border: 0;
 }
 
 #season-contestant-summary table td {
