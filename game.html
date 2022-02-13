@@ -342,7 +342,7 @@
                 
                 var legend = svg.append("g")
                     .attr("font-size", 13)
-                    .attr("text-anchor", "end")
+                    .attr("text-anchor", "start")
                     .selectAll("g")
                     .data(highlightGameContestants)
                     .enter().append("g")
@@ -353,7 +353,7 @@
                     .attr("height", 8)
                     .attr("fill", color);
                 legend.append("text")
-                        .attr("x", d => d.length > 7 ? (width + 5) : (width - 80))
+                        .attr("x", width - 130)
                         .attr("y", 5.5)
                         .attr("dy", "0.22em")
                         .text(d => (d));
@@ -461,7 +461,7 @@
 
                 var legend = svg.append("g")
                     .attr("font-size", 13)
-                    .attr("text-anchor", "end")
+                    .attr("text-anchor", "start")
                     .selectAll("g")
                     .data(highlightGameContestants)
                     .enter().append("g")
@@ -472,7 +472,7 @@
                     .attr("height", 8)
                     .attr("fill", color);
                 legend.append("text")
-                        .attr("x", d => d.length > 7 ? (width + 5) : (width - 80))
+                        .attr("x", width - 132)
                         .attr("y", 5.5)
                         .attr("dy", "0.22em")
                         .text(d => (d));

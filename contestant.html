@@ -226,7 +226,7 @@
                     var legend = svg.append("g")
                         .attr("transform", "translate(-" + (width - 175) + ",0)")
                         .attr("font-size", 13)
-                        .attr("text-anchor", "end")
+                        .attr("text-anchor", "start")
                         .selectAll("g")
                         .data([contestantId])
                         .enter().append("g")
@@ -238,7 +238,7 @@
                         .attr("fill", highlightColor)
                         .attr("stroke", "black");
                     legend.append("text")
-                        .attr("x", d => d.length > 7 ? (width + 5) : (width - 80))
+                        .attr("x", width - 133)
                         .attr("y", 5.5)
                         .attr("dy", "0.22em")
                         .text(d => (d));
