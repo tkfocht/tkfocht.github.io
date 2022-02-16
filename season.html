@@ -23,8 +23,8 @@
                     <thead>
                         <tr>
                             <th colspan="2" class="empty"></th>
-                            <th colspan="5">Jeopardy! Round Avg</th>
-                            <th colspan="5">Double Jeopardy! Round Avg</th>
+                            <th colspan="7">Jeopardy! Round Avg</th>
+                            <th colspan="7">Double Jeopardy! Round Avg</th>
                             <th colspan="1" class="empty"></th>
                         </tr>
                         <tr>
@@ -32,11 +32,15 @@
                             <th>Wins</th>
                             <th>ATT</th>
                             <th>COB</th>
+                            <th>BCOE</th>
+                            <th>CON</th>
                             <th>SOB</th>
                             <th>DDF</th>
                             <th>DDOE</th>
                             <th>ATT</th>
                             <th>COB</th>
+                            <th>BCOE</th>
+                            <th>CON</th>
                             <th>SOB</th>
                             <th>DDF</th>
                             <th>DDOE</th>
@@ -47,7 +51,7 @@
                 </table>
             </div>
             <div class="graph-description">
-                ATT = Attempts, COB = Correct on Buzz, SOB = Score on Buzz, DDF = Daily Doubles Found, DDOE = Daily Doubles over Expectation
+                ATT = Attempts, COB = Correct on Buzz, BCOE = Buzz (Correct) Over Expectation, CON = Contention, SOB = Score on Buzz, DDF = Daily Doubles Found, DDOE = Daily Doubles over Expectation
             </div>
         </div>
         <div class="section">
@@ -168,12 +172,16 @@
                         'Avg J! Attempts': d3.mean(d3.map(contestantData, cd => (+cd['J! Attempts']))),
                         'Avg J! Buzzes': d3.mean(d3.map(contestantData, cd => (+cd['J! Buzzes']))),
                         'Avg J! Correct on Buzz': d3.mean(d3.map(contestantData, cd => (+cd['J! Correct on Buzz']))),
+                        'Avg J! Expected Buzz Difference': d3.mean(d3.map(contestantData, cd => (+cd['J! Expected Buzz Difference']))),
+                        'Avg J! Contention': d3.mean(d3.map(contestantData, cd => (+cd['J! Contention']))),
                         'Avg J! Score on Buzz': d3.mean(d3.map(contestantData, cd => (+cd['J! Score on Buzz']))),
                         'Avg J! DDs found': d3.mean(d3.map(contestantData, cd => (+cd['J! DDs found']))),
                         'Avg J! DDs over Expectation': d3.mean(d3.map(contestantData, cd => (+cd['J! DD Exp Diff']))),
                         'Avg DJ! Attempts': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Attempts']))),
                         'Avg DJ! Buzzes': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Buzzes']))),
                         'Avg DJ! Correct on Buzz': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Correct on Buzz']))),
+                        'Avg DJ! Expected Buzz Difference': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Expected Buzz Difference']))),
+                        'Avg DJ! Contention': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Contention']))),
                         'Avg DJ! Score on Buzz': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Score on Buzz']))),
                         'Avg DJ! DDs found': d3.mean(d3.map(contestantData, cd => (+cd['DJ! DDs found']))),
                         'Avg DJ! DDs over Expectation': d3.mean(d3.map(contestantData, cd => (+cd['DJ! DD Exp Diff']))),
@@ -211,11 +219,15 @@
                             d['Wins'],
                             d['Avg J! Attempts'].toFixed(1),
                             d['Avg J! Correct on Buzz'].toFixed(1),
+                            (d['Avg J! Expected Buzz Difference'] >= 0 ? "+" : "") + d['Avg J! Expected Buzz Difference'].toFixed(1),
+                            (100 * d['Avg J! Contention']).toFixed(0) + "%",
                             d['Avg J! Score on Buzz'].toFixed(0),
                             d['Avg J! DDs found'].toFixed(1),
                             (d['Avg J! DDs over Expectation'] >= 0 ? "+" : "") + d['Avg J! DDs over Expectation'].toFixed(1),
                             d['Avg DJ! Attempts'].toFixed(1),
                             d['Avg DJ! Correct on Buzz'].toFixed(1),
+                            (d['Avg DJ! Expected Buzz Difference'] >= 0 ? "+" : "") + d['Avg DJ! Expected Buzz Difference'].toFixed(1),
+                            (100 * d['Avg DJ! Contention']).toFixed(0) + "%",
                             d['Avg DJ! Score on Buzz'].toFixed(0),
                             d['Avg DJ! DDs found'].toFixed(1),
                             (d['Avg DJ! DDs over Expectation'] >= 0 ? "+" : "") + d['Avg DJ! DDs over Expectation'].toFixed(1),

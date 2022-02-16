@@ -19,18 +19,22 @@
                     <thead>
                         <tr>
                             <th colspan="1" class="empty"></th>
-                            <th colspan="5">Jeopardy! Round</th>
-                            <th colspan="5">Double Jeopardy! Round</th>
+                            <th colspan="7">Jeopardy! Round</th>
+                            <th colspan="7">Double Jeopardy! Round</th>
                         </tr>
                         <tr>
                             <th>Game</th>
                             <th>ATT</th>
                             <th>COB</th>
+                            <th>BCOE</th>
+                            <th>CON</th>
                             <th>SOB</th>
                             <th>DDF</th>
                             <th>Buzz%</th>
                             <th>ATT</th>
                             <th>COB</th>
+                            <th>BCOE</th>
+                            <th>CON</th>
                             <th>SOB</th>
                             <th>DDF</th>
                             <th>Buzz%</th>
@@ -40,7 +44,7 @@
                 </table>
             </div>
             <div class="graph-description">
-                ATT = Attempts, COB = Correct on Buzz, SOB = Score on Buzz, DDF = Daily Doubles Found
+                ATT = Attempts, COB = Correct on Buzz, BCOE = Buzz (Correct) Over Expectation, CON = Contention, SOB = Score on Buzz, DDF = Daily Doubles Found
             </div>
         </div>
         <div class="section">
@@ -157,12 +161,16 @@
                         'J! Attempts': +gameData[0]['J! Attempts'],
                         'J! Buzzes': +gameData[0]['J! Buzzes'],
                         'J! Correct on Buzz': +gameData[0]['J! Correct on Buzz'],
+                        'J! Expected Buzz Difference': +gameData[0]['J! Expected Buzz Difference'],
+                        'J! Contention': +gameData[0]['J! Contention'],
                         'J! Score on Buzz': +gameData[0]['J! Score on Buzz'],
                         'J! DDs found': +gameData[0]['J! DDs found'],
                         'J! Buzz %': +gameData[0]['J! Buzz %'],
                         'DJ! Attempts': +gameData[0]['DJ! Attempts'],
                         'DJ! Buzzes': +gameData[0]['DJ! Buzzes'],
                         'DJ! Correct on Buzz': +gameData[0]['DJ! Correct on Buzz'],
+                        'DJ! Expected Buzz Difference': +gameData[0]['DJ! Expected Buzz Difference'],
+                        'DJ! Contention': +gameData[0]['DJ! Contention'],
                         'DJ! Score on Buzz': +gameData[0]['DJ! Score on Buzz'],
                         'DJ! DDs found': +gameData[0]['DJ! DDs found'],
                         'DJ! Buzz %': +gameData[0]['DJ! Buzz %'],
@@ -176,12 +184,16 @@
                     'J! Attempts': (d3.map(summaryData, cd => (+cd['J! Attempts'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
                     'J! Buzzes': (d3.map(summaryData, cd => (+cd['J! Buzzes'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
                     'J! Correct on Buzz': (d3.map(summaryData, cd => (+cd['J! Correct on Buzz'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
+                    'J! Expected Buzz Difference': (d3.map(summaryData, cd => (+cd['J! Expected Buzz Difference'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
+                    'J! Contention': (d3.map(summaryData, cd => (+cd['J! Contention'])).reduce((a, b) => a + b) / summaryData.length),
                     'J! Score on Buzz': (d3.map(summaryData, cd => (+cd['J! Score on Buzz'])).reduce((a, b) => a + b) / summaryData.length).toFixed(0),
                     'J! DDs found': (d3.map(summaryData, cd => (+cd['J! DDs found'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
                     'J! Buzz %': 100.0 * d3.map(summaryData, cd => (+cd['J! Buzzes'])).reduce((a, b) => a + b) / d3.map(summaryData, cd => (+cd['J! Attempts'])).reduce((a, b) => a + b),
                     'DJ! Attempts': (d3.map(summaryData, cd => (+cd['DJ! Attempts'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
                     'DJ! Buzzes': (d3.map(summaryData, cd => (+cd['DJ! Buzzes'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
                     'DJ! Correct on Buzz': (d3.map(summaryData, cd => (+cd['DJ! Correct on Buzz'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
+                    'DJ! Expected Buzz Difference': (d3.map(summaryData, cd => (+cd['DJ! Expected Buzz Difference'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
+                    'DJ! Contention': (d3.map(summaryData, cd => (+cd['DJ! Contention'])).reduce((a, b) => a + b) / summaryData.length),
                     'DJ! Score on Buzz': (d3.map(summaryData, cd => (+cd['DJ! Score on Buzz'])).reduce((a, b) => a + b) / summaryData.length).toFixed(0),
                     'DJ! DDs found': (d3.map(summaryData, cd => (+cd['DJ! DDs found'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
                     'DJ! Buzz %': 100.0 * d3.map(summaryData, cd => (+cd['DJ! Buzzes'])).reduce((a, b) => a + b) / d3.map(summaryData, cd => (+cd['DJ! Attempts'])).reduce((a, b) => a + b)
@@ -191,12 +203,16 @@
                     'J! Attempts': (d3.map(data, cd => (+cd['J! Attempts'])).reduce((a, b) => a + b) / data.length).toFixed(1),
                     'J! Buzzes': (d3.map(data, cd => (+cd['J! Buzzes'])).reduce((a, b) => a + b) / data.length).toFixed(1),
                     'J! Correct on Buzz': (d3.map(data, cd => (+cd['J! Correct on Buzz'])).reduce((a, b) => a + b) / data.length).toFixed(1),
+                    'J! Expected Buzz Difference': (d3.map(data, cd => (+cd['J! Expected Buzz Difference'])).reduce((a, b) => a + b) / data.length).toFixed(1),
+                    'J! Contention': (d3.map(data, cd => (+cd['J! Contention'])).reduce((a, b) => a + b) / data.length),
                     'J! Score on Buzz': (d3.map(data, cd => (+cd['J! Score on Buzz'])).reduce((a, b) => a + b) / data.length).toFixed(0),
                     'J! DDs found': (d3.map(data, cd => (+cd['J! DDs found'])).reduce((a, b) => a + b) / data.length).toFixed(1),
                     'J! Buzz %': 100.0 * d3.map(data, cd => (+cd['J! Buzzes'])).reduce((a, b) => a + b) / d3.map(data, cd => (+cd['J! Attempts'])).reduce((a, b) => a + b),
                     'DJ! Attempts': (d3.map(data, cd => (+cd['DJ! Attempts'])).reduce((a, b) => a + b) / data.length).toFixed(1),
                     'DJ! Buzzes': (d3.map(data, cd => (+cd['DJ! Buzzes'])).reduce((a, b) => a + b) / data.length).toFixed(1),
                     'DJ! Correct on Buzz': (d3.map(data, cd => (+cd['DJ! Correct on Buzz'])).reduce((a, b) => a + b) / data.length).toFixed(1),
+                    'DJ! Expected Buzz Difference': (d3.map(data, cd => (+cd['DJ! Expected Buzz Difference'])).reduce((a, b) => a + b) / data.length).toFixed(1),
+                    'DJ! Contention': (d3.map(data, cd => (+cd['DJ! Contention'])).reduce((a, b) => a + b) / data.length),
                     'DJ! Score on Buzz': (d3.map(data, cd => (+cd['DJ! Score on Buzz'])).reduce((a, b) => a + b) / data.length).toFixed(0),
                     'DJ! DDs found': (d3.map(data, cd => (+cd['DJ! DDs found'])).reduce((a, b) => a + b) / data.length).toFixed(1),
                     'DJ! Buzz %': 100.0 * d3.map(data, cd => (+cd['DJ! Buzzes'])).reduce((a, b) => a + b) / d3.map(data, cd => (+cd['DJ! Attempts'])).reduce((a, b) => a + b)
@@ -215,11 +231,15 @@
                             (d['Game Id'] === contestantAverageLabel || d['Game Id'] === seasonAverageLabel) ? d['Game Id'] : '<a href="game.html?season=' + seasonId + '&game_id=' + d['Game Id'] + '">#' + d['Game Id'] + '</a>&nbsp;' + dateFormat(d['Date']),
                             d['J! Attempts'],
                             d['J! Correct on Buzz'],
+                            (+d['J! Expected Buzz Difference'] > 0 ? "+" : "") + (+d['J! Expected Buzz Difference']).toFixed(1),
+                            (100 * d['J! Contention']).toFixed(0) + "%",
                             d['J! Score on Buzz'],
                             d['J! DDs found'],
                             d['J! Buzz %'].toFixed(1),
                             d['DJ! Attempts'],
                             d['DJ! Correct on Buzz'],
+                            (+d['DJ! Expected Buzz Difference'] > 0 ? "+" : "") + (+d['DJ! Expected Buzz Difference']).toFixed(1),
+                            (100 * d['DJ! Contention']).toFixed(0) + "%",
                             d['DJ! Score on Buzz'],
                             d['DJ! DDs found'],
                             d['DJ! Buzz %'].toFixed(1)
