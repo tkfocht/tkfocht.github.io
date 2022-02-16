@@ -13,12 +13,26 @@
         <div class="season" id="S38R">
             <h2>Season 38 Regular Play <a href="season.html?season=S38R">(summary)</a></h2>
             <table class="game-list">
+                <thead>
+                    <tr>
+                        <th>Game</th>
+                        <th>Date</th>
+                        <th>Contestants</th>
+                    </tr>
+                </thead>
                 <tbody></tbody>
             </table>
         </div>
         <div class="season" id="NCC2022">
             <h2>National College Championship 2022 <a href="season.html?season=NCC2022">(summary)</a></h2>
             <table class="game-list">
+                <thead>
+                    <tr>
+                        <th>Game</th>
+                        <th>Date</th>
+                        <th>Contestants</th>
+                    </tr>
+                </thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -37,8 +51,7 @@
                     ([gameId,gameData]) => [
                         gameId,
                         gameData[0]['Date'],
-                        gameData[0]['Contestant'], gameData[1]['Contestant'], gameData[2]['Contestant']
-                        ]);
+                        gameData[0]['Contestant'], gameData[1]['Contestant'], gameData[2]['Contestant']]);
                 data.sort(d => d[0]);
                 data.reverse();
 
