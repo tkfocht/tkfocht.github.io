@@ -12,11 +12,15 @@
         <h1>Recorded Games</h1>
         <div class="season" id="S38R">
             <h2>Season 38 Regular Play <a href="season.html?season=S38R">(summary)</a></h2>
-            <div class="game-list"></div>
+            <table class="game-list">
+                <tbody></tbody>
+            </table>
         </div>
         <div class="season" id="NCC2022">
             <h2>National College Championship 2022 <a href="season.html?season=NCC2022">(summary)</a></h2>
-            <div class="game-list"></div>
+            <table class="game-list">
+                <tbody></tbody>
+            </table>
         </div>
         <div id="footer">
             <p>This site is not affiliated with Jeopardy!. Data is taken from their published <a href="https://www.jeopardy.com/jbuzz/news-events/jeopardy-daily-box-scores">box scores.</a></p>
@@ -26,8 +30,6 @@
                 seasonId,
                 data
             ) {
-                console.log(seasonId);
-                console.log(data);
                 data.forEach(function(d) {
                     d['Date'] = csvDateParse(d['Date']);
                 });
@@ -35,18 +37,19 @@
                     ([gameId,gameData]) => [
                         gameId,
                         gameData[0]['Date'],
-                        gameData[0]['Contestant'], gameData[1]['Contestant'], gameData[2]['Contestant']]);
+                        gameData[0]['Contestant'], gameData[1]['Contestant'], gameData[2]['Contestant']
+                        ]);
                 data.sort(d => d[0]);
                 data.reverse();
 
-                d3.select("#" + seasonId + " .game-list").selectAll('div')
+                d3.select("#" + seasonId + " table.game-list").selectAll('tr')
                     .data(data)
                     .enter()
-                    .append('div')
+                    .append('tr')
                     .html(function(d) {
-                        return '<a href="game.html?season=' + seasonId + '&game_id=' + d[0] + '">Game ' + d[0] + '</a>&nbsp;' +
-                            dateFormat(d[1]) + '&nbsp;' +
-                            d.slice(2).join(' vs ');
+                        return '<td><a href="game.html?season=' + seasonId + '&game_id=' + d[0] + '">Game ' + d[0] + '</a></td>' +
+                            '<td>' + dateFormat(d[1]) + '</td>' +
+                            '<td>' + d.slice(2,5).join(' vs ') + '</td>';
                     });
             };
 

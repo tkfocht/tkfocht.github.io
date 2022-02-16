@@ -16,8 +16,12 @@
 }
 
 #game-summary table th, #game-summary table td {
-    padding: 5px 15px;
+    padding: 4px 10px;
     border: 1px solid #999999;
+}
+
+#game-summary table th.empty {
+    border: 0;
 }
 
 #game-summary table td {

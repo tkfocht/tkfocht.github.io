@@ -53,8 +53,13 @@ var fullGameScatter = function(
         .attr("font-size", "11px")
         .attr("fill", colorFunction);
 
+    var xAxisY = 0;
+    if (d3.min(xDomain) > 0) {
+        xAxisY = d3.min(xDomain);
+    }
+    
     svg.append("g")
-        .attr("transform", "translate(0," + y(0) + ")")
+        .attr("transform", "translate(0," + y(xAxisY) + ")")
         .call(d3.axisBottom(x).ticks(10));
 
     svg.append("text")             
@@ -67,8 +72,8 @@ var fullGameScatter = function(
 
     svg.append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left)
-        .attr("x",0 - (height / 2))
+        .attr("y", xAxisY - margin.left)
+        .attr("x", 0 - (height / 2))
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text(yAxisLabel);
