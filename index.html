@@ -55,7 +55,7 @@
                 data.sort(d => d[0]);
                 data.reverse();
 
-                d3.select("#" + seasonId + " table.game-list").selectAll('tr')
+                d3.select("#" + seasonId + " table.game-list tbody").selectAll('tr')
                     .data(data)
                     .enter()
                     .append('tr')
