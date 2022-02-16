@@ -68,6 +68,17 @@
             <div id="bar-attempts"></div>
         </div>
         <div class="section">
+            <h1>BCOE vs CCON</h1>
+            <div class="graph-description">
+                BCOE is an estimate of additional buzzes a contestant creates through speed (or opponents' lack of speed). A
+                higher BCOE represents winning a higher number of buzzer races. CCON is an estimate of how often a
+                contestant is blocking an opponent's attempt to answer by ringing in first and giving a correct response.
+                Lower CCON represents a contestant that is the only player ringing in more often.
+            </div>
+            <div id="scatter-bcoe-ccon-j"></div>
+            <div id="scatter-bcoe-ccon-dj"></div>
+        </div>
+        <div class="section">
             <h1>ATT vs BUZZ%</h1>
             <div class="graph-description">
                 Number of attempts to buzz and percent of successful buzzes, over the whole game.
@@ -267,6 +278,32 @@
                         .attr("dy", "0.22em")
                         .text(d => (d));
                 }
+
+
+                //BCOE vs CCON
+                data.forEach(function(d) {
+                    d['J! Contestant Contention %'] = 100.0 * d['J! Contestant Contention'];
+                    d['DJ! Contestant Contention %'] = 100.0 * d['DJ! Contestant Contention'];
+                });
+                var bcoeCconJScatterSvg = fullGameScatter(
+                    '#scatter-bcoe-ccon-j',
+                    data,
+                    'J! Contestant Contention %', [0, 105], 'J! CCON',
+                    'J! Expected Buzz Difference', [-10,10], 'J! BCOE',
+                    colorFunction, opacityFunction, labelFunction,
+                    width, height, margin
+                );
+                addLegend(bcoeCconJScatterSvg);
+
+                var bcoeCconDJScatterSvg = fullGameScatter(
+                    '#scatter-bcoe-ccon-dj',
+                    data,
+                    'DJ! Contestant Contention %', [0, 105], 'DJ! CCON',
+                    'DJ! Expected Buzz Difference', [-10,10], 'DJ! BCOE',
+                    colorFunction, opacityFunction, labelFunction,
+                    width, height, margin
+                );
+                addLegend(bcoeCconDJScatterSvg);
 
                 //ATT vs $/ATT
                 var attAttSvg = fullGameScatter(
