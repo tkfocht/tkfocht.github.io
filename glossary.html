@@ -66,6 +66,105 @@
                 it ignores Daily Doubles entirely.
             </div>
         </div>
+        <h1>Contention Metrics</h1>
+        <div class="section">
+            <p>
+                For the purposes of calculating contention metrics, all incorrect responses and all Daily Doubles are
+                ignored. This is because incorrect responses do not prevent others from attempting to buzz in after
+                the response, and because Daily Doubles are not contended on the buzzers at all. It is true that
+                not all attempts to buzz in that are blocked by an incorrect response are reattempted (the incorrect
+                response may be the response the blocked contestant intended to give, or they may not wish to
+                follow up for other reasons), but in an attempt to quantify and estimate a level of competition, this
+                is ignored.
+            </p>
+            <p>
+                The base data are then Correct on Buzz, the number of correct responses on buzz-in clues,
+                and Blocked Attempts, the number of Attempts minus Correct on Buzz minus Incorrect on Buzz. As an
+                example, in <a href="/game.html?season=S38R&game_id=111">S38R Game 111</a>, the base data are: 
+            </p>
+            <table>
+                <tr>
+                    <th>Contestant</th>
+                    <th>J! COB</th>
+                    <th>J! Blocked</th>
+                    <th>DJ! COB</th>
+                    <th>DJ! Blocked</th>
+                </tr>
+                <tr>
+                    <td>Dave Rapp</td>
+                    <td>13</td>
+                    <td>5</td>
+                    <td>13</td>
+                    <td>4</td>
+                </tr>
+                <tr>
+                    <td>Carrie Christian</td>
+                    <td>8</td>
+                    <td>11</td>
+                    <td>5</td>
+                    <td>4</td>
+                </tr>
+                <tr>
+                    <td>Hung Pham</td>
+                    <td>2</td>
+                    <td>15</td>
+                    <td>4</td>
+                    <td>6</td>
+                </tr>
+            </table>
+            <p>
+                Each contestant is credited with 1 attempt for each COB they actually made, because we know
+                for sure this attempt occurred. The blocked attempts for each contestant are allocated
+                equally across their opponent's COB. So Dave is credited with 5/10 of an attempt for each COB
+                by Carrie or Hung, Carrie is credited with 11/15 of an attempt for each COB by Dave or Hung,
+                and Hung is credited with 15/21 for each COB by Dave or Carrie.
+                This allocation ignores the possibilities of blocked
+                attempts that are not followed up on Triple Stumpers, and it ignores the rare instances of
+                double correct responses.
+            </p>
+            <p>
+                With this in mind, we can estimate CCON and GCON. CCON is the probability that any one of
+                a contestant's COB responses blocked at least one opponent's attempt. For Dave, in the J! Round, this is:
+            </p>
+            <p>
+                CCON = (11/15) + (15/21) - ((11/15)*(15/21)) = 0.92 = 92%
+            </p>
+            <p>
+                GCON is the weighted average of the contestants' CCONs, which for the J! Round is:
+            </p>
+            <p>
+                GCON = (13(Dave's CCON) + 8(Carrie's CCON) + 2(Hung's CCON))/(13+8+2) = 0.90 = 90%
+            </p>
+            <p>
+                With the allocations in hand, we can also estimate an expected number of buzzes a contestant
+                should have had, continuing to ignore existing incorrect responses and the possibility of further
+                incorrect responses. For each of his own buzzes, we estimate an expected value for Dave of:
+            </p>
+            <p>
+                1 / (1 + (11/15) + (15/21)) = 0.409 buzzes
+            </p>
+            <p>
+                But additionally, he has an expected value of buzzing for each of Carrie's buzzes of:
+            </p>
+            <p>
+                (5/10) / ((5/10) + 1 + (15/21)) = 0.226 buzzes
+            </p>
+            <p>
+                And for Hung's of:
+            </p>
+            <p>
+                (5/10) / ((5/10) + (11/15) + 1) = 0.224 buzzes
+            </p>
+            <p>
+                Weighted and combined, this is:
+            </p>
+            <p>
+                13(0.409) + 8(0.226) + 2(0.224) = 7.57 buzzes total
+            </p>
+            <p>
+                Since Dave actually had 13 COB, his BCOE is 13 - 7.57 = +5.43 buzzes.
+            </p>
+        </div>
         <div id="footer">
             <p>This site is not affiliated with Jeopardy!. Data is taken from their published <a href="https://www.jeopardy.com/jbuzz/news-events/jeopardy-daily-box-scores">box scores.</a></p>
         </div>
