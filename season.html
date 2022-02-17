@@ -160,7 +160,7 @@
                 //Graphics functions
                 var color = d3.scaleOrdinal()
                     .domain(highlightContestants)
-                    .range(d3.schemeCategory10.concat(d3.schemeSet3));
+                    .range(d3.schemeCategory10.concat(d3.schemeSet3.slice(2)));
                 var colorFunction = function(d) {
                     if (d['highlightContestant']) {
                         return color(d['Contestant']);
