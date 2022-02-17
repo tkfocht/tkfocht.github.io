@@ -148,7 +148,7 @@
                 var highlightContestantCounts = d3.rollup(data, v => d3.sum(d3.map(v, cd => (+cd['Wins']))), d => d['Contestant']);
                 var gameThreshold = 1;
                 highlightContestants = d3.filter(highlightContestantCounts.keys(), k => highlightContestantCounts.get(k) >= gameThreshold);
-                while (highlightContestants.length > 10) {
+                while (highlightContestants.length > 12) {
                     gameThreshold += 1;
                     highlightContestants = d3.filter(highlightContestantCounts.keys(), k => highlightContestantCounts.get(k) >= gameThreshold);
                 }
@@ -160,7 +160,7 @@
                 //Graphics functions
                 var color = d3.scaleOrdinal()
                     .domain(highlightContestants)
-                    .range(d3.schemeCategory10);
+                    .range(d3.schemeCategory10.concat(d3.schemeSet3));
                 var colorFunction = function(d) {
                     if (d['highlightContestant']) {
                         return color(d['Contestant']);
