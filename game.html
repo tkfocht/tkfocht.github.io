@@ -31,14 +31,14 @@
                             <th>ATT</th>
                             <th>COB</th>
                             <th>BCOE</th>
-                            <th>CCON</th>
+                            <th>EBUC</th>
                             <th>SOB</th>
                             <th>DDF</th>
                             <th>DDOE</th>
                             <th>ATT</th>
                             <th>COB</th>
                             <th>BCOE</th>
-                            <th>CCON</th>
+                            <th>EBUC</th>
                             <th>SOB</th>
                             <th>DDF</th>
                             <th>DDOE</th>
@@ -51,7 +51,7 @@
                 </table>
             </div>
             <div class="graph-description">
-                GCON = Game Contention, ATT = Attempts, COB = Correct on Buzz, BCOE = Buzz (Correct) Over Expectation, CCON=Contestant-specific Contention, SOB = Score on Buzz, DDF = Daily Doubles Found, DDOE = Daily Doubles over Expectation
+                GCON = Game Contention, ATT = Attempts, COB = Correct on Buzz, BCOE = Buzz (Correct) Over Expectation, EBUC = Estimated Buzzes Uncontested, SOB = Score on Buzz, DDF = Daily Doubles Found, DDOE = Daily Doubles over Expectation
             </div>
         </div>
         <div class="section">
@@ -72,15 +72,29 @@
             <div id="bar-attempts"></div>
         </div>
         <div class="section">
-            <h1>BCOE vs CCON</h1>
+            <h1>BCOE vs EBUC</h1>
             <div class="graph-description">
                 BCOE is an estimate of additional buzzes a contestant creates through speed (or opponents' lack of speed). A
-                higher BCOE represents winning a higher number of buzzer races. CCON is an estimate of how often a
-                contestant is blocking an opponent's attempt to answer by ringing in first and giving a correct response.
-                Lower CCON represents a contestant that is the only player ringing in more often.
+                higher BCOE represents winning a higher number of buzzer races. EBUC is an estimate of how many
+                of a contestant's correct responses did not have an opponent ringing in with a possibly-correct response.
+                Higher EBUC represents a contestant that is the only player ringing in more often. Other games by the same
+                contestants are in the same color, but faded.
             </div>
-            <div id="scatter-bcoe-ccon-j"></div>
-            <div id="scatter-bcoe-ccon-dj"></div>
+            <div id="scatter-bcoe-ebuc-game"></div>
+        </div>
+        <div class="section">
+            <h1>BCOE vs EBUC by Round</h1>
+            <div class="graph-description">
+                BCOE is an estimate of additional buzzes a contestant creates through speed (or opponents' lack of speed). A
+                higher BCOE represents winning a higher number of buzzer races. EBUC is an estimate of how many
+                of a contestant's correct responses did not have an opponent ringing in with a possibly-correct response.
+                Higher EBUC represents a contestant that is the only player ringing in more often. Jeopardy! round
+                is circles, connected to Double Jeopardy! round as squares. This game's contestants
+                are labeled. Other games by the same
+                contestants are in the same color, but faded.
+            </div>
+            <div id="scatter-bcoe-ebuc-game"></div>
+            <div id="scatter-bcoe-ebuc-combined"></div>
         </div>
         <div class="section">
             <h1>ATT vs BUZZ%</h1>
@@ -211,14 +225,14 @@
                             d['J! Attempts'],
                             d['J! Correct on Buzz'],
                             (+d['J! Expected Buzz Difference'] > 0 ? "+" : "" ) + (+d['J! Expected Buzz Difference']).toFixed(1),
-                            (100 * d['J! Contestant Contention']).toFixed(0) + "%",
+                            (+d['J! Exp Uncontested']).toFixed(1),
                             d['J! Score on Buzz'],
                             d['J! DDs found'],
                             (+d['J! DD Exp Diff'] > 0 ? "+" : "" ) + (+d['J! DD Exp Diff']).toFixed(2),
                             d['DJ! Attempts'],
                             d['DJ! Correct on Buzz'],
                             (+d['DJ! Expected Buzz Difference'] > 0 ? "+" : "" ) + (+d['DJ! Expected Buzz Difference']).toFixed(1),
-                            (100 * d['DJ! Contestant Contention']).toFixed(0) + "%",
+                            (+d['DJ! Exp Uncontested']).toFixed(1),
                             d['DJ! Score on Buzz'],
                             d['DJ! DDs found'],
                             (+d['DJ! DD Exp Diff'] > 0 ? "+" : "" ) + (+d['DJ! DD Exp Diff']).toFixed(2),
@@ -234,28 +248,25 @@
                         return '<span style="color: ' + color(d) + '">&#9632;</span>&nbsp;<a href="contestant.html?season=' + seasonId + '&contestant=' + d + '">' + d + "</a>";
                     });
 
-                //BCOE vs CCON
-                data.forEach(function(d) {
-                    d['J! Contestant Contention %'] = 100.0 * d['J! Contestant Contention'];
-                    d['DJ! Contestant Contention %'] = 100.0 * d['DJ! Contestant Contention'];
-                });
-                fullGameScatter(
-                    '#scatter-bcoe-ccon-j',
+                //BCOE vs EBUC
+                var bcoeEbucGameScatterSvg = fullGameScatter(
+                    '#scatter-bcoe-ebuc-game',
                     data,
-                    'J! Contestant Contention %', [0, 105], 'J! CCON',
-                    'J! Expected Buzz Difference', [-10,10], 'J! BCOE',
+                    'Total Exp Uncontested', [0, 20], 'EBUC',
+                    'Total Expected Buzz Difference', [-12,20], 'BCOE',
                     highlightGameColorFunction, highlightGameOpacityFunction, highlightGameLabelFunction,
                     width, height, margin
                 );
 
-                fullGameScatter(
-                    '#scatter-bcoe-ccon-dj',
+                var bcoeEbucByRoundScatterSvg = byRoundScatter(
+                    '#scatter-bcoe-ebuc-combined',
                     data,
-                    'DJ! Contestant Contention %', [0, 105], 'DJ! CCON',
-                    'DJ! Expected Buzz Difference', [-10,10], 'DJ! BCOE',
+                    ['J! Exp Uncontested','DJ! Exp Uncontested'], [0, 20], 'EBUC',
+                    ['J! Expected Buzz Difference','DJ! Expected Buzz Difference'], [-10,15], 'BCOE',
                     highlightGameColorFunction, highlightGameOpacityFunction, highlightGameLabelFunction,
                     width, height, margin
                 );
+
 
                 //ATT vs $/ATT
                 fullGameScatter(

@@ -36,14 +36,14 @@
                             <th>ATT</th>
                             <th>COB</th>
                             <th>BCOE</th>
-                            <th>CCON</th>
+                            <th>EBUC</th>
                             <th>SOB</th>
                             <th>DDF</th>
                             <th>DDOE</th>
                             <th>ATT</th>
                             <th>COB</th>
                             <th>BCOE</th>
-                            <th>CCON</th>
+                            <th>EBUC</th>
                             <th>SOB</th>
                             <th>DDF</th>
                             <th>DDOE</th>
@@ -54,7 +54,7 @@
                 </table>
             </div>
             <div class="graph-description">
-                ATT = Attempts, COB = Correct on Buzz, BCOE = Buzz (Correct) Over Expectation, CCON = Contestant-specific Contention, SOB = Score on Buzz, DDF = Daily Doubles Found, DDOE = Daily Doubles over Expectation
+                ATT = Attempts, COB = Correct on Buzz, BCOE = Buzz (Correct) Over Expectation, EBUC = Estimated Buzzes Uncontested, SOB = Score on Buzz, DDF = Daily Doubles Found, DDOE = Daily Doubles over Expectation
             </div>
         </div>
         <div class="section">
@@ -68,17 +68,15 @@
             <div id="bar-attempts"></div>
         </div>
         <div class="section">
-            <h1>BCOE vs CCON</h1>
+            <h1>BCOE vs EBUC</h1>
             <div class="graph-description">
                 BCOE is an estimate of additional buzzes a contestant creates through speed (or opponents' lack of speed). A
-                higher BCOE represents winning a higher number of buzzer races. CCON is an estimate of how often a
-                contestant is blocking an opponent's attempt to answer by ringing in first and giving a correct response.
-                Lower CCON represents a contestant that is the only player ringing in more often.
+                higher BCOE represents winning a higher number of buzzer races. EBUC is an estimate of how many
+                of a contestant's correct responses did not have an opponent ringing in with a possibly-correct response.
+                Higher EBUC represents a contestant that is the only player ringing in more often.
             </div>
-            <div id="scatter-bcoe-ccon-j"></div>
-            <div id="scatter-bcoe-ccon-dj"></div>
-            <div id="scatter-bcoe-ccon-game"></div>
-            <div id="scatter-bcoe-ccon-combined"></div>
+            <div id="scatter-bcoe-ebuc-game"></div>
+            <div id="scatter-bcoe-ebuc-combined"></div>
         </div>
         <div class="section">
             <h1>ATT vs BUZZ%</h1>
@@ -189,7 +187,7 @@
                         'Avg J! Buzzes': d3.mean(d3.map(contestantData, cd => (+cd['J! Buzzes']))),
                         'Avg J! Correct on Buzz': d3.mean(d3.map(contestantData, cd => (+cd['J! Correct on Buzz']))),
                         'Avg J! Expected Buzz Difference': d3.mean(d3.map(contestantData, cd => (+cd['J! Expected Buzz Difference']))),
-                        'Avg J! Contestant Contention': d3.mean(d3.map(contestantData, cd => (+cd['J! Contestant Contention']))),
+                        'Avg J! Exp Uncontested': d3.mean(d3.map(contestantData, cd => (+cd['J! Exp Uncontested']))),
                         'Avg J! Score on Buzz': d3.mean(d3.map(contestantData, cd => (+cd['J! Score on Buzz']))),
                         'Avg J! DDs found': d3.mean(d3.map(contestantData, cd => (+cd['J! DDs found']))),
                         'Avg J! DDs over Expectation': d3.mean(d3.map(contestantData, cd => (+cd['J! DD Exp Diff']))),
@@ -197,7 +195,7 @@
                         'Avg DJ! Buzzes': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Buzzes']))),
                         'Avg DJ! Correct on Buzz': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Correct on Buzz']))),
                         'Avg DJ! Expected Buzz Difference': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Expected Buzz Difference']))),
-                        'Avg DJ! Contestant Contention': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Contestant Contention']))),
+                        'Avg DJ! Exp Uncontested': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Exp Uncontested']))),
                         'Avg DJ! Score on Buzz': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Score on Buzz']))),
                         'Avg DJ! DDs found': d3.mean(d3.map(contestantData, cd => (+cd['DJ! DDs found']))),
                         'Avg DJ! DDs over Expectation': d3.mean(d3.map(contestantData, cd => (+cd['DJ! DD Exp Diff']))),
@@ -236,14 +234,14 @@
                             d['Avg J! Attempts'].toFixed(1),
                             d['Avg J! Correct on Buzz'].toFixed(1),
                             (d['Avg J! Expected Buzz Difference'] >= 0 ? "+" : "") + d['Avg J! Expected Buzz Difference'].toFixed(1),
-                            (100 * d['Avg J! Contestant Contention']).toFixed(0) + "%",
+                            (+d['Avg J! Exp Uncontested']).toFixed(1),
                             d['Avg J! Score on Buzz'].toFixed(0),
                             d['Avg J! DDs found'].toFixed(1),
                             (d['Avg J! DDs over Expectation'] >= 0 ? "+" : "") + d['Avg J! DDs over Expectation'].toFixed(1),
                             d['Avg DJ! Attempts'].toFixed(1),
                             d['Avg DJ! Correct on Buzz'].toFixed(1),
                             (d['Avg DJ! Expected Buzz Difference'] >= 0 ? "+" : "") + d['Avg DJ! Expected Buzz Difference'].toFixed(1),
-                            (100 * d['Avg DJ! Contestant Contention']).toFixed(0) + "%",
+                            (+d['Avg DJ! Exp Uncontested']).toFixed(1),
                             d['Avg DJ! Score on Buzz'].toFixed(0),
                             d['Avg DJ! DDs found'].toFixed(1),
                             (d['Avg DJ! DDs over Expectation'] >= 0 ? "+" : "") + d['Avg DJ! DDs over Expectation'].toFixed(1),
@@ -286,51 +284,26 @@
                 }
 
 
-                //BCOE vs CCON
-                data.forEach(function(d) {
-                    d['J! Contestant Contention %'] = 100.0 * d['J! Contestant Contention'];
-                    d['DJ! Contestant Contention %'] = 100.0 * d['DJ! Contestant Contention'];
-                    d['Total Contestant Contention %'] = 100.0 * d['Total Contestant Contention'];
-                });
-                var bcoeCconJScatterSvg = fullGameScatter(
-                    '#scatter-bcoe-ccon-j',
+                //BCOE vs EBUC
+                var bcoeEbucGameScatterSvg = fullGameScatter(
+                    '#scatter-bcoe-ebuc-game',
                     data,
-                    'J! Exp Uncontested', [0, 20], 'J! Exp Uncon',
-                    'J! Expected Buzz Difference', [-10,10], 'J! BCOE',
+                    'Total Exp Uncontested', [0, 20], 'EBUC',
+                    'Total Expected Buzz Difference', [-12,20], 'BCOE',
                     colorFunction, opacityFunction, labelFunction,
                     width, height, margin
                 );
-                addLegend(bcoeCconJScatterSvg, width, 0);
+                addLegend(bcoeEbucGameScatterSvg, width, 0);
 
-                var bcoeCconDJScatterSvg = fullGameScatter(
-                    '#scatter-bcoe-ccon-dj',
+                var bcoeEbucByRoundScatterSvg = byRoundScatter(
+                    '#scatter-bcoe-ebuc-combined',
                     data,
-                    'DJ! Exp Uncontested', [0, 20], 'DJ! Exp Uncon',
-                    'DJ! Expected Buzz Difference', [-10,10], 'DJ! BCOE',
-                    colorFunction, opacityFunction, labelFunction,
-                    width, height, margin
-                );
-                addLegend(bcoeCconDJScatterSvg, width, 0);
-
-                var bcoeCconGameScatterSvg = fullGameScatter(
-                    '#scatter-bcoe-ccon-game',
-                    data,
-                    'Total Exp Uncontested', [0, 20], 'Game Exp Uncon',
-                    'Total Expected Buzz Difference', [-12,20], 'Game BCOE',
-                    colorFunction, opacityFunction, labelFunction,
-                    width, height, margin
-                );
-                addLegend(bcoeCconGameScatterSvg, width, 0);
-
-                var bcoeCconByRoundScatterSvg = byRoundScatter(
-                    '#scatter-bcoe-ccon-combined',
-                    data,
-                    ['J! Exp Uncontested','DJ! Exp Uncontested'], [0, 20], 'Exp Uncon',
+                    ['J! Exp Uncontested','DJ! Exp Uncontested'], [0, 20], 'EBUC',
                     ['J! Expected Buzz Difference','DJ! Expected Buzz Difference'], [-10,15], 'BCOE',
                     colorFunction, opacityFunction, labelFunction,
                     width, height, margin
                 );
-                addLegend(bcoeCconByRoundScatterSvg, width, 0);
+                addLegend(bcoeEbucByRoundScatterSvg, width, 0);
 
                 //ATT vs $/ATT
                 var attAttSvg = fullGameScatter(
