@@ -77,6 +77,8 @@
             </div>
             <div id="scatter-bcoe-ccon-j"></div>
             <div id="scatter-bcoe-ccon-dj"></div>
+            <div id="scatter-bcoe-ccon-game"></div>
+            <div id="scatter-bcoe-ccon-combined"></div>
         </div>
         <div class="section">
             <h1>ATT vs BUZZ%</h1>
@@ -257,15 +259,19 @@
                     });
 
 
-                var addLegend = function(svg) {
+                var addLegend = function(
+                    svg,
+                    xTranslation = 175,
+                    yTranslation = 0
+                ) {
                     var legend = svg.append("g")
-                        .attr("transform", "translate(" + (175 - width) + ",0)")
+                        .attr("transform", "translate(" + (xTranslation - width) + "," + yTranslation + ")")
                         .attr("font-size", 13)
                         .attr("text-anchor", "start")
                         .selectAll("g")
                         .data(highlightContestants)
                         .enter().append("g")
-                        .attr("transform", function(d, i) { return "translate(0," + i * 24 + ")"; });
+                        .attr("transform", function(d, i) { return "translate(0," + i * 16 + ")"; });
                     legend.append("circle")
                         .attr("cx", width - 142)
                         .attr("cy", 4)
@@ -284,26 +290,47 @@
                 data.forEach(function(d) {
                     d['J! Contestant Contention %'] = 100.0 * d['J! Contestant Contention'];
                     d['DJ! Contestant Contention %'] = 100.0 * d['DJ! Contestant Contention'];
+                    d['Total Contestant Contention %'] = 100.0 * d['Total Contestant Contention'];
                 });
                 var bcoeCconJScatterSvg = fullGameScatter(
                     '#scatter-bcoe-ccon-j',
                     data,
-                    'J! Contestant Contention %', [0, 105], 'J! CCON',
+                    'J! Exp Uncontested', [0, 20], 'J! Exp Uncon',
                     'J! Expected Buzz Difference', [-10,10], 'J! BCOE',
                     colorFunction, opacityFunction, labelFunction,
                     width, height, margin
                 );
-                addLegend(bcoeCconJScatterSvg);
+                addLegend(bcoeCconJScatterSvg, width, 0);
 
                 var bcoeCconDJScatterSvg = fullGameScatter(
                     '#scatter-bcoe-ccon-dj',
                     data,
-                    'DJ! Contestant Contention %', [0, 105], 'DJ! CCON',
+                    'DJ! Exp Uncontested', [0, 20], 'DJ! Exp Uncon',
                     'DJ! Expected Buzz Difference', [-10,10], 'DJ! BCOE',
                     colorFunction, opacityFunction, labelFunction,
                     width, height, margin
                 );
-                addLegend(bcoeCconDJScatterSvg);
+                addLegend(bcoeCconDJScatterSvg, width, 0);
+
+                var bcoeCconGameScatterSvg = fullGameScatter(
+                    '#scatter-bcoe-ccon-game',
+                    data,
+                    'Total Exp Uncontested', [0, 20], 'Game Exp Uncon',
+                    'Total Expected Buzz Difference', [-12,20], 'Game BCOE',
+                    colorFunction, opacityFunction, labelFunction,
+                    width, height, margin
+                );
+                addLegend(bcoeCconGameScatterSvg, width, 0);
+
+                var bcoeCconByRoundScatterSvg = byRoundScatter(
+                    '#scatter-bcoe-ccon-combined',
+                    data,
+                    ['J! Exp Uncontested','DJ! Exp Uncontested'], [0, 20], 'Exp Uncon',
+                    ['J! Expected Buzz Difference','DJ! Expected Buzz Difference'], [-10,15], 'BCOE',
+                    colorFunction, opacityFunction, labelFunction,
+                    width, height, margin
+                );
+                addLegend(bcoeCconByRoundScatterSvg, width, 0);
 
                 //ATT vs $/ATT
                 var attAttSvg = fullGameScatter(
