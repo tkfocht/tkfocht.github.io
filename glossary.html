@@ -12,58 +12,65 @@
         </div>
         <h1>Statistics</h1>
         <div class="section">
-            <h2>ATT: Attempts</h2>
+            <h2>Att: Attempts</h2>
             <div class="graph-description">
                 Number of attempts to ring in, as given in the box score.
             </div>
         </div>
         <div class="section">
-            <h2>BCOE: Buzz (Correct) Over Expectation</h2>
-            <div class="graph-description">
-                An estimate of how many additional response attempts a player gains through speed, or
-                gains through opponents' lack of speed. This statistic is zero-sum: all positive BCOE
-                must be balanced by negative BCOE for another contestant.
-            </div>
-        </div>
-        <div class="section">
-            <h2>COB: Correct on Buzz</h2>
+            <h2>BuzC: Correct on Buzz</h2>
             <div class="graph-description">
                 Correct answers on buzz. Equivalent to COR from the box score, minus any correct Daily Doubles.
             </div>
         </div>
         <div class="section">
-            <h2>CCON: Contestant Contention</h2>
+            <h2>Buz$: Score on Buzz</h2>
+            <div class="graph-description">
+                Score using only buzz-in responses. Equivalent to actual score and to Coryat score, except
+                it ignores Daily Doubles entirely.
+            </div>
+        </div>
+        <div class="section">
+            <h2>CCon: Contestant Contention</h2>
             <div class="graph-description">
                 An estimate of the probability that any individual correct response this contestant gave blocked an
                 opponent from buzzing in.
             </div>
         </div>
         <div class="section">
-            <h2>DDF: Daily Doubles Found</h2>
+            <h2>DD: Daily Doubles Found</h2>
             <div class="graph-description">
                 Daily Doubles found by the player.
             </div>
         </div>
         <div class="section">
-            <h2>DDOE: Daily Doubles Over Expectation</h2>
+            <h2>DD+: Daily Doubles Over Expectation</h2>
             <div class="graph-description">
                 An estimate of how many more Daily Doubles a player found versus an expectation that each correct
                 response in a round is equally likely to lead to finding a Daily Double. This statistic is zero-sum:
-                all positive DDOE must be balanced by negative DDOE for another contestant.
+                all positive DD+ must be balanced by negative DD+ for another contestant.
             </div>
         </div>
         <div class="section">
-            <h2>GCON: Game Contention</h2>
+            <h2>GCon: Game Contention</h2>
             <div class="graph-description">
                 An estimate of the probability that any individual correct response (for any contestant) block an
                 opponent from buzzing in.
             </div>
         </div>
         <div class="section">
-            <h2>SOB: Score on Buzz</h2>
+            <h2>Solo: Buzzes that are uncontested</h2>
             <div class="graph-description">
-                Score using only buzz-in responses. Equivalent to actual score and to Coryat score, except
-                it ignores Daily Doubles entirely.
+                An estimate of how many correct responses did not block an opponent's attempt at a correct response.
+                That is, it is an estimate of how many clues the contestant alone was correct on.
+            </div>
+        </div>
+        <div class="section">
+            <h2>Speed: Buzzes created through speed</h2>
+            <div class="graph-description">
+                An estimate of how many additional response attempts a player gains through speed, or
+                gains through opponents' lack of speed. This statistic is zero-sum: all positive Speed
+                must be balanced by negative Speed for another contestant.
             </div>
         </div>
         <h1>Contention Metrics</h1>
@@ -115,29 +122,29 @@
             <p>
                 Each contestant is credited with 1 attempt for each COB they actually made, because we know
                 for sure this attempt occurred. The blocked attempts for each contestant are allocated
-                equally across their opponent's COB. So Dave is credited with 5/10 of an attempt for each COB
-                by Carrie or Hung, Carrie is credited with 11/15 of an attempt for each COB by Dave or Hung,
-                and Hung is credited with 15/21 for each COB by Dave or Carrie.
+                equally across their opponent's BuzC. So Dave is credited with 5/10 of an attempt for each BuzC
+                by Carrie or Hung, Carrie is credited with 11/15 of an attempt for each BuzC by Dave or Hung,
+                and Hung is credited with 15/21 for each BuzC by Dave or Carrie.
                 This allocation ignores the possibilities of blocked
                 attempts that are not followed up on Triple Stumpers, and it ignores the rare instances of
                 double correct responses.
             </p>
             <p>
-                With this in mind, we can estimate CCON and GCON. CCON is the probability that any one of
-                a contestant's COB responses blocked at least one opponent's attempt. For Dave, in the J! Round, this is:
+                With this in mind, we can estimate CCon and GCon. CCon is the probability that any one of
+                a contestant's BuzC responses blocked at least one opponent's attempt. For Dave, in the J! Round, this is:
             </p>
             <p>
-                CCON = (11/15) + (15/21) - ((11/15)*(15/21)) = 0.92 = 92%
+                CCon = (11/15) + (15/21) - ((11/15)*(15/21)) = 0.92 = 92%
             </p>
             <p>
                 Note that because of the assumptions around Triple Stumpers, the raw CCON calculation can go
                 above 100%. In these cases, it is capped at 100%.
             </p>
             <p>
-                GCON is the weighted average of the contestants' CCONs, which for the J! Round is:
+                GCon is the weighted average of the contestants' CCons, which for the J! Round is:
             </p>
             <p>
-                GCON = (13(Dave's CCON) + 8(Carrie's CCON) + 2(Hung's CCON))/(13+8+2) = 0.90 = 90%
+                GCon = (13(Dave's CCon) + 8(Carrie's CCon) + 2(Hung's CCon))/(13+8+2) = 0.90 = 90%
             </p>
             <p>
                 With the allocations in hand, we can also estimate an expected number of buzzes a contestant
@@ -166,7 +173,13 @@
                 13(0.409) + 8(0.226) + 2(0.224) = 7.57 buzzes total
             </p>
             <p>
-                Since Dave actually had 13 COB, his BCOE is 13 - 7.57 = +5.43 buzzes.
+                Since Dave actually had 13 BuzC, his Speed is 13 - 7.57 = +5.43 buzzes.
+            </p>
+            <p>
+                We can also estimate how many correct buzzes Dave had that were uncontested. This is:
+            </p>
+            <p>
+                Solo = (1 - CCon) * BuzC = (1 - 0.92) * 13 = 1.0 
             </p>
         </div>
         <div id="footer">

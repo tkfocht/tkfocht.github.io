@@ -27,27 +27,29 @@
                         </tr>
                         <tr>
                             <th>Game</th>
-                            <th>ATT</th>
-                            <th>COB</th>
-                            <th>BCOE</th>
-                            <th>EBUC</th>
-                            <th>SOB</th>
-                            <th>DDF</th>
-                            <th>Buzz%</th>
-                            <th>ATT</th>
-                            <th>COB</th>
-                            <th>BCOE</th>
-                            <th>EBUC</th>
-                            <th>SOB</th>
-                            <th>DDF</th>
-                            <th>Buzz%</th>
+                            <th>Att</th>
+                            <th>BuzC</th>
+                            <th>Speed</th>
+                            <th>Solo</th>
+                            <th>Buz$</th>
+                            <th>DD</th>
+                            <th>Buz%</th>
+                            <th>Att</th>
+                            <th>BuzC</th>
+                            <th>Speed</th>
+                            <th>Solo</th>
+                            <th>Buz$</th>
+                            <th>DD</th>
+                            <th>Buz%</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </div>
             <div class="graph-description">
-                ATT = Attempts, COB = Correct on Buzz, BCOE = Buzz (Correct) Over Expectation, EBUC = Estimated Buzzes Uncontested, SOB = Score on Buzz, DDF = Daily Doubles Found
+                Att = Attempts, BuzC = Correct on buzz,
+                Speed = Est. buzzes created through speed, Solo = Estimated buzzes uncontested,
+                Bz$ = Score on buzz, DD = Daily Doubles found
             </div>
         </div>
         <div class="section">
@@ -59,35 +61,35 @@
             <div id="bar-attempts"></div>
         </div>
         <div class="section">
-            <h1>BCOE vs EBUC</h1>
+            <h1>Speed and Solo</h1>
             <div class="graph-description">
-                BCOE is an estimate of additional buzzes a contestant creates through speed (or opponents' lack of speed). A
-                higher BCOE represents winning a higher number of buzzer races. EBUC is an estimate of how many
+                Speed is an estimate of additional buzzes a contestant creates through speed (or opponents' lack of speed). A
+                higher Speed represents winning a higher number of buzzer races. Solo is an estimate of how many
                 of a contestant's correct responses did not have an opponent ringing in with a possibly-correct response.
-                Higher EBUC represents a contestant that is the only player ringing in more often.
+                Higher Solo represents a contestant that is the only player ringing in more often.
             </div>
-            <div id="scatter-bcoe-ebuc-game"></div>
+            <div id="scatter-speed-solo-game"></div>
         </div>
         <div class="section">
-            <h1>BCOE vs EBUC by Round</h1>
+            <h1>Speed and Solo by Round</h1>
             <div class="graph-description">
-                BCOE is an estimate of additional buzzes a contestant creates through speed (or opponents' lack of speed). A
-                higher BCOE represents winning a higher number of buzzer races. EBUC is an estimate of how many
+                Speed is an estimate of additional buzzes a contestant creates through speed (or opponents' lack of speed). A
+                higher Speed represents winning a higher number of buzzer races. Solo is an estimate of how many
                 of a contestant's correct responses did not have an opponent ringing in with a possibly-correct response.
-                Higher EBUC represents a contestant that is the only player ringing in more often. Jeopardy! round
+                Higher Solo represents a contestant that is the only player ringing in more often. Jeopardy! round
                 is circles, connected to Double Jeopardy! round as squares.
             </div>
-            <div id="scatter-bcoe-ebuc-combined"></div>
+            <div id="scatter-speed-solo-combined"></div>
         </div>
         <div class="section">
-            <h1>ATT vs BUZZ%</h1>
+            <h1>Att vs Buz%</h1>
             <div class="graph-description">
                 Number of attempts to buzz and percent of successful buzzes, over the whole game.
             </div>
             <div id="scatter-att-buzz-pct"></div>
         </div>
         <div class="section">
-            <h1>ATT vs BUZZ% by Round</h1>
+            <h1>Att vs Buz% by Round</h1>
             <div class="graph-description">
                 Number of attempts to buzz and percent of successful buzzes, over the whole game. Jeopardy! round
                 is circles, connected to Double Jeopardy! round as squares.
@@ -95,14 +97,14 @@
             <div id="scatter-att-buzz-pct-by-round"></div>
         </div>
         <div class="section">
-            <h1>ATT vs $/ATT</h1>
+            <h1>Att vs Buz$/Att</h1>
             <div class="graph-description">
                 Number of attempts to buzz and money earned on buzzes per attempt, over the whole game.
             </div>
             <div id="scatter-att-score-att"></div>
         </div>
         <div class="section">
-            <h1>ATT vs $/ATT by Round</h1>
+            <h1>Att vs Buz$/Att by Round</h1>
             <div class="graph-description">
                 Number of attempts to buzz and money earned on buzzes per attempt, over the whole game. Jeopardy! round
                 is circles, connected to Double Jeopardy! round as squares.
@@ -110,14 +112,14 @@
             <div id="scatter-att-score-att-by-round"></div>
         </div>
         <div class="section">
-            <h1>ATT vs $/BUZ</h1>
+            <h1>Att vs Buz$/Buz</h1>
             <div class="graph-description">
                 Number of attempts to buzz and money earned per buzz, over the whole game.
             </div>
             <div id="scatter-att-score-buzz"></div>
         </div>
         <div class="section">
-            <h1>ATT vs $/BUZ by Round</h1>
+            <h1>Att vs Buz$/Buz by Round</h1>
             <div class="graph-description">
                 Number of attempts to buzz and money earned per buzz, over the whole game. Jeopardy! round
                 is circles, connected to Double Jeopardy! round as squares.
@@ -300,22 +302,22 @@
                         .text(d => (d));
                 }
 
-                //BCOE vs EBUC
+                //Speed and Solo
                 var bcoeEbucGameScatterSvg = fullGameScatter(
-                    '#scatter-bcoe-ebuc-game',
+                    '#scatter-speed-solo-game',
                     data,
-                    'Total Exp Uncontested', [0, 20], 'EBUC',
-                    'Total Expected Buzz Difference', [-12,20], 'BCOE',
+                    'Total Exp Uncontested', [0, 20], 'Solo',
+                    'Total Expected Buzz Difference', [-12,20], 'Speed',
                     colorFunction, opacityFunction, labelFunction,
                     width, height, margin
                 );
                 addLegend(bcoeEbucGameScatterSvg, width, 0);
 
                 var bcoeEbucByRoundScatterSvg = byRoundScatter(
-                    '#scatter-bcoe-ebuc-combined',
+                    '#scatter-speed-solo-combined',
                     data,
-                    ['J! Exp Uncontested','DJ! Exp Uncontested'], [0, 16], 'EBUC',
-                    ['J! Expected Buzz Difference','DJ! Expected Buzz Difference'], [-10,12], 'BCOE',
+                    ['J! Exp Uncontested','DJ! Exp Uncontested'], [0, 16], 'Solo',
+                    ['J! Expected Buzz Difference','DJ! Expected Buzz Difference'], [-10,12], 'Speed',
                     colorFunction, opacityFunction, labelFunction,
                     width, height, margin
                 );
@@ -326,8 +328,8 @@
                 var attAttSvg = fullGameScatter(
                     '#scatter-att-score-att',
                     data,
-                    'Total Attempt', [0, 60], 'ATT',
-                    'Total Score/Attempt', [-200,800], '$/ATT',
+                    'Total Attempt', [0, 60], 'Att',
+                    'Total Score/Attempt', [-200,800], 'Buz$/Att',
                     colorFunction, opacityFunction, labelFunction,
                     width, height, margin
                 );
@@ -338,8 +340,8 @@
                 var attAttByRoundSvg = byRoundScatter(
                     '#scatter-att-score-att-by-round',
                     data,
-                    ['J! Attempts','DJ! Attempts'], [0, 30], 'ATT',
-                    ['J! Score/Attempt','DJ! Score/Attempt'], [-400,1200], '$/ATT',
+                    ['J! Attempts','DJ! Attempts'], [0, 30], 'Att',
+                    ['J! Score/Attempt','DJ! Score/Attempt'], [-400,1200], 'Buz$/Att',
                     colorFunction, opacityFunction, labelFunction,
                     width, height, margin
                 );
@@ -349,8 +351,8 @@
                 var attBuzSvg = fullGameScatter(
                     '#scatter-att-score-buzz',
                     data,
-                    'Total Attempt', [0, 60], 'ATT',
-                    'Total Score/Buzz', [-300,1000], '$/BUZ',
+                    'Total Attempt', [0, 60], 'Att',
+                    'Total Score/Buzz', [-300,1000], 'Buz$/Buz',
                     colorFunction, opacityFunction, labelFunction,
                     width, height, margin
                 );
@@ -360,8 +362,8 @@
                 var attBuzByRoundSvg = byRoundScatter(
                     '#scatter-att-score-buzz-by-round',
                     data,
-                    ['J! Attempts','DJ! Attempts'], [0, 30], 'ATT',
-                    ['J! Score/Buzz','DJ! Score/Buzz'], [-750,1500], '$/BUZ',
+                    ['J! Attempts','DJ! Attempts'], [0, 30], 'Att',
+                    ['J! Score/Buzz','DJ! Score/Buzz'], [-750,1500], 'Buz$/Buz',
                     colorFunction, opacityFunction, labelFunction,
                     width, height, margin
                 );
@@ -371,8 +373,8 @@
                 var attBuzPctSvg = fullGameScatter(
                     '#scatter-att-buzz-pct',
                     data,
-                    'Total Attempt', [0, 60], 'ATT',
-                    'Total Buzz %', [0, 100], 'BUZZ %',
+                    'Total Attempt', [0, 60], 'Att',
+                    'Total Buzz %', [0, 100], 'Buz%',
                     colorFunction, opacityFunction, labelFunction,
                     width, height, margin
                 );
@@ -382,8 +384,8 @@
                 var attBuzPctByRoundSvg = byRoundScatter(
                     '#scatter-att-buzz-pct-by-round',
                     data,
-                    ['J! Attempts','DJ! Attempts'], [0, 30], 'ATT',
-                    ['J! Buzz %','DJ! Buzz %'], [0, 100], 'BUZZ %',
+                    ['J! Attempts','DJ! Attempts'], [0, 30], 'Att',
+                    ['J! Buzz %','DJ! Buzz %'], [0, 100], 'Buz%',
                     colorFunction, opacityFunction, labelFunction,
                     width, height, margin
                 );
