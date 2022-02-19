@@ -9,6 +9,7 @@
         <script src="/js/util/util.v1.js"></script>
         <script src="/js/graphs/full_game_scatter.v1.js"></script>
         <script src="/js/graphs/by_round_scatter.v1.js"></script>
+        <script src="/js/util/shared_graph_productiion.v1.js"></script>
     </head>
     <body>
         <h1><a href="index.html">J!ometry</a></h1>
@@ -55,6 +56,7 @@
                 Speed = Est. buzzes created through speed, Solo = Estimated buzzes uncontested,
                 Bz$ = Score on buzz, DD = Daily Doubles found, DD+ = Daily Doubles found above expectation
             </div>
+            <div id="scatter-gcon"></div>
         </div>
         <div class="section">
             <h1>Attempt Distribution</h1>
@@ -152,7 +154,6 @@
                 .data([highlightGame])
                 .text(d => d);
             d3.csv(csvUrlForSeason(seasonId)).then(function(data) {
-                //Baseline for graphs
                 var margin = {top: 20, right: 20, bottom: 50, left: 70},
                     width = 960 - margin.left - margin.right,
                     height = 500 - margin.top - margin.bottom;
@@ -161,7 +162,9 @@
                 data.forEach(function(d) {
                     d['Date'] = csvDateParse(d['Date']);
                     d['J! Buzz %'] = 100.0 * d['J! Buzzes'] / d['J! Attempts'];
+                    d['J! GCon %'] = 100.0 * d['J! Game Contention'];
                     d['DJ! Buzz %'] = 100.0 * d['DJ! Buzzes'] / d['DJ! Attempts'];
+                    d['DJ! GCon %'] = 100.0 * d['DJ! Game Contention'];
                     d['Total Buzz %'] = 100.0 * d['Total Buzz'] / d['Total Attempt'];
                     d['highlightGame'] = d['Game Id'] == highlightGame;
                 });
@@ -240,85 +243,24 @@
                         return '<span style="color: ' + color(d) + '">&#9632;</span>&nbsp;<a href="contestant.html?season=' + seasonId + '&contestant=' + d + '">' + d + "</a>";
                     });
 
-                //Speed and Solo
-                var speedSoloGameScatterSvg = fullGameScatter(
-                    '#scatter-speed-solo-game',
-                    data,
-                    'Total Exp Uncontested', [0, 20], 'Solo',
-                    'Total Expected Buzz Difference', [-12,20], 'Speed',
-                    highlightGameColorFunction, highlightGameOpacityFunction, highlightGameLabelFunction,
-                    width, height, margin
+                var gConData = d3.filter(data, d => +d['Podium'] === 1);
+                var gConMin = d3.min(d3.map(gConData, d => d3.min([d['J! GCon %'], d['DJ! GCon %']])));
+                gConMin = 10 * Math.floor(gConMin / 10.0);
+                var gConMax = d3.max(d3.map(gConData, d => d3.max([d['J! GCon %'], d['DJ! GCon %']])));
+                gConMax = 10 * Math.ceil(gConMax / 10.0);
+                var gconScatter = fullGameScatter(
+                    '#scatter-gcon',
+                    gConData,
+                    'J! GCon %', [gConMin, gConMax], 'J! GCon %',
+                    'DJ! GCon %', [gConMin, gConMax], 'DJ! GCon %',
+                    d => "black", d => d['highlightGame'] ? 1.0 : 0.1, d => "",
+                    200, 200, margin
                 );
 
-                var speedSoloByRoundScatterSvg = byRoundScatter(
-                    '#scatter-speed-solo-combined',
-                    data,
-                    ['J! Exp Uncontested','DJ! Exp Uncontested'], [0, 16], 'Solo',
-                    ['J! Expected Buzz Difference','DJ! Expected Buzz Difference'], [-10,12], 'Speed',
+                renderSharedGraphs(data,
                     highlightGameColorFunction, highlightGameOpacityFunction, highlightGameLabelFunction,
-                    width, height, margin
-                );
-
-
-                //ATT vs $/ATT
-                fullGameScatter(
-                    '#scatter-att-score-att',
-                    data,
-                    'Total Attempt', [0, 60], 'Att',
-                    'Total Score/Attempt', [-200,800], 'Buz$/Att',
-                    highlightGameColorFunction, highlightGameOpacityFunction, highlightGameLabelFunction,
-                    width, height, margin
-                );
-
-                //ATT vs $/ATT by Round
-                byRoundScatter(
-                    '#scatter-att-score-att-by-round',
-                    data,
-                    ['J! Attempts','DJ! Attempts'], [0, 30], 'Att',
-                    ['J! Score/Attempt','DJ! Score/Attempt'], [-400,1200], 'Buz$/Att',
-                    highlightGameColorFunction, highlightGameOpacityFunction, highlightGameLabelFunction,
-                    width, height, margin
-                );
-
-                //ATT vs $/BUZ
-                fullGameScatter(
-                    '#scatter-att-score-buzz',
-                    data,
-                    'Total Attempt', [0, 60], 'Att',
-                    'Total Score/Buzz', [-300,1200], 'Buz$/Buz',
-                    highlightGameColorFunction, highlightGameOpacityFunction, highlightGameLabelFunction,
-                    width, height, margin
-                );
-
-                //ATT vs $/BUZ by Round
-                byRoundScatter(
-                    '#scatter-att-score-buzz-by-round',
-                    data,
-                    ['J! Attempts','DJ! Attempts'], [0, 30], 'Att',
-                    ['J! Score/Buzz','DJ! Score/Buzz'], [-750,1500], 'Buz$/Buz',
-                    highlightGameColorFunction, highlightGameOpacityFunction, highlightGameLabelFunction,
-                    width, height, margin
-                );
-
-                //ATT vs Buzz%
-                fullGameScatter(
-                    '#scatter-att-buzz-pct',
-                    data,
-                    'Total Attempt', [0, 60], 'Att',
-                    'Total Buzz %', [0, 100], 'Buz%',
-                    highlightGameColorFunction, highlightGameOpacityFunction, highlightGameLabelFunction,
-                    width, height, margin
-                );
-
-                //ATT vs Buzz% by round
-                byRoundScatter(
-                    '#scatter-att-buzz-pct-by-round',
-                    data,
-                    ['J! Attempts','DJ! Attempts'], [0, 30], 'Att',
-                    ['J! Buzz %','DJ! Buzz %'], [0, 100], 'Buz%',
-                    highlightGameColorFunction, highlightGameOpacityFunction, highlightGameLabelFunction,
-                    width, height, margin
-                );
+                    [], [],
+                    width, height, margin);
 
                 //Attempt Distribution
                 svg = d3.select("#bar-attempts").append("svg")
