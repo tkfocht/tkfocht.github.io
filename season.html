@@ -160,7 +160,7 @@
                 var highlightContestantCounts = d3.rollup(data, v => d3.sum(d3.map(v, cd => (+cd['Wins']))), d => d['Contestant']);
                 var gameThreshold = 1;
                 highlightContestants = d3.filter(highlightContestantCounts.keys(), k => highlightContestantCounts.get(k) >= gameThreshold);
-                while (highlightContestants.length > 12) {
+                while (highlightContestants.length > 10) {
                     gameThreshold += 1;
                     highlightContestants = d3.filter(highlightContestantCounts.keys(), k => highlightContestantCounts.get(k) >= gameThreshold);
                 }
