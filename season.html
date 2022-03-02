@@ -154,9 +154,9 @@
                 //Data transformations
                 data.forEach(function(d) {
                     d['Date'] = csvDateParse(d['Date']);
-                    d['J! Buzz %'] = 100.0 * d['J! Buzzes'] / d['J! Attempts'];
-                    d['DJ! Buzz %'] = 100.0 * d['DJ! Buzzes'] / d['DJ! Attempts'];
-                    d['Total Buzz %'] = 100.0 * d['Total Buzz'] / d['Total Attempt'];
+                    d['JBuz%'] = 100.0 * d['JBuz'] / d['JAtt'];
+                    d['DJBuz%'] = 100.0 * d['DJBuz'] / d['DJAtt'];
+                    d['Buz%'] = 100.0 * d['Buz'] / d['Att'];
                 });
                 var highlightContestantCounts = d3.rollup(data, v => d3.sum(d3.map(v, cd => (+cd['Wins']))), d => d['Contestant']);
                 var gameThreshold = 1;
@@ -196,23 +196,23 @@
                     return {
                         'Contestant': contestant,
                         'Wins': d3.sum(d3.map(contestantData, cd => (+cd['Wins']))),
-                        'Avg J! Attempts': d3.mean(d3.map(contestantData, cd => (+cd['J! Attempts']))),
-                        'Avg J! Buzzes': d3.mean(d3.map(contestantData, cd => (+cd['J! Buzzes']))),
-                        'Avg J! Correct on Buzz': d3.mean(d3.map(contestantData, cd => (+cd['J! Correct on Buzz']))),
-                        'Avg J! Expected Buzz Difference': d3.mean(d3.map(contestantData, cd => (+cd['J! Expected Buzz Difference']))),
-                        'Avg J! Exp Uncontested': d3.mean(d3.map(contestantData, cd => (+cd['J! Exp Uncontested']))),
-                        'Avg J! Score on Buzz': d3.mean(d3.map(contestantData, cd => (+cd['J! Score on Buzz']))),
-                        'Avg J! DDs found': d3.mean(d3.map(contestantData, cd => (+cd['J! DDs found']))),
-                        'Avg J! DDs over Expectation': d3.mean(d3.map(contestantData, cd => (+cd['J! DD Exp Diff']))),
-                        'Avg DJ! Attempts': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Attempts']))),
-                        'Avg DJ! Buzzes': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Buzzes']))),
-                        'Avg DJ! Correct on Buzz': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Correct on Buzz']))),
-                        'Avg DJ! Expected Buzz Difference': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Expected Buzz Difference']))),
-                        'Avg DJ! Exp Uncontested': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Exp Uncontested']))),
-                        'Avg DJ! Score on Buzz': d3.mean(d3.map(contestantData, cd => (+cd['DJ! Score on Buzz']))),
-                        'Avg DJ! DDs found': d3.mean(d3.map(contestantData, cd => (+cd['DJ! DDs found']))),
-                        'Avg DJ! DDs over Expectation': d3.mean(d3.map(contestantData, cd => (+cd['DJ! DD Exp Diff']))),
-                        'Total Buzz %': 100.0 * d3.sum(d3.map(contestantData, cd => (+cd['Total Buzz']))) / d3.sum(d3.map(contestantData, cd => (+cd['Total Attempt'])))
+                        'JAtt': d3.mean(d3.map(contestantData, cd => (+cd['JAtt']))),
+                        'JBuz': d3.mean(d3.map(contestantData, cd => (+cd['JBuz']))),
+                        'JBuzC': d3.mean(d3.map(contestantData, cd => (+cd['JBuzC']))),
+                        'JSpeed': d3.mean(d3.map(contestantData, cd => (+cd['JSpeed']))),
+                        'JSolo': d3.mean(d3.map(contestantData, cd => (+cd['JSolo']))),
+                        'JBuz$': d3.mean(d3.map(contestantData, cd => (+cd['JBuz$']))),
+                        'JDDF': d3.mean(d3.map(contestantData, cd => (+cd['JDDF']))),
+                        'JDD+': d3.mean(d3.map(contestantData, cd => (+cd['JDD+']))),
+                        'DJAtt': d3.mean(d3.map(contestantData, cd => (+cd['DJAtt']))),
+                        'DJBuz': d3.mean(d3.map(contestantData, cd => (+cd['DJBuz']))),
+                        'DJBuzC': d3.mean(d3.map(contestantData, cd => (+cd['DJBuzC']))),
+                        'DJSpeed': d3.mean(d3.map(contestantData, cd => (+cd['DJSpeed']))),
+                        'DJSolo': d3.mean(d3.map(contestantData, cd => (+cd['DJSolo']))),
+                        'DJBuz$': d3.mean(d3.map(contestantData, cd => (+cd['DJBuz$']))),
+                        'DJDDF': d3.mean(d3.map(contestantData, cd => (+cd['DJDDF']))),
+                        'DJDD+': d3.mean(d3.map(contestantData, cd => (+cd['DJDD+']))),
+                        'Buz%': 100.0 * d3.sum(d3.map(contestantData, cd => (+cd['Buz']))) / d3.sum(d3.map(contestantData, cd => (+cd['Att'])))
                     };
                 }
 
@@ -244,21 +244,21 @@
                         return [
                             d['Contestant'],
                             d['Wins'],
-                            d['Avg J! Attempts'].toFixed(1),
-                            d['Avg J! Correct on Buzz'].toFixed(1),
-                            (d['Avg J! Expected Buzz Difference'] >= 0 ? "+" : "") + d['Avg J! Expected Buzz Difference'].toFixed(1),
-                            (+d['Avg J! Exp Uncontested']).toFixed(1),
-                            d['Avg J! Score on Buzz'].toFixed(0),
-                            d['Avg J! DDs found'].toFixed(1),
-                            (d['Avg J! DDs over Expectation'] >= 0 ? "+" : "") + d['Avg J! DDs over Expectation'].toFixed(1),
-                            d['Avg DJ! Attempts'].toFixed(1),
-                            d['Avg DJ! Correct on Buzz'].toFixed(1),
-                            (d['Avg DJ! Expected Buzz Difference'] >= 0 ? "+" : "") + d['Avg DJ! Expected Buzz Difference'].toFixed(1),
-                            (+d['Avg DJ! Exp Uncontested']).toFixed(1),
-                            d['Avg DJ! Score on Buzz'].toFixed(0),
-                            d['Avg DJ! DDs found'].toFixed(1),
-                            (d['Avg DJ! DDs over Expectation'] >= 0 ? "+" : "") + d['Avg DJ! DDs over Expectation'].toFixed(1),
-                            d['Total Buzz %'].toFixed(1)
+                            d['JAtt'].toFixed(1),
+                            d['JBuzC'].toFixed(1),
+                            (d['JSpeed'] >= 0 ? "+" : "") + d['JSpeed'].toFixed(1),
+                            (+d['JSolo']).toFixed(1),
+                            d['JBuz$'].toFixed(0),
+                            d['JDDF'].toFixed(1),
+                            (d['JDD+'] >= 0 ? "+" : "") + d['JDD+'].toFixed(1),
+                            d['DJAtt'].toFixed(1),
+                            d['DJBuzC'].toFixed(1),
+                            (d['DJSpeed'] >= 0 ? "+" : "") + d['DJSpeed'].toFixed(1),
+                            (+d['DJSolo']).toFixed(1),
+                            d['DJBuz$'].toFixed(0),
+                            d['DJDDF'].toFixed(1),
+                            (d['DJDD+'] >= 0 ? "+" : "") + d['DJDD+'].toFixed(1),
+                            d['Buz%'].toFixed(1)
                         ];
                     })
                     .enter()
@@ -316,18 +316,18 @@
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
-                    .attr('y', function(d) { return y(d['Avg J! Correct on Buzz']); })
+                    .attr('y', function(d) { return y(d['JBuzC']); })
                     .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['Avg J! Correct on Buzz']); })
+                    .attr("height", function(d) { return height - y(d['JBuzC']); })
                     .attr("fill", summaryColorFunction);
                 jGIncorrectG.selectAll('rect')
                     .data(summaryDataWithAverage)
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
-                    .attr('y', function(d) { return y(d['Avg J! Buzzes']); })
+                    .attr('y', function(d) { return y(d['JBuz']); })
                     .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['Avg J! Buzzes'] - d['Avg J! Correct on Buzz']); })
+                    .attr("height", function(d) { return height - y(d['JBuz'] - d['JBuzC']); })
                     .attr("fill", summaryColorFunction)
                     .attr("opacity", 0.7);
                 jGLockedG.selectAll('rect')
@@ -335,9 +335,9 @@
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
-                    .attr('y', function(d) { return y(d['Avg J! Attempts']); })
+                    .attr('y', function(d) { return y(d['JAtt']); })
                     .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['Avg J! Attempts'] - d['Avg J! Buzzes']); })
+                    .attr("height", function(d) { return height - y(d['JAtt'] - d['JBuz']); })
                     .attr("fill", summaryColorFunction)
                     .attr("opacity", 0.3);
                 jG.selectAll('text')
@@ -345,8 +345,8 @@
                     .enter()
                     .append('text')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']) + 5; })
-                    .attr('y', function(d) { return y(d['Avg J! Attempts']); })
-                    .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Contestant']) + 5) + ',' + y(d['Avg J! Attempts']) + ')'; })
+                    .attr('y', function(d) { return y(d['JAtt']); })
+                    .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Contestant']) + 5) + ',' + y(d['JAtt']) + ')'; })
                     .text(d => d['Contestant']);
 
                 var djG = svg.append('g')
@@ -359,18 +359,18 @@
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
-                    .attr('y', function(d) { return y(d['Avg DJ! Correct on Buzz']); })
+                    .attr('y', function(d) { return y(d['DJBuzC']); })
                     .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['Avg DJ! Correct on Buzz']); })
+                    .attr("height", function(d) { return height - y(d['DJBuzC']); })
                     .attr("fill", summaryColorFunction);
                 djGIncorrectG.selectAll('rect')
                     .data(summaryDataWithAverage)
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
-                    .attr('y', function(d) { return y(d['Avg DJ! Buzzes']); })
+                    .attr('y', function(d) { return y(d['DJBuz']); })
                     .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['Avg DJ! Buzzes'] - d['Avg DJ! Correct on Buzz']); })
+                    .attr("height", function(d) { return height - y(d['DJBuz'] - d['DJBuzC']); })
                     .attr("fill", summaryColorFunction)
                     .attr("opacity", 0.7);
                 djGLockedG.selectAll('rect')
@@ -378,9 +378,9 @@
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
-                    .attr('y', function(d) { return y(d['Avg DJ! Attempts']); })
+                    .attr('y', function(d) { return y(d['DJAtt']); })
                     .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['Avg DJ! Attempts'] - d['Avg DJ! Buzzes']); })
+                    .attr("height", function(d) { return height - y(d['DJAtt'] - d['DJBuz']); })
                     .attr("fill", summaryColorFunction)
                     .attr("opacity", 0.3);
                 djG.selectAll('text')
@@ -388,8 +388,8 @@
                     .enter()
                     .append('text')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']) + 5; })
-                    .attr('y', function(d) { return y(d['Avg DJ! Attempts']); })
-                    .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Contestant']) + 5) + ',' + y(d['Avg DJ! Attempts']) + ')'; })
+                    .attr('y', function(d) { return y(d['DJAtt']); })
+                    .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Contestant']) + 5) + ',' + y(d['DJAtt']) + ')'; })
                     .text(d => d['Contestant']);
 
 

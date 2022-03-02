@@ -149,9 +149,9 @@
                 //Data transformations
                 data.forEach(function(d) {
                     d['Date'] = csvDateParse(d['Date']);
-                    d['J! Buzz %'] = 100.0 * d['J! Buzzes'] / d['J! Attempts'];
-                    d['DJ! Buzz %'] = 100.0 * d['DJ! Buzzes'] / d['DJ! Attempts'];
-                    d['Total Buzz %'] = 100.0 * d['Total Buzz'] / d['Total Attempt'];
+                    d['JBuz%'] = 100.0 * d['JBuz'] / d['JAtt'];
+                    d['DJBuz%'] = 100.0 * d['DJBuz'] / d['DJAtt'];
+                    d['Buz%'] = 100.0 * d['Buz'] / d['Att'];
                 });
                 data.forEach(function(d) {
                     d['highlightContestant'] = contestantId === d['Contestant'];
@@ -185,22 +185,22 @@
                     ([gameId, gameData]) => ({
                         'Game Id': gameId,
                         'Date': gameData[0]['Date'],
-                        'J! Attempts': +gameData[0]['J! Attempts'],
-                        'J! Buzzes': +gameData[0]['J! Buzzes'],
-                        'J! Correct on Buzz': +gameData[0]['J! Correct on Buzz'],
-                        'J! Expected Buzz Difference': +gameData[0]['J! Expected Buzz Difference'],
-                        'J! Exp Uncontested': +gameData[0]['J! Exp Uncontested'],
-                        'J! Score on Buzz': +gameData[0]['J! Score on Buzz'],
-                        'J! DDs found': +gameData[0]['J! DDs found'],
-                        'J! Buzz %': +gameData[0]['J! Buzz %'],
-                        'DJ! Attempts': +gameData[0]['DJ! Attempts'],
-                        'DJ! Buzzes': +gameData[0]['DJ! Buzzes'],
-                        'DJ! Correct on Buzz': +gameData[0]['DJ! Correct on Buzz'],
-                        'DJ! Expected Buzz Difference': +gameData[0]['DJ! Expected Buzz Difference'],
-                        'DJ! Exp Uncontested': +gameData[0]['DJ! Exp Uncontested'],
-                        'DJ! Score on Buzz': +gameData[0]['DJ! Score on Buzz'],
-                        'DJ! DDs found': +gameData[0]['DJ! DDs found'],
-                        'DJ! Buzz %': +gameData[0]['DJ! Buzz %'],
+                        'JAtt': +gameData[0]['JAtt'],
+                        'JBuz': +gameData[0]['JBuz'],
+                        'JBuzC': +gameData[0]['JBuzC'],
+                        'JSpeed': +gameData[0]['JSpeed'],
+                        'JSolo': +gameData[0]['JSolo'],
+                        'JBuz$': +gameData[0]['JBuz$'],
+                        'JDDF': +gameData[0]['JDDF'],
+                        'JBuz%': +gameData[0]['JBuz%'],
+                        'DJAtt': +gameData[0]['DJAtt'],
+                        'DJBuz': +gameData[0]['DJBuz'],
+                        'DJBuzC': +gameData[0]['DJBuzC'],
+                        'DJSpeed': +gameData[0]['DJSpeed'],
+                        'DJSolo': +gameData[0]['DJSolo'],
+                        'DJBuz$': +gameData[0]['DJBuz$'],
+                        'DJDDF': +gameData[0]['DJDDF'],
+                        'DJBuz%': +gameData[0]['DJBuz%'],
                         'Data': gameData
                     }));
                 summaryData.sort(function(a,b) { return a['Game Id'] - b['Game Id']; });
@@ -208,41 +208,41 @@
                 var contestantAverageLabel = "Average";
                 var contestantAverageSummary = {
                     'Game Id': contestantAverageLabel,
-                    'J! Attempts': (d3.map(summaryData, cd => (+cd['J! Attempts'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
-                    'J! Buzzes': (d3.map(summaryData, cd => (+cd['J! Buzzes'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
-                    'J! Correct on Buzz': (d3.map(summaryData, cd => (+cd['J! Correct on Buzz'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
-                    'J! Expected Buzz Difference': (d3.map(summaryData, cd => (+cd['J! Expected Buzz Difference'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
-                    'J! Exp Uncontested': (d3.map(summaryData, cd => (+cd['J! Exp Uncontested'])).reduce((a, b) => a + b) / summaryData.length),
-                    'J! Score on Buzz': (d3.map(summaryData, cd => (+cd['J! Score on Buzz'])).reduce((a, b) => a + b) / summaryData.length).toFixed(0),
-                    'J! DDs found': (d3.map(summaryData, cd => (+cd['J! DDs found'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
-                    'J! Buzz %': 100.0 * d3.map(summaryData, cd => (+cd['J! Buzzes'])).reduce((a, b) => a + b) / d3.map(summaryData, cd => (+cd['J! Attempts'])).reduce((a, b) => a + b),
-                    'DJ! Attempts': (d3.map(summaryData, cd => (+cd['DJ! Attempts'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
-                    'DJ! Buzzes': (d3.map(summaryData, cd => (+cd['DJ! Buzzes'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
-                    'DJ! Correct on Buzz': (d3.map(summaryData, cd => (+cd['DJ! Correct on Buzz'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
-                    'DJ! Expected Buzz Difference': (d3.map(summaryData, cd => (+cd['DJ! Expected Buzz Difference'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
-                    'DJ! Exp Uncontested': (d3.map(summaryData, cd => (+cd['DJ! Exp Uncontested'])).reduce((a, b) => a + b) / summaryData.length),
-                    'DJ! Score on Buzz': (d3.map(summaryData, cd => (+cd['DJ! Score on Buzz'])).reduce((a, b) => a + b) / summaryData.length).toFixed(0),
-                    'DJ! DDs found': (d3.map(summaryData, cd => (+cd['DJ! DDs found'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
-                    'DJ! Buzz %': 100.0 * d3.map(summaryData, cd => (+cd['DJ! Buzzes'])).reduce((a, b) => a + b) / d3.map(summaryData, cd => (+cd['DJ! Attempts'])).reduce((a, b) => a + b)
+                    'JAtt': (d3.map(summaryData, cd => (+cd['JAtt'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
+                    'JBuz': (d3.map(summaryData, cd => (+cd['JBuz'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
+                    'JBuzC': (d3.map(summaryData, cd => (+cd['JBuzC'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
+                    'JSpeed': (d3.map(summaryData, cd => (+cd['JSpeed'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
+                    'JSolo': (d3.map(summaryData, cd => (+cd['JSolo'])).reduce((a, b) => a + b) / summaryData.length),
+                    'JBuz$': (d3.map(summaryData, cd => (+cd['JBuz$'])).reduce((a, b) => a + b) / summaryData.length).toFixed(0),
+                    'JDDF': (d3.map(summaryData, cd => (+cd['JDDF'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
+                    'JBuz%': 100.0 * d3.map(summaryData, cd => (+cd['JBuz'])).reduce((a, b) => a + b) / d3.map(summaryData, cd => (+cd['JAtt'])).reduce((a, b) => a + b),
+                    'DJAtt': (d3.map(summaryData, cd => (+cd['DJAtt'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
+                    'DJBuz': (d3.map(summaryData, cd => (+cd['DJBuz'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
+                    'DJBuzC': (d3.map(summaryData, cd => (+cd['DJBuzC'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
+                    'DJSpeed': (d3.map(summaryData, cd => (+cd['DJSpeed'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
+                    'DJSolo': (d3.map(summaryData, cd => (+cd['DJSolo'])).reduce((a, b) => a + b) / summaryData.length),
+                    'DJBuz$': (d3.map(summaryData, cd => (+cd['DJBuz$'])).reduce((a, b) => a + b) / summaryData.length).toFixed(0),
+                    'DJDDF': (d3.map(summaryData, cd => (+cd['DJDDF'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
+                    'DJBuz%': 100.0 * d3.map(summaryData, cd => (+cd['DJBuz'])).reduce((a, b) => a + b) / d3.map(summaryData, cd => (+cd['DJAtt'])).reduce((a, b) => a + b)
                 };
                 var seasonAverageSummary = {
                     'Game Id': seasonAverageLabel,
-                    'J! Attempts': (d3.map(data, cd => (+cd['J! Attempts'])).reduce((a, b) => a + b) / data.length).toFixed(1),
-                    'J! Buzzes': (d3.map(data, cd => (+cd['J! Buzzes'])).reduce((a, b) => a + b) / data.length).toFixed(1),
-                    'J! Correct on Buzz': (d3.map(data, cd => (+cd['J! Correct on Buzz'])).reduce((a, b) => a + b) / data.length).toFixed(1),
-                    'J! Expected Buzz Difference': (d3.map(data, cd => (+cd['J! Expected Buzz Difference'])).reduce((a, b) => a + b) / data.length).toFixed(1),
-                    'J! Exp Uncontested': (d3.map(data, cd => (+cd['J! Exp Uncontested'])).reduce((a, b) => a + b) / data.length),
-                    'J! Score on Buzz': (d3.map(data, cd => (+cd['J! Score on Buzz'])).reduce((a, b) => a + b) / data.length).toFixed(0),
-                    'J! DDs found': (d3.map(data, cd => (+cd['J! DDs found'])).reduce((a, b) => a + b) / data.length).toFixed(1),
-                    'J! Buzz %': 100.0 * d3.map(data, cd => (+cd['J! Buzzes'])).reduce((a, b) => a + b) / d3.map(data, cd => (+cd['J! Attempts'])).reduce((a, b) => a + b),
-                    'DJ! Attempts': (d3.map(data, cd => (+cd['DJ! Attempts'])).reduce((a, b) => a + b) / data.length).toFixed(1),
-                    'DJ! Buzzes': (d3.map(data, cd => (+cd['DJ! Buzzes'])).reduce((a, b) => a + b) / data.length).toFixed(1),
-                    'DJ! Correct on Buzz': (d3.map(data, cd => (+cd['DJ! Correct on Buzz'])).reduce((a, b) => a + b) / data.length).toFixed(1),
-                    'DJ! Expected Buzz Difference': (d3.map(data, cd => (+cd['DJ! Expected Buzz Difference'])).reduce((a, b) => a + b) / data.length).toFixed(1),
-                    'DJ! Exp Uncontested': (d3.map(data, cd => (+cd['DJ! Exp Uncontested'])).reduce((a, b) => a + b) / data.length),
-                    'DJ! Score on Buzz': (d3.map(data, cd => (+cd['DJ! Score on Buzz'])).reduce((a, b) => a + b) / data.length).toFixed(0),
-                    'DJ! DDs found': (d3.map(data, cd => (+cd['DJ! DDs found'])).reduce((a, b) => a + b) / data.length).toFixed(1),
-                    'DJ! Buzz %': 100.0 * d3.map(data, cd => (+cd['DJ! Buzzes'])).reduce((a, b) => a + b) / d3.map(data, cd => (+cd['DJ! Attempts'])).reduce((a, b) => a + b)
+                    'JAtt': (d3.map(data, cd => (+cd['JAtt'])).reduce((a, b) => a + b) / data.length).toFixed(1),
+                    'JBuz': (d3.map(data, cd => (+cd['JBuz'])).reduce((a, b) => a + b) / data.length).toFixed(1),
+                    'JBuzC': (d3.map(data, cd => (+cd['JBuzC'])).reduce((a, b) => a + b) / data.length).toFixed(1),
+                    'JSpeed': (d3.map(data, cd => (+cd['JSpeed'])).reduce((a, b) => a + b) / data.length).toFixed(1),
+                    'JSolo': (d3.map(data, cd => (+cd['JSolo'])).reduce((a, b) => a + b) / data.length),
+                    'JBuz$': (d3.map(data, cd => (+cd['JBuz$'])).reduce((a, b) => a + b) / data.length).toFixed(0),
+                    'JDDF': (d3.map(data, cd => (+cd['JDDF'])).reduce((a, b) => a + b) / data.length).toFixed(1),
+                    'JBuz%': 100.0 * d3.map(data, cd => (+cd['JBuz'])).reduce((a, b) => a + b) / d3.map(data, cd => (+cd['JAtt'])).reduce((a, b) => a + b),
+                    'DJAtt': (d3.map(data, cd => (+cd['DJAtt'])).reduce((a, b) => a + b) / data.length).toFixed(1),
+                    'DJBuz': (d3.map(data, cd => (+cd['DJBuz'])).reduce((a, b) => a + b) / data.length).toFixed(1),
+                    'DJBuzC': (d3.map(data, cd => (+cd['DJBuzC'])).reduce((a, b) => a + b) / data.length).toFixed(1),
+                    'DJSpeed': (d3.map(data, cd => (+cd['DJSpeed'])).reduce((a, b) => a + b) / data.length).toFixed(1),
+                    'DJSolo': (d3.map(data, cd => (+cd['DJSolo'])).reduce((a, b) => a + b) / data.length),
+                    'DJBuz$': (d3.map(data, cd => (+cd['DJBuz$'])).reduce((a, b) => a + b) / data.length).toFixed(0),
+                    'DJDDF': (d3.map(data, cd => (+cd['DJDDF'])).reduce((a, b) => a + b) / data.length).toFixed(1),
+                    'DJBuz%': 100.0 * d3.map(data, cd => (+cd['DJBuz'])).reduce((a, b) => a + b) / d3.map(data, cd => (+cd['DJAtt'])).reduce((a, b) => a + b)
                 };
 
                 var summaryDataWithAverage = summaryData.concat([contestantAverageSummary, seasonAverageSummary]);
@@ -256,20 +256,20 @@
                     .data(function(d,i) {
                         return [
                             (d['Game Id'] === contestantAverageLabel || d['Game Id'] === seasonAverageLabel) ? d['Game Id'] : '<a href="game.html?season=' + seasonId + '&game_id=' + d['Game Id'] + '">#' + d['Game Id'] + '</a>&nbsp;' + dateFormat(d['Date']),
-                            d['J! Attempts'],
-                            d['J! Correct on Buzz'],
-                            (+d['J! Expected Buzz Difference'] > 0 ? "+" : "") + (+d['J! Expected Buzz Difference']).toFixed(1),
-                            (+d['J! Exp Uncontested']).toFixed(1),
-                            d['J! Score on Buzz'],
-                            d['J! DDs found'],
-                            d['J! Buzz %'].toFixed(1),
-                            d['DJ! Attempts'],
-                            d['DJ! Correct on Buzz'],
-                            (+d['DJ! Expected Buzz Difference'] > 0 ? "+" : "") + (+d['DJ! Expected Buzz Difference']).toFixed(1),
-                            (+d['DJ! Exp Uncontested']).toFixed(1),
-                            d['DJ! Score on Buzz'],
-                            d['DJ! DDs found'],
-                            d['DJ! Buzz %'].toFixed(1)
+                            d['JAtt'],
+                            d['JBuzC'],
+                            (+d['JSpeed'] > 0 ? "+" : "") + (+d['JSpeed']).toFixed(1),
+                            (+d['JSolo']).toFixed(1),
+                            d['JBuz$'],
+                            d['JDDF'],
+                            d['JBuz%'].toFixed(1),
+                            d['DJAtt'],
+                            d['DJBuzC'],
+                            (+d['DJSpeed'] > 0 ? "+" : "") + (+d['DJSpeed']).toFixed(1),
+                            (+d['DJSolo']).toFixed(1),
+                            d['DJBuz$'],
+                            d['DJDDF'],
+                            d['DJBuz%'].toFixed(1)
                         ];
                     })
                     .enter()
@@ -333,18 +333,18 @@
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Game Id']); })
-                    .attr('y', function(d) { return y(d['J! Correct on Buzz']); })
+                    .attr('y', function(d) { return y(d['JBuzC']); })
                     .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['J! Correct on Buzz']); })
+                    .attr("height", function(d) { return height - y(d['JBuzC']); })
                     .attr("fill", summaryColorFunction);
                 jGIncorrectG.selectAll('rect')
                     .data(summaryDataWithAverage)
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Game Id']); })
-                    .attr('y', function(d) { return y(d['J! Buzzes']); })
+                    .attr('y', function(d) { return y(d['JBuz']); })
                     .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['J! Buzzes'] - d['J! Correct on Buzz']); })
+                    .attr("height", function(d) { return height - y(d['JBuz'] - d['JBuzC']); })
                     .attr("fill", summaryColorFunction)
                     .attr("opacity", 0.7);
                 jGLockedG.selectAll('rect')
@@ -352,9 +352,9 @@
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Game Id']); })
-                    .attr('y', function(d) { return y(d['J! Attempts']); })
+                    .attr('y', function(d) { return y(d['JAtt']); })
                     .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['J! Attempts'] - d['J! Buzzes']); })
+                    .attr("height", function(d) { return height - y(d['JAtt'] - d['JBuz']); })
                     .attr("fill", summaryColorFunction)
                     .attr("opacity", 0.3);
                 jG.selectAll('text')
@@ -362,8 +362,8 @@
                     .enter()
                     .append('text')
                     .attr('x', function(d) { return xSubgroup(d['Game Id']) + 5; })
-                    .attr('y', function(d) { return y(d['J! Attempts']); })
-                    .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Game Id']) + 5) + ',' + y(d['J! Attempts']) + ')'; })
+                    .attr('y', function(d) { return y(d['JAtt']); })
+                    .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Game Id']) + 5) + ',' + y(d['JAtt']) + ')'; })
                     .text(d => ((d['Game Id'] === contestantAverageLabel || d['Game Id'] === seasonAverageLabel) ? '' : '#') + d['Game Id']);
 
                 var djG = svg.append('g')
@@ -376,18 +376,18 @@
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Game Id']); })
-                    .attr('y', function(d) { return y(d['DJ! Correct on Buzz']); })
+                    .attr('y', function(d) { return y(d['DJBuzC']); })
                     .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['DJ! Correct on Buzz']); })
+                    .attr("height", function(d) { return height - y(d['DJBuzC']); })
                     .attr("fill", summaryColorFunction);
                 djGIncorrectG.selectAll('rect')
                     .data(summaryDataWithAverage)
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Game Id']); })
-                    .attr('y', function(d) { return y(d['DJ! Buzzes']); })
+                    .attr('y', function(d) { return y(d['DJBuz']); })
                     .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['DJ! Buzzes'] - d['DJ! Correct on Buzz']); })
+                    .attr("height", function(d) { return height - y(d['DJBuz'] - d['DJBuzC']); })
                     .attr("fill", summaryColorFunction)
                     .attr("opacity", 0.7);
                 djGLockedG.selectAll('rect')
@@ -395,9 +395,9 @@
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Game Id']); })
-                    .attr('y', function(d) { return y(d['DJ! Attempts']); })
+                    .attr('y', function(d) { return y(d['DJAtt']); })
                     .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['DJ! Attempts'] - d['DJ! Buzzes']); })
+                    .attr("height", function(d) { return height - y(d['DJAtt'] - d['DJBuz']); })
                     .attr("fill", summaryColorFunction)
                     .attr("opacity", 0.3);
                 djG.selectAll('text')
@@ -405,8 +405,8 @@
                     .enter()
                     .append('text')
                     .attr('x', function(d) { return xSubgroup(d['Game Id']) + 5; })
-                    .attr('y', function(d) { return y(d['DJ! Attempts']); })
-                    .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Game Id']) + 5) + ',' + y(d['DJ! Attempts']) + ')'; })
+                    .attr('y', function(d) { return y(d['DJAtt']); })
+                    .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Game Id']) + 5) + ',' + y(d['DJAtt']) + ')'; })
                     .text(d => ((d['Game Id'] === contestantAverageLabel || d['Game Id'] === seasonAverageLabel) ? '' : '#') + d['Game Id']);
 
 

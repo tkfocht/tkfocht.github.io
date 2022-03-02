@@ -159,11 +159,11 @@
                 //Data transformations
                 data.forEach(function(d) {
                     d['Date'] = csvDateParse(d['Date']);
-                    d['J! Buzz %'] = 100.0 * d['J! Buzzes'] / d['J! Attempts'];
-                    d['J! GCon %'] = 100.0 * d['J! Game Contention'];
-                    d['DJ! Buzz %'] = 100.0 * d['DJ! Buzzes'] / d['DJ! Attempts'];
-                    d['DJ! GCon %'] = 100.0 * d['DJ! Game Contention'];
-                    d['Total Buzz %'] = 100.0 * d['Total Buzz'] / d['Total Attempt'];
+                    d['JBuz%'] = 100.0 * d['JBuz'] / d['JAtt'];
+                    d['JGCon%'] = 100.0 * d['JGCon'];
+                    d['DJBuz%'] = 100.0 * d['DJBuz'] / d['DJAtt'];
+                    d['DJGCon%'] = 100.0 * d['DJGCon'];
+                    d['Buz%'] = 100.0 * d['Buz'] / d['Att'];
                     d['highlightGame'] = d['Game Id'] == highlightGame;
                 });
                 var highlightGameData = d3.filter(data, d => d['highlightGame']);
@@ -208,30 +208,30 @@
                     .enter()
                     .append("tr");
                 d3.select("#game-summary span#j-gcon")
-                    .text((100 * highlightGameData[0]['J! Game Contention']).toFixed(0) + "%");
+                    .text((100 * highlightGameData[0]['JGCon']).toFixed(0) + "%");
                 d3.select("#game-summary span#dj-gcon")
-                    .text((100 * highlightGameData[0]['DJ! Game Contention']).toFixed(0) + "%");
+                    .text((100 * highlightGameData[0]['DJGCon']).toFixed(0) + "%");
                 summaryTr.selectAll("td")
                     .data(function(d,i) {
                         return [
                             d['Contestant'],
-                            d['J! Attempts'],
-                            d['J! Correct on Buzz'],
-                            (+d['J! Expected Buzz Difference'] > 0 ? "+" : "" ) + (+d['J! Expected Buzz Difference']).toFixed(1),
-                            (+d['J! Exp Uncontested']).toFixed(1),
-                            d['J! Score on Buzz'],
-                            d['J! DDs found'],
-                            (+d['J! DD Exp Diff'] > 0 ? "+" : "" ) + (+d['J! DD Exp Diff']).toFixed(2),
-                            d['DJ! Attempts'],
-                            d['DJ! Correct on Buzz'],
-                            (+d['DJ! Expected Buzz Difference'] > 0 ? "+" : "" ) + (+d['DJ! Expected Buzz Difference']).toFixed(1),
-                            (+d['DJ! Exp Uncontested']).toFixed(1),
-                            d['DJ! Score on Buzz'],
-                            d['DJ! DDs found'],
-                            (+d['DJ! DD Exp Diff'] > 0 ? "+" : "" ) + (+d['DJ! DD Exp Diff']).toFixed(2),
-                            d['Total Score on Buzz'],
-                            d['DJ! End Score'],
-                            d['FJ! End Score']
+                            d['JAtt'],
+                            d['JBuzC'],
+                            (+d['JSpeed'] > 0 ? "+" : "" ) + (+d['JSpeed']).toFixed(1),
+                            (+d['JSolo']).toFixed(1),
+                            d['JBuz$'],
+                            d['JDDF'],
+                            (+d['JDD+'] > 0 ? "+" : "" ) + (+d['JDD+']).toFixed(2),
+                            d['DJAtt'],
+                            d['DJBuzC'],
+                            (+d['DJSpeed'] > 0 ? "+" : "" ) + (+d['DJSpeed']).toFixed(1),
+                            (+d['DJSolo']).toFixed(1),
+                            d['DJBuz$'],
+                            d['DJDDF'],
+                            (+d['DJDD+'] > 0 ? "+" : "" ) + (+d['DJDD+']).toFixed(2),
+                            d['Buz$'],
+                            d['DJFinal$'],
+                            d['FJFinal$']
                         ];
                     })
                     .enter()
@@ -242,15 +242,15 @@
                     });
 
                 var gConData = d3.filter(data, d => +d['Podium'] === 1);
-                var gConMin = d3.min(d3.map(gConData, d => d3.min([d['J! GCon %'], d['DJ! GCon %']])));
+                var gConMin = d3.min(d3.map(gConData, d => d3.min([d['JGCon%'], d['DJGCon%']])));
                 gConMin = 10 * Math.floor(gConMin / 10.0);
-                var gConMax = d3.max(d3.map(gConData, d => d3.max([d['J! GCon %'], d['DJ! GCon %']])));
+                var gConMax = d3.max(d3.map(gConData, d => d3.max([d['JGCon%'], d['DJGCon%']])));
                 gConMax = 10 * Math.ceil(gConMax / 10.0);
                 var gconScatter = fullGameScatter(
                     '#scatter-gcon',
                     gConData,
-                    'J! GCon %', [gConMin, gConMax], 'J! GCon %',
-                    'DJ! GCon %', [gConMin, gConMax], 'DJ! GCon %',
+                    'JGCon%', [gConMin, gConMax], 'J! GCon %',
+                    'DJGCon%', [gConMin, gConMax], 'DJ! GCon %',
                     d => "black", d => d['highlightGame'] ? 1.0 : 0.1, d => "",
                     200, 200, margin
                 );
@@ -301,18 +301,18 @@
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
-                    .attr('y', function(d) { return y(d['J! Correct on Buzz']); })
+                    .attr('y', function(d) { return y(d['JBuzC']); })
                     .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['J! Correct on Buzz']); })
+                    .attr("height", function(d) { return height - y(d['JBuzC']); })
                     .attr("fill", highlightGameColorFunction);
                 jGIncorrectG.selectAll('rect')
                     .data(highlightGameData)
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
-                    .attr('y', function(d) { return y(d['J! Buzzes']); })
+                    .attr('y', function(d) { return y(d['JBuz']); })
                     .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['J! Buzzes'] - d['J! Correct on Buzz']); })
+                    .attr("height", function(d) { return height - y(d['JBuz'] - d['JBuzC']); })
                     .attr("fill", highlightGameColorFunction)
                     .attr("opacity", 0.7);
                 jGLockedG.selectAll('rect')
@@ -320,9 +320,9 @@
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
-                    .attr('y', function(d) { return y(d['J! Attempts']); })
+                    .attr('y', function(d) { return y(d['JAtt']); })
                     .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['J! Attempts'] - d['J! Buzzes']); })
+                    .attr("height", function(d) { return height - y(d['JAtt'] - d['JBuz']); })
                     .attr("fill", highlightGameColorFunction)
                     .attr("opacity", 0.3);
 
@@ -336,18 +336,18 @@
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
-                    .attr('y', function(d) { return y(d['DJ! Correct on Buzz']); })
+                    .attr('y', function(d) { return y(d['DJBuzC']); })
                     .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['DJ! Correct on Buzz']); })
+                    .attr("height", function(d) { return height - y(d['DJBuzC']); })
                     .attr("fill", highlightGameColorFunction);
                 djGIncorrectG.selectAll('rect')
                     .data(highlightGameData)
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
-                    .attr('y', function(d) { return y(d['DJ! Buzzes']); })
+                    .attr('y', function(d) { return y(d['DJBuz']); })
                     .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['DJ! Buzzes'] - d['DJ! Correct on Buzz']); })
+                    .attr("height", function(d) { return height - y(d['DJBuz'] - d['DJBuzC']); })
                     .attr("fill", highlightGameColorFunction)
                     .attr("opacity", 0.7);
                 djGLockedG.selectAll('rect')
@@ -355,9 +355,9 @@
                     .enter()
                     .append('rect')
                     .attr('x', function(d) { return xSubgroup(d['Contestant']); })
-                    .attr('y', function(d) { return y(d['DJ! Attempts']); })
+                    .attr('y', function(d) { return y(d['DJAtt']); })
                     .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['DJ! Attempts'] - d['DJ! Buzzes']); })
+                    .attr("height", function(d) { return height - y(d['DJAtt'] - d['DJBuz']); })
                     .attr("fill", highlightGameColorFunction)
                     .attr("opacity", 0.3);
 
