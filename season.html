@@ -27,37 +27,38 @@
                     <thead>
                         <tr>
                             <th colspan="2" class="empty"></th>
-                            <th colspan="7">Jeopardy! Round Avg</th>
-                            <th colspan="7">Double Jeopardy! Round Avg</th>
+                            <th colspan="8">Jeopardy! Round Avg</th>
+                            <th colspan="8">Double Jeopardy! Round Avg</th>
                             <th colspan="1" class="empty"></th>
                         </tr>
                         <tr>
                             <th>Contestant</th>
                             <th>Wins</th>
                             <th>Att</th>
+                            <th>ExpBuz</th>
                             <th>BuzC</th>
                             <th>Speed</th>
                             <th>Solo</th>
                             <th>Buz$</th>
-                            <th>DD</th>
+                            <th>DDF</th>
                             <th>DD+</th>
                             <th>Att</th>
+                            <th>ExpBuz</th>
                             <th>BuzC</th>
                             <th>Speed</th>
                             <th>Solo</th>
                             <th>Buz$</th>
-                            <th>DD</th>
+                            <th>DDF</th>
                             <th>DD+</th>
-                            <th>Total Buz%</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </div>
             <div class="graph-description">
-                Att = Attempts, BuzC = Correct on buzz,
+                Att = Attempts, ExpBuz = Expected buzzes, BuzC = Correct on buzz,
                 Speed = Est. buzzes created through speed, Solo = Estimated buzzes uncontested,
-                Bz$ = Score on buzz, DD = Daily Doubles found, DD+ = Daily Doubles found above expectation
+                Buz$ = Score on buzz, DDF = Daily Doubles found, DD+ = Daily Doubles found above expectation
             </div>
         </div>
         <div class="section">
@@ -139,6 +140,7 @@
                         'Wins': d3.sum(d3.map(contestantData, cd => (+cd['Wins']))),
                         'JAtt': d3.mean(d3.map(contestantData, cd => (+cd['JAtt']))),
                         'JBuz': d3.mean(d3.map(contestantData, cd => (+cd['JBuz']))),
+                        'JExpBuz': d3.mean(d3.map(contestantData, cd => (+cd['JExpBuz']))),
                         'JBuzC': d3.mean(d3.map(contestantData, cd => (+cd['JBuzC']))),
                         'JSpeed': d3.mean(d3.map(contestantData, cd => (+cd['JSpeed']))),
                         'JSolo': d3.mean(d3.map(contestantData, cd => (+cd['JSolo']))),
@@ -147,6 +149,7 @@
                         'JDD+': d3.mean(d3.map(contestantData, cd => (+cd['JDD+']))),
                         'DJAtt': d3.mean(d3.map(contestantData, cd => (+cd['DJAtt']))),
                         'DJBuz': d3.mean(d3.map(contestantData, cd => (+cd['DJBuz']))),
+                        'DJExpBuz': d3.mean(d3.map(contestantData, cd => (+cd['DJExpBuz']))),
                         'DJBuzC': d3.mean(d3.map(contestantData, cd => (+cd['DJBuzC']))),
                         'DJSpeed': d3.mean(d3.map(contestantData, cd => (+cd['DJSpeed']))),
                         'DJSolo': d3.mean(d3.map(contestantData, cd => (+cd['DJSolo']))),
@@ -186,6 +189,7 @@
                             d['Contestant'],
                             d['Wins'],
                             d['JAtt'].toFixed(1),
+                            d['JExpBuz'].toFixed(1),
                             d['JBuzC'].toFixed(1),
                             (d['JSpeed'] >= 0 ? "+" : "") + d['JSpeed'].toFixed(1),
                             (+d['JSolo']).toFixed(1),
@@ -193,13 +197,13 @@
                             d['JDDF'].toFixed(1),
                             (d['JDD+'] >= 0 ? "+" : "") + d['JDD+'].toFixed(1),
                             d['DJAtt'].toFixed(1),
+                            d['DJExpBuz'].toFixed(1),
                             d['DJBuzC'].toFixed(1),
                             (d['DJSpeed'] >= 0 ? "+" : "") + d['DJSpeed'].toFixed(1),
                             (+d['DJSolo']).toFixed(1),
                             d['DJBuz$'].toFixed(0),
                             d['DJDDF'].toFixed(1),
-                            (d['DJDD+'] >= 0 ? "+" : "") + d['DJDD+'].toFixed(1),
-                            d['Buz%'].toFixed(1)
+                            (d['DJDD+'] >= 0 ? "+" : "") + d['DJDD+'].toFixed(1)
                         ];
                     })
                     .enter()
