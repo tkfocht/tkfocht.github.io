@@ -12,7 +12,9 @@ var fullGameScatter = function(
     labelFunction,
     width,
     height,
-    margin
+    margin,
+    dotFilter = d => true,
+    squareFilter = d => false
 ) {
     var svg = d3.select(containerId)
         .append("svg")
@@ -30,7 +32,7 @@ var fullGameScatter = function(
     var size = 5;
 
     svg.selectAll("dot")
-        .data(d3.filter(data, d => +d['Wins'] === 0))
+        .data(d3.filter(data, dotFilter))
         .enter()
         .append("circle")
         .attr("r", size)
@@ -41,7 +43,7 @@ var fullGameScatter = function(
         .style("opacity", opacityFunction);
 
     svg.selectAll("rect")
-        .data(d3.filter(data, d => +d['Wins'] > 0))
+        .data(d3.filter(data, squareFilter))
         .enter()
         .append("rect")
         .attr("x", function(d) { return x(d[xField]) - size; })

@@ -68,7 +68,9 @@ var renderSharedGraphs = function(
             xAttr, gameXRange, xLabel,
             yAttr, gameYRange, yLabel,
             colorFunction, opacityFunction, labelFunction,
-            width, height, margin
+            width, height, margin,
+            d => +d['Wins'] === 0,
+            d => +d['Wins'] > 0
         );
         addLegend(gameSvg, legendPosition === 'R' ? width : 175, 0);
         var jSvg = fullGameScatter(
@@ -77,7 +79,9 @@ var renderSharedGraphs = function(
             'J' + xAttr, roundXRange, 'J! ' + xLabel,
             'J' + yAttr, roundYRange, 'J! ' + yLabel,
             colorFunction, opacityFunction, labelFunction,
-            width/2, height, margin
+            width/2, height, margin,
+            d => +d['Wins'] === 0,
+            d => +d['Wins'] > 0
         );
         addLegend(jSvg, legendPosition === 'R' ? width/2 : 175, 0);
         var djSvg = fullGameScatter(
@@ -86,7 +90,9 @@ var renderSharedGraphs = function(
             'DJ' + xAttr, roundXRange, 'DJ! ' + xLabel,
             'DJ' + yAttr, roundYRange, 'DJ! ' + yLabel,
             colorFunction, opacityFunction, labelFunction,
-            width/2, height, margin
+            width/2, height, margin,
+            d => +d['Wins'] === 0,
+            d => +d['Wins'] > 0
         );
         addLegend(djSvg, legendPosition === 'R' ? width/2 : 175, 0);
     };
