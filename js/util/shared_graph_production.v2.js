@@ -211,7 +211,9 @@ var renderSharedGraphs = function(
         'exp-buz-solo',
         'ExpBuz and Solo',
         "The Solo rating for a contestant and the expected number of buzzes, based on the " +
-            "contestant's and opponents' attempt counts. Wins are squares, losses are circles.",
+            "contestant's and opponents' attempt counts. Wins are squares, losses are circles. " +
+            "Naively, there is a relationship between attempting more and have more Solo attempts, " +
+            "but how many Solo attempts would be out of a contestants' control.",
         'ExpBuz',
         'Solo',
         [0, Math.ceil(d3.max(d3.map(data, d => +d['ExpBuz'])))],
