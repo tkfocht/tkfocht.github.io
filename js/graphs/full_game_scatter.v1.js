@@ -27,13 +27,27 @@ var fullGameScatter = function(
     x.domain(xDomain);
     y.domain(yDomain);
 
+    var size = 5;
+
     svg.selectAll("dot")
-        .data(data)
+        .data(d3.filter(data, d => +d['Wins'] === 0))
         .enter()
         .append("circle")
-        .attr("r", 5)
+        .attr("r", size)
         .attr("cx", function(d) { return x(d[xField]); })
         .attr("cy", function(d) { return y(d[yField]); })
+        .style("stroke", "black")
+        .style("fill", colorFunction)
+        .style("opacity", opacityFunction);
+
+    svg.selectAll("rect")
+        .data(d3.filter(data, d => +d['Wins'] > 0))
+        .enter()
+        .append("rect")
+        .attr("x", function(d) { return x(d[xField]) - size; })
+        .attr("y", function(d) { return y(d[yField]) - size; })
+        .attr("width", size*2)
+        .attr("height", size*2)
         .style("stroke", "black")
         .style("fill", colorFunction)
         .style("opacity", opacityFunction);

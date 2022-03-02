@@ -36,106 +36,191 @@ var renderSharedGraphs = function(
             .text(d => (d));
     }
 
+    var renderStandard = function(
+        containerId,
+        graphPrefix,
+        headerText,
+        descriptionText,
+        xAttr,
+        yAttr,
+        gameXRange,
+        gameYRange,
+        roundXRange,
+        roundYRange,
+        xLabel,
+        yLabel,
+        legendPosition
+    ) {
+        var section = d3.select(containerId);
+        section.append('h1').text(headerText);
+        section.append('div').attr('class', 'graph-description')
+            .text(descriptionText);
+        section.append('h2').text('Full Game');
+        section.append('div').attr('id', graphPrefix + '-game');
+        section.append('h2').text('By Round');
+        var jDJContainer = section.append('div').attr('class','j-dj-container');
+        jDJContainer.append('div').attr('id', graphPrefix + '-j');
+        jDJContainer.append('div').attr('id', graphPrefix + '-dj');
+
+        var gameSvg = fullGameScatter(
+            '#' + graphPrefix + '-game',
+            data,
+            xAttr, gameXRange, xLabel,
+            yAttr, gameYRange, yLabel,
+            colorFunction, opacityFunction, labelFunction,
+            width, height, margin
+        );
+        addLegend(gameSvg, legendPosition === 'R' ? width : 175, 0);
+        var jSvg = fullGameScatter(
+            '#' + graphPrefix + '-j',
+            data,
+            'J' + xAttr, roundXRange, 'J! ' + xLabel,
+            'J' + yAttr, roundYRange, 'J! ' + yLabel,
+            colorFunction, opacityFunction, labelFunction,
+            width/2, height, margin
+        );
+        addLegend(jSvg, legendPosition === 'R' ? width/2 : 175, 0);
+        var djSvg = fullGameScatter(
+            '#' + graphPrefix + '-dj',
+            data,
+            'DJ' + xAttr, roundXRange, 'DJ! ' + xLabel,
+            'DJ' + yAttr, roundYRange, 'DJ! ' + yLabel,
+            colorFunction, opacityFunction, labelFunction,
+            width/2, height, margin
+        );
+        addLegend(djSvg, legendPosition === 'R' ? width/2 : 175, 0);
+    };
+
     //Speed and Solo
-    var soloGameMax = Math.ceil(d3.max(d3.map(data, d => +d['Solo'])));
-    var speedGameMin = Math.floor(d3.min(d3.map(data, d => +d['Speed'])));
-    var speedGameMax = Math.ceil(d3.max(d3.map(data, d => +d['Speed'])));
-    var speedSoloGameScatterSvg = fullGameScatter(
-        '#scatter-speed-solo-game',
-        data,
-        'Solo', [0, soloGameMax], 'Solo',
-        'Speed', [speedGameMin,speedGameMax], 'Speed',
-        colorFunction, opacityFunction, labelFunction,
-        width, height, margin
+    renderStandard(
+        '#section-speed-solo',
+        'scatter-speed-solo',
+        'Speed and Solo',
+        "Speed is an estimate of additional buzzes a contestant creates through speed (or opponents' " +
+            "lack of speed). A higher Speed represents winning a higher number of buzzer races. Solo is an " +
+            "estimate of how many of a contestant's correct responses did not have an opponent ringing in " +
+            "with a possibly-correct response. Higher Solo represents a contestant that is the only player " +
+            "ringing in more often. Wins are squares, losses are circles.",
+        'Solo',
+        'Speed',
+        [0, Math.ceil(d3.max(d3.map(data, d => +d['Solo'])))],
+        [Math.floor(d3.min(d3.map(data, d => +d['Speed']))), Math.ceil(d3.max(d3.map(data, d => +d['Speed'])))],
+        [0, Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JSolo'], +d['DJSolo']]))))],
+        [Math.floor(d3.min(d3.map(data, d => d3.min([+d['JSpeed'], +d['DJSpeed']])))), Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JSpeed'], +d['DJSpeed']]))))],
+        'Solo',
+        'Speed',
+        'R'
     );
-    addLegend(speedSoloGameScatterSvg, width, 0);
 
-    var soloRoundMax = Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JSolo'], +d['DJSolo']]))));
-    var speedRoundMin = Math.floor(d3.min(d3.map(data, d => d3.min([+d['JSpeed'], +d['DJSpeed']]))));
-    var speedRoundMax = Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JSpeed'], +d['DJSpeed']]))));
-    var speedSoloByRoundScatterSvg = byRoundScatter(
-        '#scatter-speed-solo-combined',
-        data,
-        ['JSolo','DJSolo'], [0, soloRoundMax], 'Solo',
-        ['JSpeed','DJSpeed'], [speedRoundMin,speedRoundMax], 'Speed',
-        colorFunction, opacityFunction, labelFunction,
-        width, height, margin
+    //Att and ExpBuz
+    renderStandard(
+        '#section-att-exp-buz',
+        'att-exp-buz',
+        'Att and ExpBuz',
+        "The actual number of attempts by a contestant and the expected number of buzzes, based on the " +
+            "contestant's and opponents' attempt counts. Higher ExpBuz at the same attempt count reflects " +
+            "less competition on the buzzers. Wins are squares, losses are circles.",
+        'Att',
+        'ExpBuz',
+        [0, Math.ceil(d3.max(d3.map(data, d => +d['Att'])))],
+        [0, Math.ceil(d3.max(d3.map(data, d => +d['ExpBuz'])))],
+        [0, Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JAtt'], +d['DJAtt']]))))],
+        [0, Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JExpBuz'], +d['DJExpBuz']]))))],
+        'Att',
+        'ExpBuz',
+        'L'
     );
-    addLegend(speedSoloByRoundScatterSvg, width, 0);
 
-    var buzScorePerAttGameMin = 100 * Math.floor(d3.min(d3.map(data, d => +d['Buz$/Att'])) / 100.0);
-    var buzScorePerAttGameMax = 100 * Math.ceil(d3.max(d3.map(data, d => +d['Buz$/Att'])) / 100.0);
-    //ATT vs $/ATT
-    var attAttSvg = fullGameScatter(
-        '#scatter-att-score-att',
-        data,
-        'Att', [0, 60], 'Att',
-        'Buz$/Att', [buzScorePerAttGameMin,buzScorePerAttGameMax], 'Buz$/Att',
-        colorFunction, opacityFunction, labelFunction,
-        width, height, margin
+    //ExpBuz and Buz
+    renderStandard(
+        '#section-exp-buz-buz',
+        'exp-buz-buz',
+        'ExpBuz and Buz',
+        "The actual number of buzzes by a contestant and the expected number of buzzes, based on the " +
+            "contestant's and opponents' attempt counts. Higher Buz at similar ExpBuz reflects " +
+            "a contestant winning more buzzer races. Wins are squares, losses are circles.",
+        'ExpBuz',
+        'Buz',
+        [0, Math.ceil(d3.max(d3.map(data, d => +d['ExpBuz'])))],
+        [0, Math.ceil(d3.max(d3.map(data, d => +d['Buz'])))],
+        [0, Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JExpBuz'], +d['DJExpBuz']]))))],
+        [0, Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JBuz'], +d['DJBuz']]))))],
+        'ExpBuz',
+        'Buz',
+        'L'
     );
-    addLegend(attAttSvg);
-
-    var buzScorePerAttRoundMin = 100 * Math.floor(d3.min(d3.map(data, d => d3.min([+d['JBuz$/Att'], +d['DJBuz$/Att']]))) / 100.0);
-    var buzScorePerAttRoundMax = 100 * Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JBuz$/Att'], +d['DJBuz$/Att']]))) / 100.0);
-    //ATT vs $/ATT by Round
-    var attAttByRoundSvg = byRoundScatter(
-        '#scatter-att-score-att-by-round',
-        data,
-        ['JAtt','DJAtt'], [0, 30], 'Att',
-        ['JBuz$/Att','DJBuz$/Att'], [buzScorePerAttRoundMin,buzScorePerAttRoundMax], 'Buz$/Att',
-        colorFunction, opacityFunction, labelFunction,
-        width, height, margin
-    );
-    addLegend(attAttByRoundSvg);
     
-    var buzScorePerBuzGameMin = 100 * Math.floor(d3.min(d3.map(data, d => +d['Buz$/Buz'])) / 100.0);
-    var buzScorePerBuzGameMax = 100 * Math.ceil(d3.max(d3.map(data, d => +d['Buz$/Buz'])) / 100.0);
-    //ATT vs $/BUZ
-    var attBuzSvg = fullGameScatter(
-        '#scatter-att-score-buzz',
-        data,
-        'Att', [0, 60], 'Att',
-        'Buz$/Buz', [buzScorePerBuzGameMin,buzScorePerBuzGameMax], 'Buz$/Buz',
-        colorFunction, opacityFunction, labelFunction,
-        width, height, margin
+    //ExpBuz and Buz$/Buz
+    renderStandard(
+        '#section-exp-buz-buz-score-per-buz',
+        'exp-buz-buz-score-per-buz',
+        'ExpBuz and Buz$/Buz',
+        "The actual score on buzz per buzz by a contestant and the expected number of buzzes, based on the " +
+            "contestant's and opponents' attempt counts. Wins are squares, losses are circles.",
+        'ExpBuz',
+        'Buz$/Buz',
+        [0, Math.ceil(d3.max(d3.map(data, d => +d['ExpBuz'])))],
+        [Math.floor(d3.min(d3.map(data, d => +d['Buz$/Buz']))), Math.ceil(d3.max(d3.map(data, d => +d['Buz$/Buz'])))],
+        [0, Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JExpBuz'], +d['DJExpBuz']]))))],
+        [Math.floor(d3.min(d3.map(data, d => d3.min([+d['JBuz$/Buz'], +d['DJBuz$/Buz']])))), Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JBuz$/Buz'], +d['DJBuz$/Buz']]))))],
+        'ExpBuz',
+        'Buz$/Buz',
+        'L'
     );
-    addLegend(attBuzSvg);
 
-    //ATT vs $/BUZ by Round
-    var buzScorePerBuzRoundMin = 100 * Math.floor(d3.min(d3.map(data, d => d3.min([+d['JBuz$/Buz'], +d['DJBuz$/Buz']]))) / 100.0);
-    var buzScorePerBuzRoundMax = 100 * Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JBuz$/Buz'], +d['DJBuz$/Buz']]))) / 100.0);
-    var attBuzByRoundSvg = byRoundScatter(
-        '#scatter-att-score-buzz-by-round',
-        data,
-        ['JAtt','DJAtt'], [0, 30], 'Att',
-        ['JBuz$/Buz','DJBuz$/Buz'], [buzScorePerBuzRoundMin,buzScorePerBuzRoundMax], 'Buz$/Buz',
-        colorFunction, opacityFunction, labelFunction,
-        width, height, margin
+    //ExpBuz and Buz$
+    renderStandard(
+        '#section-exp-buz-buz-score',
+        'exp-buz-buz-score',
+        'ExpBuz and Buz$',
+        "The actual total score on buzz by a contestant and the expected number of buzzes, based on the " +
+            "contestant's and opponents' attempt counts. Wins are squares, losses are circles.",
+        'ExpBuz',
+        'Buz$',
+        [0, Math.ceil(d3.max(d3.map(data, d => +d['ExpBuz'])))],
+        [Math.floor(d3.min(d3.map(data, d => +d['Buz$']))), Math.ceil(d3.max(d3.map(data, d => +d['Buz$'])))],
+        [0, Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JExpBuz'], +d['DJExpBuz']]))))],
+        [Math.floor(d3.min(d3.map(data, d => d3.min([+d['JBuz$'], +d['DJBuz$']])))), Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JBuz$'], +d['DJBuz$']]))))],
+        'ExpBuz',
+        'Buz$',
+        'L'
     );
-    addLegend(attBuzByRoundSvg);
 
-    //ATT vs Buz
-    var buzGameMax = Math.ceil(d3.max(d3.map(data, d => +d['Buz'])));
-    var attBuzPctSvg = fullGameScatter(
-        '#scatter-att-buzz',
-        data,
-        'Att', [0, 60], 'Att',
-        'Buz', [0, buzGameMax], 'Buz',
-        colorFunction, opacityFunction, labelFunction,
-        width, height, margin
+    //ExpBuz and Speed
+    renderStandard(
+        '#section-exp-buz-speed',
+        'exp-buz-speed',
+        'ExpBuz and Speed',
+        "The Speed rating for a contestant and the expected number of buzzes, based on the " +
+            "contestant's and opponents' attempt counts. Wins are squares, losses are circles. " + 
+            "Naively, these metrics are expected to be mostly independent.",
+        'ExpBuz',
+        'Speed',
+        [0, Math.ceil(d3.max(d3.map(data, d => +d['ExpBuz'])))],
+        [Math.floor(d3.min(d3.map(data, d => +d['Speed']))), Math.ceil(d3.max(d3.map(data, d => +d['Speed'])))],
+        [0, Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JExpBuz'], +d['DJExpBuz']]))))],
+        [Math.floor(d3.min(d3.map(data, d => d3.min([+d['JSpeed'], +d['DJSpeed']])))), Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JSpeed'], +d['DJSpeed']]))))],
+        'ExpBuz',
+        'Speed',
+        'L'
     );
-    addLegend(attBuzPctSvg);
 
-    //ATT vs Buz by round
-    var buzRoundMax = Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JBuz'], +d['DJBuz']]))));
-    var attBuzPctByRoundSvg = byRoundScatter(
-        '#scatter-att-buzz-by-round',
-        data,
-        ['JAtt','DJAtt'], [0, 30], 'Att',
-        ['JBuz','DJBuz'], [0, buzRoundMax], 'Buz',
-        colorFunction, opacityFunction, labelFunction,
-        width, height, margin
-    );
-    addLegend(attBuzPctByRoundSvg);
+    //ExpBuz and Solo
+    renderStandard(
+        '#section-exp-buz-solo',
+        'exp-buz-solo',
+        'ExpBuz and Solo',
+        "The Solo rating for a contestant and the expected number of buzzes, based on the " +
+            "contestant's and opponents' attempt counts. Wins are squares, losses are circles.",
+        'ExpBuz',
+        'Solo',
+        [0, Math.ceil(d3.max(d3.map(data, d => +d['ExpBuz'])))],
+        [Math.floor(d3.min(d3.map(data, d => +d['Solo']))), Math.ceil(d3.max(d3.map(data, d => +d['Solo'])))],
+        [0, Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JExpBuz'], +d['DJExpBuz']]))))],
+        [Math.floor(d3.min(d3.map(data, d => d3.min([+d['JSolo'], +d['DJSolo']])))), Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JSolo'], +d['DJSolo']]))))],
+        'ExpBuz',
+        'Solo',
+        'L'
+    );     
+
 }
