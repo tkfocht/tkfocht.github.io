@@ -217,9 +217,9 @@ var renderSharedGraphs = function(
         'ExpBuz',
         'Solo',
         [0, Math.ceil(d3.max(d3.map(data, d => +d['ExpBuz'])))],
-        [Math.floor(d3.min(d3.map(data, d => +d['Solo']))), Math.ceil(d3.max(d3.map(data, d => +d['Solo'])))],
+        [0, Math.ceil(d3.max(d3.map(data, d => +d['Solo'])))],
         [0, Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JExpBuz'], +d['DJExpBuz']]))))],
-        [Math.floor(d3.min(d3.map(data, d => d3.min([+d['JSolo'], +d['DJSolo']])))), Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JSolo'], +d['DJSolo']]))))],
+        [0, Math.ceil(d3.max(d3.map(data, d => d3.max([+d['JSolo'], +d['DJSolo']]))))],
         'ExpBuz',
         'Solo',
         'L'
