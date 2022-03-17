@@ -101,12 +101,13 @@
                     d['Buz%'] = 100.0 * d['Buz'] / d['Att'];
                 });
                 var highlightContestantCounts = d3.rollup(data, v => d3.sum(d3.map(v, cd => (+cd['Wins']))), d => d['Contestant']);
-                var gameThreshold = 1;
+                var gameThreshold = 4;
                 highlightContestants = d3.filter(highlightContestantCounts.keys(), k => highlightContestantCounts.get(k) >= gameThreshold);
-                while (highlightContestants.length > 10) {
-                    gameThreshold += 1;
-                    highlightContestants = d3.filter(highlightContestantCounts.keys(), k => highlightContestantCounts.get(k) >= gameThreshold);
-                }
+
+                var latestDate = d3.max(d3.map(data, d => d['Date']));
+                var currentChampionToHighlight = d3.map(d3.filter(data, d => d['Date'] >= latestDate && +d['Wins'] > 0), d => d['Contestant']);
+                highlightContestants = highlightContestants.concat(currentChampionToHighlight);
+
                 highlightContestants.sort(function(a,b) { return highlightContestantCounts.get(b) - highlightContestantCounts.get(a); });
                 data.forEach(function(d) {
                     d['highlightContestant'] = highlightContestants.includes(d['Contestant']);
@@ -115,7 +116,7 @@
                 //Graphics functions
                 var color = d3.scaleOrdinal()
                     .domain(highlightContestants)
-                    .range(d3.schemeCategory10.concat(d3.schemeSet3.slice(2)));
+                    .range(d3.schemeCategory10.concat(d3.schemeSet3));
                 var colorFunction = function(d) {
                     if (d['highlightContestant']) {
                         return color(d['Contestant']);
