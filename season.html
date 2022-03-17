@@ -106,7 +106,7 @@
 
                 var latestDate = d3.max(d3.map(data, d => d['Date']));
                 var currentChampionToHighlight = d3.map(d3.filter(data, d => d['Date'] >= latestDate && +d['Wins'] > 0), d => d['Contestant']);
-                highlightContestants = highlightContestants.concat(currentChampionToHighlight);
+                highlightContestants = highlightContestants.concat(Array.from(d3.difference(currentChampionToHighlight, highlightContestants)));
 
                 highlightContestants.sort(function(a,b) { return highlightContestantCounts.get(b) - highlightContestantCounts.get(a); });
                 data.forEach(function(d) {
