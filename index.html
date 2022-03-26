@@ -5,7 +5,7 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto">
         <link rel="stylesheet" href="css/site.css"></link>
         <script src="/js/d3/d3.v7.min.js"></script>
-        <script src="/js/util/util.v1.js"></script>
+        <script src="/js/util/util.v2.js"></script>
     </head>
     <body>
         <h1>J!ometry</h1>
@@ -50,7 +50,7 @@
                 data.forEach(function(d) {
                     d['Date'] = csvDateParse(d['Date']);
                 });
-                data = Array.from(d3.group(data, d => d['Game Id']),
+                data = Array.from(d3.group(data, d => d['Game In Season']),
                     ([gameId,gameData]) => [
                         gameId,
                         gameData[0]['Date'],

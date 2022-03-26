@@ -6,7 +6,7 @@
         <link rel="stylesheet" href="css/site.css"></link>
         <link rel="stylesheet" href="css/season.css"></link>
         <script src="/js/d3/d3.v7.min.js"></script>
-        <script src="/js/util/util.v1.js"></script>
+        <script src="/js/util/util.v2.js"></script>
         <script src="/js/graphs/full_game_scatter.v2.js"></script>
         <script src="/js/graphs/by_round_scatter.v1.js"></script>
         <script src="/js/util/shared_graph_production.v4.js"></script>
@@ -122,9 +122,9 @@
 
                 //Summary table
                 var summaryData = Array.from(
-                    d3.group(d3.filter(data, d => d['highlightContestant']), d => d['Game Id']),
-                    ([gameId, gameData]) => ({
-                        'Game Id': gameId,
+                    d3.group(d3.filter(data, d => d['highlightContestant']), d => d['Game In Season']),
+                    ([gameInSeason, gameData]) => ({
+                        'Game In Season': gameInSeason,
                         'Date': gameData[0]['Date'],
                         'JAtt': +gameData[0]['JAtt'],
                         'JBuz': +gameData[0]['JBuz'],
@@ -144,11 +144,11 @@
                         'DJBuz%': +gameData[0]['DJBuz%'],
                         'Data': gameData
                     }));
-                summaryData.sort(function(a,b) { return a['Game Id'] - b['Game Id']; });
+                summaryData.sort(function(a,b) { return a['Game In Season'] - b['Game In Season']; });
 
                 var contestantAverageLabel = "Average";
                 var contestantAverageSummary = {
-                    'Game Id': contestantAverageLabel,
+                    'Game In Season': contestantAverageLabel,
                     'JAtt': (d3.map(summaryData, cd => (+cd['JAtt'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
                     'JBuz': (d3.map(summaryData, cd => (+cd['JBuz'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
                     'JBuzC': (d3.map(summaryData, cd => (+cd['JBuzC'])).reduce((a, b) => a + b) / summaryData.length).toFixed(1),
@@ -167,7 +167,7 @@
                     'DJBuz%': 100.0 * d3.map(summaryData, cd => (+cd['DJBuz'])).reduce((a, b) => a + b) / d3.map(summaryData, cd => (+cd['DJAtt'])).reduce((a, b) => a + b)
                 };
                 var seasonAverageSummary = {
-                    'Game Id': seasonAverageLabel,
+                    'Game In Season': seasonAverageLabel,
                     'JAtt': (d3.map(data, cd => (+cd['JAtt'])).reduce((a, b) => a + b) / data.length).toFixed(1),
                     'JBuz': (d3.map(data, cd => (+cd['JBuz'])).reduce((a, b) => a + b) / data.length).toFixed(1),
                     'JBuzC': (d3.map(data, cd => (+cd['JBuzC'])).reduce((a, b) => a + b) / data.length).toFixed(1),
@@ -196,7 +196,7 @@
                 summaryTr.selectAll("td")
                     .data(function(d,i) {
                         return [
-                            (d['Game Id'] === contestantAverageLabel || d['Game Id'] === seasonAverageLabel) ? d['Game Id'] : '<a href="game.html?season=' + seasonId + '&game_id=' + d['Game Id'] + '">#' + d['Game Id'] + '</a>&nbsp;' + dateFormat(d['Date']),
+                            (d['Game In Season'] === contestantAverageLabel || d['Game In Season'] === seasonAverageLabel) ? d['Game In Season'] : '<a href="game.html?season=' + seasonId + '&game_id=' + d['Game In Season'] + '">#' + d['Game In Season'] + '</a>&nbsp;' + dateFormat(d['Date']),
                             d['JAtt'],
                             d['JBuzC'],
                             (+d['JSpeed'] > 0 ? "+" : "") + (+d['JSpeed']).toFixed(1),
@@ -225,9 +225,9 @@
 
                 //Attempt Distribution
                 var summaryColorFunction = function(d) {
-                    if (d['Game Id'] === contestantAverageLabel) {
+                    if (d['Game In Season'] === contestantAverageLabel) {
                         return secondaryHighlightColor;
-                    } else if (d['Game Id'] === seasonAverageLabel) {
+                    } else if (d['Game In Season'] === seasonAverageLabel) {
                         return "black";
                     } else {
                         return highlightColor;
@@ -260,7 +260,7 @@
                     .text("Correct");  
 
                 var xSubgroup = d3.scaleBand()
-                    .domain(d3.map(summaryDataWithAverage, d => d['Game Id']))
+                    .domain(d3.map(summaryDataWithAverage, d => d['Game In Season']))
                     .range([0, x.bandwidth()])
                     .padding([0.05]);
 
@@ -273,7 +273,7 @@
                     .data(summaryDataWithAverage)
                     .enter()
                     .append('rect')
-                    .attr('x', function(d) { return xSubgroup(d['Game Id']); })
+                    .attr('x', function(d) { return xSubgroup(d['Game In Season']); })
                     .attr('y', function(d) { return y(d['JBuzC']); })
                     .attr("width", xSubgroup.bandwidth())
                     .attr("height", function(d) { return height - y(d['JBuzC']); })
@@ -282,7 +282,7 @@
                     .data(summaryDataWithAverage)
                     .enter()
                     .append('rect')
-                    .attr('x', function(d) { return xSubgroup(d['Game Id']); })
+                    .attr('x', function(d) { return xSubgroup(d['Game In Season']); })
                     .attr('y', function(d) { return y(d['JBuz']); })
                     .attr("width", xSubgroup.bandwidth())
                     .attr("height", function(d) { return height - y(d['JBuz'] - d['JBuzC']); })
@@ -292,7 +292,7 @@
                     .data(summaryDataWithAverage)
                     .enter()
                     .append('rect')
-                    .attr('x', function(d) { return xSubgroup(d['Game Id']); })
+                    .attr('x', function(d) { return xSubgroup(d['Game In Season']); })
                     .attr('y', function(d) { return y(d['JAtt']); })
                     .attr("width", xSubgroup.bandwidth())
                     .attr("height", function(d) { return height - y(d['JAtt'] - d['JBuz']); })
@@ -302,10 +302,10 @@
                     .data(summaryDataWithAverage)
                     .enter()
                     .append('text')
-                    .attr('x', function(d) { return xSubgroup(d['Game Id']) + 5; })
+                    .attr('x', function(d) { return xSubgroup(d['Game In Season']) + 5; })
                     .attr('y', function(d) { return y(d['JAtt']); })
-                    .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Game Id']) + 5) + ',' + y(d['JAtt']) + ')'; })
-                    .text(d => ((d['Game Id'] === contestantAverageLabel || d['Game Id'] === seasonAverageLabel) ? '' : '#') + d['Game Id']);
+                    .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Game In Season']) + 5) + ',' + y(d['JAtt']) + ')'; })
+                    .text(d => ((d['Game In Season'] === contestantAverageLabel || d['Game In Season'] === seasonAverageLabel) ? '' : '#') + d['Game In Season']);
 
                 var djG = svg.append('g')
                     .attr("transform", function(d) { return "translate(" + x('DJ!') + ",0)"; });
@@ -316,7 +316,7 @@
                     .data(summaryDataWithAverage)
                     .enter()
                     .append('rect')
-                    .attr('x', function(d) { return xSubgroup(d['Game Id']); })
+                    .attr('x', function(d) { return xSubgroup(d['Game In Season']); })
                     .attr('y', function(d) { return y(d['DJBuzC']); })
                     .attr("width", xSubgroup.bandwidth())
                     .attr("height", function(d) { return height - y(d['DJBuzC']); })
@@ -325,7 +325,7 @@
                     .data(summaryDataWithAverage)
                     .enter()
                     .append('rect')
-                    .attr('x', function(d) { return xSubgroup(d['Game Id']); })
+                    .attr('x', function(d) { return xSubgroup(d['Game In Season']); })
                     .attr('y', function(d) { return y(d['DJBuz']); })
                     .attr("width", xSubgroup.bandwidth())
                     .attr("height", function(d) { return height - y(d['DJBuz'] - d['DJBuzC']); })
@@ -335,7 +335,7 @@
                     .data(summaryDataWithAverage)
                     .enter()
                     .append('rect')
-                    .attr('x', function(d) { return xSubgroup(d['Game Id']); })
+                    .attr('x', function(d) { return xSubgroup(d['Game In Season']); })
                     .attr('y', function(d) { return y(d['DJAtt']); })
                     .attr("width", xSubgroup.bandwidth())
                     .attr("height", function(d) { return height - y(d['DJAtt'] - d['DJBuz']); })
@@ -345,10 +345,10 @@
                     .data(summaryDataWithAverage)
                     .enter()
                     .append('text')
-                    .attr('x', function(d) { return xSubgroup(d['Game Id']) + 5; })
+                    .attr('x', function(d) { return xSubgroup(d['Game In Season']) + 5; })
                     .attr('y', function(d) { return y(d['DJAtt']); })
-                    .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Game Id']) + 5) + ',' + y(d['DJAtt']) + ')'; })
-                    .text(d => ((d['Game Id'] === contestantAverageLabel || d['Game Id'] === seasonAverageLabel) ? '' : '#') + d['Game Id']);
+                    .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Game In Season']) + 5) + ',' + y(d['DJAtt']) + ')'; })
+                    .text(d => ((d['Game In Season'] === contestantAverageLabel || d['Game In Season'] === seasonAverageLabel) ? '' : '#') + d['Game In Season']);
 
 
             });
