@@ -236,6 +236,9 @@
 
                 var averageSummary = summarizeContestantData(seasonAverageLabel, data);
                 averageSummary['Wins'] = "";
+                averageSummary['Leads'] = "";
+                averageSummary['Crushes'] = "";
+                averageSummary['Locks'] = "";
                 averageSummary['Total$'] = "";
                 var summaryDataWithAverage = summaryData.concat(averageSummary);
                 var summaryColorFunction = function(d) {
