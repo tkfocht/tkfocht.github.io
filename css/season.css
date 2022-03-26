@@ -9,26 +9,30 @@
     max-width: 960px;
 }
 
-#season-contestant-summary table {
+.season-contestant-summary {
+    margin-bottom: 1em;
+}
+
+.season-contestant-summary table {
     width: 960px;
     border-collapse: collapse;
     font-size: 12px;
 }
 
-#season-contestant-summary table th, #season-contestant-summary table td {
+.season-contestant-summary table th, .season-contestant-summary table td {
     padding: 2px 8px;
     border: 1px solid #999999;
 }
 
-#season-contestant-summary table th.empty {
+.season-contestant-summary table th.empty {
     border: 0;
 }
 
-#season-contestant-summary table td {
+.season-contestant-summary table td {
     text-align: right;
 }
 
-#season-contestant-summary table td:first-child {
+.season-contestant-summary table td:first-child {
     text-align: left;
     width: 20%;
 }

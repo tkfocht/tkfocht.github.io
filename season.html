@@ -22,18 +22,20 @@
                 "Average" is the average of all contestant performances, not just those shown individually. Each game performace
                 is a separate data point, so champions are included separately in the average for each of their games.
             </div>
-            <div id="season-contestant-summary">
+            <div id="season-contestant-summary" class="season-contestant-summary">
                 <table>
                     <thead>
                         <tr>
-                            <th colspan="2" class="empty"></th>
-                            <th colspan="8">Jeopardy! Round Avg</th>
-                            <th colspan="8">Double Jeopardy! Round Avg</th>
-                            <th colspan="1" class="empty"></th>
+                            <th colspan="6" class="empty"></th>
+                            <th colspan="9">Game Averages</th>
                         </tr>
                         <tr>
                             <th>Contestant</th>
                             <th>Wins</th>
+                            <th>Leads</th>
+                            <th>Crushes</th>
+                            <th>Locks</th>
+                            <th>TotalWin$</th>
                             <th>Att</th>
                             <th>ExpBuz</th>
                             <th>BuzC</th>
@@ -42,6 +44,21 @@
                             <th>Buz$</th>
                             <th>DDF</th>
                             <th>DD+</th>
+                            <th>DD$</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div id="season-contestant-summary-j" class="season-contestant-summary">
+                <table>
+                    <thead>
+                        <tr>
+                            <th colspan="1" class="empty"></th>
+                            <th colspan="9">Jeopardy! Round Avg</th>
+                        </tr>
+                        <tr>
+                            <th>Contestant</th>
                             <th>Att</th>
                             <th>ExpBuz</th>
                             <th>BuzC</th>
@@ -50,6 +67,30 @@
                             <th>Buz$</th>
                             <th>DDF</th>
                             <th>DD+</th>
+                            <th>DD$</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div id="season-contestant-summary-dj" class="season-contestant-summary">
+                <table>
+                    <thead>
+                        <tr>
+                            <th colspan="1" class="empty"></th>
+                            <th colspan="9">Double Jeopardy! Round Avg</th>
+                        </tr>
+                        <tr>
+                            <th>Contestant</th>
+                            <th>Att</th>
+                            <th>ExpBuz</th>
+                            <th>BuzC</th>
+                            <th>Speed</th>
+                            <th>Solo</th>
+                            <th>Buz$</th>
+                            <th>DDF</th>
+                            <th>DD+</th>
+                            <th>DD$</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -100,7 +141,9 @@
                     d['DJBuz%'] = 100.0 * d['DJBuz'] / d['DJAtt'];
                     d['Buz%'] = 100.0 * d['Buz'] / d['Att'];
                 });
+
                 var highlightContestantCounts = d3.rollup(data, v => d3.sum(d3.map(v, cd => (+cd['Wins']))), d => d['Contestant']);
+                var contestantWinnings = d3.rollup(data, v => d3.sum(d3.map(v, cd => (+cd['Wins'] * +cd['FJFinal$']))), d => d['Contestant']);
                 var gameThreshold = 4;
                 highlightContestants = d3.filter(highlightContestantCounts.keys(), k => highlightContestantCounts.get(k) >= gameThreshold);
 
@@ -108,7 +151,13 @@
                 var currentChampionToHighlight = d3.map(d3.filter(data, d => d['Date'] >= latestDate && +d['Wins'] > 0), d => d['Contestant']);
                 highlightContestants = highlightContestants.concat(Array.from(d3.difference(currentChampionToHighlight, highlightContestants)));
 
-                highlightContestants.sort(function(a,b) { return highlightContestantCounts.get(b) - highlightContestantCounts.get(a); });
+                highlightContestants.sort(function(a,b) {
+                    var winsDiff = highlightContestantCounts.get(b) - highlightContestantCounts.get(a);
+                    if (winsDiff !== 0) {
+                        return winsDiff;
+                    }
+                    return contestantWinnings.get(b) - contestantWinnings.get(a);
+                });
                 data.forEach(function(d) {
                     d['highlightContestant'] = highlightContestants.includes(d['Contestant']);
                 });
@@ -135,10 +184,25 @@
                     return "";
                 };
 
+                console.log(data);
                 var summarizeContestantData = function(contestant, contestantData) {
                     return {
                         'Contestant': contestant,
                         'Wins': d3.sum(d3.map(contestantData, cd => (+cd['Wins']))),
+                        'Leads': d3.sum(d3.map(contestantData, cd => (+cd['Leads']))),
+                        'Crushes': d3.sum(d3.map(contestantData, cd => (+cd['Crushes']))),
+                        'Locks': d3.sum(d3.map(contestantData, cd => (+cd['Locks']))),
+                        'TotalWin$': d3.sum(d3.map(contestantData, cd => (+cd['Wins'] * +cd['FJFinal$']))),
+                        'Att': d3.mean(d3.map(contestantData, cd => (+cd['Att']))),
+                        'Buz': d3.mean(d3.map(contestantData, cd => (+cd['Buz']))),
+                        'BuzC': d3.mean(d3.map(contestantData, cd => (+cd['JBuzC'] + +cd['DJBuzC']))),
+                        'ExpBuz': d3.mean(d3.map(contestantData, cd => (+cd['ExpBuz']))),
+                        'Speed': d3.mean(d3.map(contestantData, cd => (+cd['Speed']))),
+                        'Solo': d3.mean(d3.map(contestantData, cd => (+cd['Solo']))),
+                        'Buz$': d3.mean(d3.map(contestantData, cd => (+cd['Buz$']))),
+                        'DDF': d3.mean(d3.map(contestantData, cd => (+cd['JDDF'] + +cd['DJDDF']))),
+                        'DD+': d3.mean(d3.map(contestantData, cd => (+cd['DD+']))),
+                        'DD$': d3.mean(d3.map(contestantData, cd => (+cd['JDD'] + +cd['DJDD1'] + +cd['DJDD2']))),
                         'JAtt': d3.mean(d3.map(contestantData, cd => (+cd['JAtt']))),
                         'JBuz': d3.mean(d3.map(contestantData, cd => (+cd['JBuz']))),
                         'JExpBuz': d3.mean(d3.map(contestantData, cd => (+cd['JExpBuz']))),
@@ -148,6 +212,7 @@
                         'JBuz$': d3.mean(d3.map(contestantData, cd => (+cd['JBuz$']))),
                         'JDDF': d3.mean(d3.map(contestantData, cd => (+cd['JDDF']))),
                         'JDD+': d3.mean(d3.map(contestantData, cd => (+cd['JDD+']))),
+                        'JDD$': d3.mean(d3.map(contestantData, cd => (+cd['JDD']))),
                         'DJAtt': d3.mean(d3.map(contestantData, cd => (+cd['DJAtt']))),
                         'DJBuz': d3.mean(d3.map(contestantData, cd => (+cd['DJBuz']))),
                         'DJExpBuz': d3.mean(d3.map(contestantData, cd => (+cd['DJExpBuz']))),
@@ -157,6 +222,7 @@
                         'DJBuz$': d3.mean(d3.map(contestantData, cd => (+cd['DJBuz$']))),
                         'DJDDF': d3.mean(d3.map(contestantData, cd => (+cd['DJDDF']))),
                         'DJDD+': d3.mean(d3.map(contestantData, cd => (+cd['DJDD+']))),
+                        'DJDD$': d3.mean(d3.map(contestantData, cd => (+cd['DJDD1'] + +cd['DJDD2']))),
                         'Buz%': 100.0 * d3.sum(d3.map(contestantData, cd => (+cd['Buz']))) / d3.sum(d3.map(contestantData, cd => (+cd['Att'])))
                     };
                 }
@@ -166,10 +232,11 @@
                 var summaryData = Array.from(
                     d3.group(d3.filter(data, d => d['highlightContestant']), d => d['Contestant']),
                     ([contestant, contestantData]) => summarizeContestantData(contestant, contestantData));
-                summaryData.sort(function(a,b) { return highlightContestantCounts.get(b['Contestant']) - highlightContestantCounts.get(a['Contestant']); });
+                summaryData.sort(function(a,b) { return highlightContestants.indexOf(a['Contestant']) - highlightContestants.indexOf(b['Contestant']); });
 
                 var averageSummary = summarizeContestantData(seasonAverageLabel, data);
                 averageSummary['Wins'] = "";
+                averageSummary['Total$'] = "";
                 var summaryDataWithAverage = summaryData.concat(averageSummary);
                 var summaryColorFunction = function(d) {
                     if (d['Contestant'] === seasonAverageLabel) {
@@ -189,6 +256,38 @@
                         return [
                             d['Contestant'],
                             d['Wins'],
+                            d['Leads'],
+                            d['Crushes'],
+                            d['Locks'],
+                            d['TotalWin$'],
+                            d['Att'].toFixed(1),
+                            d['ExpBuz'].toFixed(1),
+                            d['BuzC'].toFixed(1),
+                            (d['Speed'] >= 0 ? "+" : "") + d['Speed'].toFixed(1),
+                            (+d['Solo']).toFixed(1),
+                            d['Buz$'].toFixed(0),
+                            d['DDF'].toFixed(1),
+                            (d['DD+'] >= 0 ? "+" : "") + d['DD+'].toFixed(1),
+                            d['DD$'].toFixed(0),
+                        ];
+                    })
+                    .enter()
+                    .append("td")
+                    .html(function(d,i) {
+                        if (i>0) return d;
+                        if (d === seasonAverageLabel) return '<span style="color:black">&#9632;</span>&nbsp;' + d;
+                        return '<span style="color: ' + color(d) + '">&#9632;</span>&nbsp;<a href="contestant.html?season=' + seasonId + '&contestant=' + d + '">' + d + "</a>";
+                    });
+
+                var summaryTr = d3.select("#season-contestant-summary-j table tbody")
+                    .selectAll("tr")
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append("tr");
+                summaryTr.selectAll("td")
+                    .data(function(d,i) {
+                        return [
+                            d['Contestant'],
                             d['JAtt'].toFixed(1),
                             d['JExpBuz'].toFixed(1),
                             d['JBuzC'].toFixed(1),
@@ -197,6 +296,26 @@
                             d['JBuz$'].toFixed(0),
                             d['JDDF'].toFixed(1),
                             (d['JDD+'] >= 0 ? "+" : "") + d['JDD+'].toFixed(1),
+                            d['JDD$'].toFixed(0)
+                        ];
+                    })
+                    .enter()
+                    .append("td")
+                    .html(function(d,i) {
+                        if (i>0) return d;
+                        if (d === seasonAverageLabel) return '<span style="color:black">&#9632;</span>&nbsp;' + d;
+                        return '<span style="color: ' + color(d) + '">&#9632;</span>&nbsp;<a href="contestant.html?season=' + seasonId + '&contestant=' + d + '">' + d + "</a>";
+                    });
+
+                var summaryTr = d3.select("#season-contestant-summary-dj table tbody")
+                    .selectAll("tr")
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append("tr");
+                summaryTr.selectAll("td")
+                    .data(function(d,i) {
+                        return [
+                            d['Contestant'],
                             d['DJAtt'].toFixed(1),
                             d['DJExpBuz'].toFixed(1),
                             d['DJBuzC'].toFixed(1),
@@ -204,7 +323,8 @@
                             (+d['DJSolo']).toFixed(1),
                             d['DJBuz$'].toFixed(0),
                             d['DJDDF'].toFixed(1),
-                            (d['DJDD+'] >= 0 ? "+" : "") + d['DJDD+'].toFixed(1)
+                            (d['DJDD+'] >= 0 ? "+" : "") + d['DJDD+'].toFixed(1),
+                            d['DJDD$'].toFixed(0)
                         ];
                     })
                     .enter()
