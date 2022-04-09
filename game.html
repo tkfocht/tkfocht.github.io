@@ -186,7 +186,10 @@
                     'JGCon%', [gConMin, gConMax], 'J! GCon %',
                     'DJGCon%', [gConMin, gConMax], 'DJ! GCon %',
                     d => "black", d => d['highlightGame'] ? 1.0 : 0.1, d => "",
-                    200, 200, margin
+                    200, 200, margin,
+                    d => true,
+                    d => false,
+                    d => dateFormat(d['Date'])
                 );
 
                 renderSharedGraphs(data,

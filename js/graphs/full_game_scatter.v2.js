@@ -14,7 +14,8 @@ var fullGameScatter = function(
     height,
     margin,
     dotFilter = d => true,
-    squareFilter = d => false
+    squareFilter = d => false,
+    hoverFunction = d => d['Contestant'] + ", " + dateFormat(d['Date'])
 ) {
     var svg = d3.select(containerId)
         .append("svg")
@@ -29,6 +30,29 @@ var fullGameScatter = function(
     x.domain(xDomain);
     y.domain(yDomain);
 
+    var Tooltip = d3.select(containerId)
+        .append("div")
+        .style("display", "none")
+        .attr("class", "tooltip")
+        .style("position", "absolute")
+        .style("z-index", "1000")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", "2px")
+        .style("border-radius", "5px")
+        .style("padding", "5px");
+    var mouseover = function(event) {
+        Tooltip.style("display", "block");
+    };
+    var mousemove = function(event, d) {
+        Tooltip
+            .html(hoverFunction(d))
+            .style("left", (event['pageX']+10) + "px")
+            .style("top", (event['pageY']) + "px");
+    }
+    var mouseleave = function(event) {
+        Tooltip.style("display", "none");
+    };
     var size = 5;
 
     svg.selectAll("dot")
@@ -40,7 +64,10 @@ var fullGameScatter = function(
         .attr("cy", function(d) { return y(d[yField]); })
         .style("stroke", "black")
         .style("fill", colorFunction)
-        .style("opacity", opacityFunction);
+        .style("opacity", opacityFunction)
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave);
 
     svg.selectAll("rect")
         .data(d3.filter(data, squareFilter))
@@ -52,7 +79,10 @@ var fullGameScatter = function(
         .attr("height", size*2)
         .style("stroke", "black")
         .style("fill", colorFunction)
-        .style("opacity", opacityFunction);
+        .style("opacity", opacityFunction)
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave);
 
     svg.selectAll("text")
         .data(data)
