@@ -1,0 +1,641 @@
+<html>
+    <head>
+        <title>J!ometry: Daily Jeopardy Visualizations</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto">
+        <link rel="stylesheet" href="css/site.css"></link>
+        <link rel="stylesheet" href="css/season.css"></link>
+        <script src="https://cdn.plot.ly/plotly-2.12.1.min.js"></script>
+        <script src="/js/d3/d3.v7.min.js"></script>
+        <script src="/js/util/util.v2.js"></script>
+        <script src="/js/graphs/period_box_plot.v1.js"></script>
+        <script src="/js/graphs/full_game_scatter.v3.js"></script>
+        <script src="/js/graphs/by_round_scatter.v1.js"></script>
+        <script src="/js/util/shared_graph_production.v4.js"></script>
+    </head>
+    <body>
+        <h1><a href="index.html">J!ometry</a></h1>
+        <div>
+            <a href="/index.html">Home</a>&nbsp;<a href="/glossary.html">Glossary</a>
+        </div>
+        <div class="section">
+            <h1><span id="season-id"></span> Season Summary</h1>
+            <div class="graph-description">
+                "Average" is the average of all contestant performances, not just those shown individually. Each game performace
+                is a separate data point, so champions are included separately in the average for each of their games.
+            </div>
+            <div id="season-contestant-summary" class="season-contestant-summary">
+                <table>
+                    <thead>
+                        <tr>
+                            <th colspan="6" class="empty"></th>
+                            <th colspan="10">Game Averages</th>
+                        </tr>
+                        <tr>
+                            <th>Contestant</th>
+                            <th>Wins</th>
+                            <th>Leads</th>
+                            <th>Crushes</th>
+                            <th>Locks</th>
+                            <th>TotalWin$</th>
+                            <th>BuzC</th>
+                            <th>BuzI</th>
+                            <th>BuzC$</th>
+                            <th>BuzI$</th>
+                            <th>Buz$</th>
+                            <th>BuzC$/</th>
+                            <th>BuzI$/</th>
+                            <th>DDF</th>
+                            <th>DD+</th>
+                            <th>DD$</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div id="season-contestant-summary-j" class="season-contestant-summary">
+                <table>
+                    <thead>
+                        <tr>
+                            <th colspan="1" class="empty"></th>
+                            <th colspan="10">Jeopardy! Round Avg</th>
+                        </tr>
+                        <tr>
+                            <th>Contestant</th>
+                            <th>BuzC</th>
+                            <th>BuzI</th>
+                            <th>BuzC$</th>
+                            <th>BuzI$</th>
+                            <th>Buz$</th>
+                            <th>BuzC$/</th>
+                            <th>BuzI$/</th>
+                            <th>DDF</th>
+                            <th>DD+</th>
+                            <th>DD$</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div id="season-contestant-summary-dj" class="season-contestant-summary">
+                <table>
+                    <thead>
+                        <tr>
+                            <th colspan="1" class="empty"></th>
+                            <th colspan="10">Double Jeopardy! Round Avg</th>
+                        </tr>
+                        <tr>
+                            <th>Contestant</th>
+                            <th>BuzC</th>
+                            <th>BuzI</th>
+                            <th>BuzC$</th>
+                            <th>BuzI$</th>
+                            <th>Buz$</th>
+                            <th>BuzC$/</th>
+                            <th>BuzI$/</th>
+                            <th>DDF</th>
+                            <th>DD+</th>
+                            <th>DD$</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="graph-description">
+                Att = Attempts, ExpBuz = Expected buzzes, BuzC = Correct on buzz,
+                Speed = Est. buzzes created through speed, Solo = Estimated buzzes uncontested,
+                Buz$ = Score on buzz, DDF = Daily Doubles found, DD+ = Daily Doubles found above expectation
+            </div>
+        </div>
+        <div class="section">
+            <h1>Average Attempt Distribution</h1>
+            <div class="graph-description">
+                Average buzz attempts, by contestant and round. Correct responses are at the bottom, incorrect responses are lighter and
+                in the middle, and attempts where the contestant was locked out are lightest and at the top. "Average" is the average of
+                all contestant performances, not just those shown individually. Each game performance is a separate
+                data point, so champions are included separately in the average for each of their games.
+            </div>
+            <div id="bar-attempts"></div>
+        </div>
+        <div class="section">
+            <h1>Buz$ plot</h1>
+            <div class="graph-description">
+                Description.
+            </div>
+            <div id="box-buz" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="box-att" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="box-buz$" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="box-buz$-per-buz" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="box-speed" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="box-solo" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+        </div>
+        <div class="section">
+            <h1>Buz$/Buz vs Buz plot</h1>
+            <div class="graph-description">
+                Description.
+            </div>
+            <div id="scatter-buz$-buz-vs-buz" style="width:1000px;height:500px;"></div>
+        </div>
+        <div class="section">
+            <h1>Avg Buz$/Buz vs Buz plot</h1>
+            <div class="graph-description">
+                Description.
+            </div>
+            <div id="scatter-avg-buz$-buz-vs-buz" style="width:1000px;height:500px;"></div>
+        </div>
+        <div id="footer">
+            <p>This site is not affiliated with Jeopardy!. Data is taken from their published <a href="https://www.jeopardy.com/jbuzz/news-events/jeopardy-daily-box-scores">box scores.</a></p>
+        </div>
+        <script type="text/javascript">
+            var tocPeriodId = new URLSearchParams(window.location.search).get('toc_period');
+            var seasonAverageLabel = tocPeriodId + " Average";
+            d3.select("#toc-period-id")
+                .data([tocPeriodId])
+                .text(d => d);
+            d3.csv(csvUrlForSeasonNonbox(tocPeriodId)).then(function(data) {
+                //Baseline for graphs
+                var margin = {top: 20, right: 20, bottom: 50, left: 70},
+                    width = 960 - margin.left - margin.right,
+                    height = 500 - margin.top - margin.bottom;
+
+                //Data transformations
+                data.forEach(function(d) {
+                    d['Date'] = csvDateParse(d['Date']);
+                    d['JBuz%'] = 100.0 * d['JBuz'] / d['JAtt'];
+                    d['DJBuz%'] = 100.0 * d['DJBuz'] / d['DJAtt'];
+                    d['Buz%'] = 100.0 * d['Buz'] / d['Att'];
+                });
+
+                var highlightContestantCounts = d3.rollup(data, v => d3.sum(d3.map(v, cd => (+cd['Wins']))), d => d['Contestant']);
+                var contestantWinnings = d3.rollup(data, v => d3.sum(d3.map(v, cd => (+cd['Wins'] * +cd['FJFinal$']))), d => d['Contestant']);
+                var gameThreshold = 4;
+                highlightContestants = d3.filter(highlightContestantCounts.keys(), k => highlightContestantCounts.get(k) >= gameThreshold);
+
+                var latestDate = d3.max(d3.map(data, d => d['Date']));
+                var currentChampionToHighlight = d3.map(d3.filter(data, d => d['Date'] >= latestDate && +d['Wins'] > 0), d => d['Contestant']);
+                highlightContestants = highlightContestants.concat(Array.from(d3.difference(currentChampionToHighlight, highlightContestants)));
+
+                highlightContestants.sort(function(a,b) {
+                    var winsDiff = highlightContestantCounts.get(b) - highlightContestantCounts.get(a);
+                    if (winsDiff !== 0) {
+                        return winsDiff;
+                    }
+                    return contestantWinnings.get(b) - contestantWinnings.get(a);
+                });
+                data.forEach(function(d) {
+                    d['highlightContestant'] = highlightContestants.includes(d['Contestant']);
+                });
+
+                //Graphics functions
+                var color = d3.scaleOrdinal()
+                    .domain(highlightContestants)
+                    .range(d3.schemeCategory10.concat(d3.schemeSet3));
+                var colorFunction = function(d) {
+                    if (d['highlightContestant']) {
+                        return color(d['Contestant']);
+                    } else {
+                        return "black";
+                    }
+                };
+                var opacityFunction = function(d) {
+                    if (d['highlightContestant']) {
+                        return 1;
+                    } else {
+                        return 0.1;
+                    }
+                };
+                var labelFunction = function(d) {
+                    return "";
+                };
+
+                var summarizeContestantData = function(contestant, contestantData) {
+                    return {
+                        'Contestant': contestant,
+                        'Wins': d3.sum(d3.map(contestantData, cd => (+cd['Wins']))),
+                        'Leads': d3.sum(d3.map(contestantData, cd => (+cd['Leads']))),
+                        'Crushes': d3.sum(d3.map(contestantData, cd => (+cd['Crushes']))),
+                        'Locks': d3.sum(d3.map(contestantData, cd => (+cd['Locks']))),
+                        'TotalWin$': d3.sum(d3.map(contestantData, cd => (+cd['Wins'] * +cd['FJFinal$']))),
+                        'Buz': d3.mean(d3.map(contestantData, cd => (+cd['Buz']))),
+                        'BuzC': d3.mean(d3.map(contestantData, cd => (+cd['JBuzC'] + +cd['DJBuzC']))),
+                        'BuzI': d3.mean(d3.map(contestantData, cd => (+cd['JBuzInc'] + +cd['DJBuzInc']))),
+                        'Buz$': d3.mean(d3.map(contestantData, cd => (+cd['Buz$']))),
+                        'BuzC$': d3.mean(d3.map(contestantData, cd => (+cd['JBuzC$'] + +cd['DJBuzC$']))),
+                        'BuzI$': d3.mean(d3.map(contestantData, cd => (+cd['JBuzI$'] + +cd['DJBuzI$']))),
+                        'BuzC$/BuzC': 1.0 * d3.mean(d3.map(contestantData, cd => (+cd['JBuzC$'] + +cd['DJBuzC$']))) / d3.mean(d3.map(contestantData, cd => (+cd['JBuzC'] + +cd['DJBuzC']))),
+                        'BuzI$/BuzI': 1.0 * d3.mean(d3.map(contestantData, cd => (+cd['JBuzI$'] + +cd['DJBuzI$']))) / d3.mean(d3.map(contestantData, cd => (+cd['JBuzInc'] + +cd['DJBuzInc']))),
+                        'DDF': d3.mean(d3.map(contestantData, cd => (+cd['JDDF'] + +cd['DJDDF']))),
+                        'DD+': d3.mean(d3.map(contestantData, cd => (+cd['DD+']))),
+                        'DD$': d3.mean(d3.map(contestantData, cd => (+cd['JDD'] + +cd['DJDD1'] + +cd['DJDD2']))),
+                        'JBuz': d3.mean(d3.map(contestantData, cd => (+cd['JBuz']))),
+                        'JBuzC': d3.mean(d3.map(contestantData, cd => (+cd['JBuzC']))),
+                        'JBuzI': d3.mean(d3.map(contestantData, cd => (+cd['JBuzInc']))),
+                        'JBuz$': d3.mean(d3.map(contestantData, cd => (+cd['JBuz$']))),
+                        'JBuzC$': d3.mean(d3.map(contestantData, cd => (+cd['JBuzC$']))),
+                        'JBuzI$': d3.mean(d3.map(contestantData, cd => (+cd['JBuzI$']))),
+                        'JBuzC$/JBuzC': 1.0 * d3.mean(d3.map(contestantData, cd => (+cd['JBuzC$']))) / d3.mean(d3.map(contestantData, cd => (+cd['JBuzC']))),
+                        'JBuzI$/JBuzI': 1.0 * d3.mean(d3.map(contestantData, cd => (+cd['JBuzI$']))) / d3.mean(d3.map(contestantData, cd => (+cd['JBuzInc']))),
+                        'JDDF': d3.mean(d3.map(contestantData, cd => (+cd['JDDF']))),
+                        'JDD+': d3.mean(d3.map(contestantData, cd => (+cd['JDD+']))),
+                        'JDD$': d3.mean(d3.map(contestantData, cd => (+cd['JDD']))),
+                        'DJBuz': d3.mean(d3.map(contestantData, cd => (+cd['DJBuz']))),
+                        'DJBuzC': d3.mean(d3.map(contestantData, cd => (+cd['DJBuzC']))),
+                        'DJBuzI': d3.mean(d3.map(contestantData, cd => (+cd['DJBuzInc']))),
+                        'DJBuz$': d3.mean(d3.map(contestantData, cd => (+cd['DJBuz$']))),
+                        'DJBuzC$': d3.mean(d3.map(contestantData, cd => (+cd['DJBuzC$']))),
+                        'DJBuzI$': d3.mean(d3.map(contestantData, cd => (+cd['DJBuzI$']))),
+                        'DJBuzC$/DJBuzC': 1.0 * d3.mean(d3.map(contestantData, cd => (+cd['DJBuzC$']))) / d3.mean(d3.map(contestantData, cd => (+cd['DJBuzC']))),
+                        'DJBuzI$/DJBuzI': 1.0 * d3.mean(d3.map(contestantData, cd => (+cd['DJBuzI$']))) / d3.mean(d3.map(contestantData, cd => (+cd['DJBuzInc']))),
+                        'DJDDF': d3.mean(d3.map(contestantData, cd => (+cd['DJDDF']))),
+                        'DJDD+': d3.mean(d3.map(contestantData, cd => (+cd['DJDD+']))),
+                        'DJDD$': d3.mean(d3.map(contestantData, cd => (+cd['DJDD1'] + +cd['DJDD2']))),
+                        'Buz%': 100.0 * d3.sum(d3.map(contestantData, cd => (+cd['Buz']))) / d3.sum(d3.map(contestantData, cd => (+cd['Att'])))
+                    };
+                }
+
+
+                //Summary table
+                var summaryData = Array.from(
+                    d3.group(d3.filter(data, d => d['highlightContestant']), d => d['Contestant']),
+                    ([contestant, contestantData]) => summarizeContestantData(contestant, contestantData));
+                summaryData.sort(function(a,b) { return highlightContestants.indexOf(a['Contestant']) - highlightContestants.indexOf(b['Contestant']); });
+
+                var averageSummary = summarizeContestantData(seasonAverageLabel, data);
+                averageSummary['Wins'] = "";
+                averageSummary['Leads'] = "";
+                averageSummary['Crushes'] = "";
+                averageSummary['Locks'] = "";
+                averageSummary['TotalWin$'] = "";
+                var summaryDataWithAverage = summaryData.concat(averageSummary);
+                var summaryColorFunction = function(d) {
+                    if (d['Contestant'] === seasonAverageLabel) {
+                        return "black";
+                    } else {
+                        return color(d['Contestant']);
+                    }
+                }
+
+                var summaryTr = d3.select("#season-contestant-summary table tbody")
+                    .selectAll("tr")
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append("tr");
+                summaryTr.selectAll("td")
+                    .data(function(d,i) {
+                        return [
+                            d['Contestant'],
+                            d['Wins'],
+                            d['Leads'],
+                            d['Crushes'],
+                            d['Locks'],
+                            d['TotalWin$'],
+                            d['BuzC'].toFixed(1),
+                            d['BuzI'].toFixed(1),
+                            d['BuzC$'].toFixed(0),
+                            d['BuzI$'].toFixed(0),
+                            d['Buz$'].toFixed(0),
+                            d['BuzC$/BuzC'].toFixed(0),
+                            d['BuzI$/BuzI'].toFixed(0),
+                            d['DDF'].toFixed(1),
+                            (d['DD+'] >= 0 ? "+" : "") + d['DD+'].toFixed(1),
+                            d['DD$'].toFixed(0),
+                        ];
+                    })
+                    .enter()
+                    .append("td")
+                    .html(function(d,i) {
+                        if (i>0) return d;
+                        if (d === seasonAverageLabel) return '<span style="color:black">&#9632;</span>&nbsp;' + d;
+                        return '<span style="color: ' + color(d) + '">&#9632;</span>&nbsp;<a href="contestant.html?toc_period=' + tocPeriodId + '&contestant=' + d + '">' + d + "</a>";
+                    });
+
+                var summaryTr = d3.select("#season-contestant-summary-j table tbody")
+                    .selectAll("tr")
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append("tr");
+                summaryTr.selectAll("td")
+                    .data(function(d,i) {
+                        return [
+                            d['Contestant'],
+                            d['JBuzC'].toFixed(1),
+                            d['JBuzI'].toFixed(1),
+                            d['JBuzC$'].toFixed(0),
+                            d['JBuzI$'].toFixed(0),
+                            d['JBuz$'].toFixed(0),
+                            d['JBuzC$/JBuzC'].toFixed(0),
+                            d['JBuzI$/JBuzI'].toFixed(0),
+                            d['JDDF'].toFixed(1),
+                            (d['JDD+'] >= 0 ? "+" : "") + d['JDD+'].toFixed(1),
+                            d['JDD$'].toFixed(0)
+                        ];
+                    })
+                    .enter()
+                    .append("td")
+                    .html(function(d,i) {
+                        if (i>0) return d;
+                        if (d === seasonAverageLabel) return '<span style="color:black">&#9632;</span>&nbsp;' + d;
+                        return '<span style="color: ' + color(d) + '">&#9632;</span>&nbsp;<a href="contestant.html?toc_period=' + tocPeriodId + '&contestant=' + d + '">' + d + "</a>";
+                    });
+
+                var summaryTr = d3.select("#season-contestant-summary-dj table tbody")
+                    .selectAll("tr")
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append("tr");
+                summaryTr.selectAll("td")
+                    .data(function(d,i) {
+                        return [
+                            d['Contestant'],
+                            d['DJBuzC'].toFixed(1),
+                            d['DJBuzI'].toFixed(1),
+                            d['DJBuzC$'].toFixed(0),
+                            d['DJBuzI$'].toFixed(0),
+                            d['DJBuz$'].toFixed(0),
+                            d['DJBuzC$/DJBuzC'].toFixed(0),
+                            d['DJBuzI$/DJBuzI'].toFixed(0),
+                            d['DJDDF'].toFixed(1),
+                            (d['DJDD+'] >= 0 ? "+" : "") + d['DJDD+'].toFixed(1),
+                            d['DJDD$'].toFixed(0)
+                        ];
+                    })
+                    .enter()
+                    .append("td")
+                    .html(function(d,i) {
+                        if (i>0) return d;
+                        if (d === seasonAverageLabel) return '<span style="color:black">&#9632;</span>&nbsp;' + d;
+                        return '<span style="color: ' + color(d) + '">&#9632;</span>&nbsp;<a href="contestant.html?toc_period=' + tocPeriodId + '&contestant=' + d + '">' + d + "</a>";
+                    });
+
+
+                //Attempt Distribution
+                svg = d3.select("#bar-attempts").append("svg")
+                                .attr("width", width + margin.left + margin.right)
+                                .attr("height", height + margin.top + margin.bottom)
+                            .append("g")
+                            .attr("transform",
+                                "translate(" + margin.left + "," + margin.top + ")");
+                var x = d3.scaleBand()
+                    .domain(['J!', 'DJ!'])
+                    .range([0, width])
+                    .padding([0.2]);
+                var y = d3.scaleLinear().range([height, 0]);
+                y.domain([0, 30]);
+                svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x).tickSize(0));
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+                svg.append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 0 - margin.left)
+                    .attr("x",0 - (height / 2))
+                    .attr("dy", "1em")
+                    .style("text-anchor", "middle")
+                    .text("Correct");  
+
+                var xSubgroup = d3.scaleBand()
+                    .domain(highlightContestants.concat([seasonAverageLabel]))
+                    .range([0, x.bandwidth()])
+                    .padding([0.05]);
+
+                var jG = svg.append('g')
+                    .attr("transform", function(d) { return "translate(" + x('J!') + ",0)"; });
+                var jGCorrectG = jG.append('g');
+                var jGIncorrectG = jG.append('g');
+                jGCorrectG.selectAll('rect')
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['JBuzC']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['JBuzC']); })
+                    .attr("fill", summaryColorFunction);
+                jGIncorrectG.selectAll('rect')
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['JBuz']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['JBuz'] - d['JBuzC']); })
+                    .attr("fill", summaryColorFunction)
+                    .attr("opacity", 0.7);
+                jG.selectAll('text')
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append('text')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']) + 5; })
+                    .attr('y', function(d) { return y(d['JBuz']); })
+                    .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Contestant']) + 5) + ',' + y(d['JBuz']) + ')'; })
+                    .text(d => d['Contestant']);
+
+                var djG = svg.append('g')
+                    .attr("transform", function(d) { return "translate(" + x('DJ!') + ",0)"; });
+                var djGCorrectG = djG.append('g');
+                var djGIncorrectG = djG.append('g');
+                djGCorrectG.selectAll('rect')
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['DJBuzC']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['DJBuzC']); })
+                    .attr("fill", summaryColorFunction);
+                djGIncorrectG.selectAll('rect')
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append('rect')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
+                    .attr('y', function(d) { return y(d['DJBuz']); })
+                    .attr("width", xSubgroup.bandwidth())
+                    .attr("height", function(d) { return height - y(d['DJBuz'] - d['DJBuzC']); })
+                    .attr("fill", summaryColorFunction)
+                    .attr("opacity", 0.7);
+                djG.selectAll('text')
+                    .data(summaryDataWithAverage)
+                    .enter()
+                    .append('text')
+                    .attr('x', function(d) { return xSubgroup(d['Contestant']) + 5; })
+                    .attr('y', function(d) { return y(d['DJBuz']); })
+                    .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Contestant']) + 5) + ',' + y(d['DJBuz']) + ')'; })
+                    .text(d => d['Contestant']);
+
+
+                //Histogram set
+                renderHighlightContestantBoxPlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['Buz'],
+                    'box-buz',
+                    'Buz',
+                    5,
+                    cd1 => true
+                );
+                renderHighlightContestantBoxPlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['Att'],
+                    'box-att',
+                    'Att',
+                    5,
+                    cd1 => cd1['Att'] !== ""
+                );
+                renderHighlightContestantBoxPlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['Buz$'],
+                    'box-buz$',
+                    'Buz$',
+                    5000,
+                    cd1 => true
+                );
+                renderHighlightContestantBoxPlot(
+                    data,
+                    highlightContestants,
+                    cd1 => 1.0 * +cd1['Buz$'] / +cd1['Buz'],
+                    'box-buz$-per-buz',
+                    'Buz$/Buz',
+                    100,
+                    cd1 => true
+                );
+                renderHighlightContestantBoxPlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['Speed'],
+                    'box-speed',
+                    'Speed',
+                    1,
+                    cd1 => cd1['Speed'] !== ""
+                );
+                renderHighlightContestantBoxPlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['Solo'],
+                    'box-solo',
+                    'Solo',
+                    1,
+                    cd1 => cd1['Solo'] !== ""
+                );
+                
+                
+
+                plotData = [];
+                for ( var i = 0; i < highlightContestants.length; i ++ ) {
+                    var cid = highlightContestants[i];
+                    var trace = {
+                        x: d3.map(d3.filter(data, cd => cd['Contestant'] === cid), cd1 => +cd1['Buz']),
+                        y: d3.map(d3.filter(data, cd => cd['Contestant'] === cid), cd1 => +cd1['Buz$'] / +cd1['Buz']),
+                        mode: 'markers',
+                        type: 'scatter',
+                        name: cid,
+                        /*text: d3.map(d3.filter(data, cd => cd['Contestant'] === cid), cd1 => cd1['Date']),
+                        textposition: 'top center',
+                        textfont: {
+                            family:  'Raleway, sans-serif'
+                        },*/
+                        marker: { size: 5 }
+                    };
+                    plotData.push(trace);
+                }
+                var trace = {
+                    x: d3.map(d3.filter(data, cd => !highlightContestants.includes(cd['Contestant'])), cd1 => +cd1['Buz']),
+                    y: d3.map(d3.filter(data, cd => !highlightContestants.includes(cd['Contestant'])), cd1 => +cd1['Buz$'] / +cd1['Buz']),
+                    mode: 'markers',
+                    type: 'scatter',
+                    name: "Others",
+                    /*text: d3.map(d3.filter(data, cd => !highlightContestants.includes(cd['Contestant'])), cd1 => cd1['Date']),
+                    textposition: 'top center',
+                    textfont: {
+                        family:  'Raleway, sans-serif'
+                    },*/
+                    marker: { size: 2 }
+                };
+                plotData.push(trace);
+
+                var layout = {
+                    xaxis: {
+                        range: [ 0, 50 ]
+                    },
+                    yaxis: {
+                        range: [-500, 1200]
+                    },
+                    legend: {
+                        y: 0.5,
+                        yref: 'paper',
+                        font: {
+                        family: 'Arial, sans-serif',
+                        size: 20,
+                        color: 'grey',
+                        }
+                    },
+                    title:'Data Labels on the Plot'
+                };
+
+                Plotly.newPlot('scatter-buz$-buz-vs-buz', plotData, layout);
+
+                plotData = [];
+                /*for ( var i = 0; i < highlightContestants.length; i ++ ) {
+                    var cid = highlightContestants[i];
+                    var trace = {
+                        x: [d3.mean(d3.map(d3.filter(data, cd => cd['Contestant'] === cid), cd1 => +cd1['Buz']))],
+                        y: [d3.mean(d3.map(d3.filter(data, cd => cd['Contestant'] === cid), cd1 => +cd1['Buz$'] / +cd1['Buz']))],
+                        mode: 'markers',
+                        type: 'scatter',
+                        name: cid,
+                        /*text: d3.map(d3.filter(data, cd => cd['Contestant'] === cid), cd1 => cd1['Date']),
+                        textposition: 'top center',
+                        textfont: {
+                            family:  'Raleway, sans-serif'
+                        },*//*
+                        marker: { size: 7 }
+                    };
+                    plotData.push(trace);
+                }*/
+                var othersData = d3.group(data, cd => cd['Contestant']);
+                othersData.forEach((value, key) => {
+//                    if (!highlightContestants.includes(key)) {
+                        var trace = {
+                            x: [d3.mean(d3.map(value, cd1 => +cd1['Buz']))],
+                            y: [d3.mean(d3.map(value, cd1 => +cd1['Buz$'] / +cd1['Buz']))],
+                            mode: 'markers',
+                            type: 'scatter',
+                            name: key,
+                            /*text: d3.map(d3.filter(data, cd => !highlightContestants.includes(cd['Contestant'])), cd1 => cd1['Date']),
+                            textposition: 'top center',
+                            textfont: {
+                                family:  'Raleway, sans-serif'
+                            },*/
+                            marker: { size: 2 * Math.sqrt(value.length) }
+                        };
+                        plotData.push(trace);
+//                    }
+            });
+                
+
+                var layout = {
+                    xaxis: {
+                        range: [ 0, 40 ]
+                    },
+                    yaxis: {
+                        range: [-500, 1200]
+                    },
+                    legend: {
+                        y: 0.5,
+                        yref: 'paper',
+                        font: {
+                        family: 'Arial, sans-serif',
+                        size: 20,
+                        color: 'grey',
+                        }
+                    },
+                    title:'Data Labels on the Plot'
+                };
+
+                Plotly.newPlot('scatter-avg-buz$-buz-vs-buz', plotData, layout);
+            });
+        </script>
+    </body>
+</html>
