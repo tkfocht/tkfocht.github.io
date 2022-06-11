@@ -29,7 +29,7 @@
                     <thead>
                         <tr>
                             <th colspan="6" class="empty"></th>
-                            <th colspan="10">Game Averages</th>
+                            <th colspan="11">Game Averages</th>
                         </tr>
                         <tr>
                             <th>Contestant</th>
@@ -48,6 +48,7 @@
                             <th>DDF</th>
                             <th>DD+</th>
                             <th>DD$</th>
+                            <th>FJ$</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -108,38 +109,105 @@
             </div>
         </div>
         <div class="section">
-            <h1>Average Attempt Distribution</h1>
+            <h1>Buzz Distribution</h1>
             <div class="graph-description">
-                Average buzz attempts, by contestant and round. Correct responses are at the bottom, incorrect responses are lighter and
-                in the middle, and attempts where the contestant was locked out are lightest and at the top. "Average" is the average of
-                all contestant performances, not just those shown individually. Each game performance is a separate
-                data point, so champions are included separately in the average for each of their games.
+                Average buzzes, by contestant. Correct responses are at the bottom, incorrect responses are lighter and
+                on top.
             </div>
-            <div id="bar-attempts"></div>
+            <div id="bar-buzzes" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="line-buzc-j-dj" style="width:600px;height:500px;margin-bottom:1em;"></div>
+            <div id="line-buzi-j-dj" style="width:600px;height:500px;margin-bottom:1em;"></div>
         </div>
         <div class="section">
-            <h1>Buz$ plot</h1>
+            <h1>Buzzes</h1>
             <div class="graph-description">
-                Description.
+                Buzzes, by contestant, in each game.
             </div>
             <div id="box-buz" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="line-buz-j-dj" style="width:600px;height:500px;margin-bottom:1em;"></div>
+        </div>
+        <div class="section">
+            <h1>Attempts</h1>
+            <div class="graph-description">
+                Attempts, by contestant, in each game.
+            </div>
             <div id="box-att" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="line-att-j-dj" style="width:600px;height:500px;margin-bottom:1em;"></div>
+        </div>
+        <div class="section">
+            <h1>Buz$</h1>
+            <div class="graph-description">
+                Money earned/lost on buzzes, by contestant, in each game.
+            </div>
             <div id="box-buz$" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="line-buz$-j-dj" style="width:600px;height:500px;margin-bottom:1em;"></div>
+        </div>
+        <div class="section">
+            <h1>Buz$/Buz</h1>
+            <div class="graph-description">
+                Money earned/lost on buzzes on the average buzz, by contestant, in each game.
+            </div>
             <div id="box-buz$-per-buz" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="line-buz$-per-buz-j-dj" style="width:600px;height:500px;margin-bottom:1em;"></div>
+        </div>
+        <div class="section">
+            <h1>Speed</h1>
+            <div class="graph-description">
+                Estimated buzzes earned by speed, by contestant, in each game.
+            </div>
             <div id="box-speed" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="line-speed-j-dj" style="width:600px;height:500px;margin-bottom:1em;"></div>
+        </div>
+        <div class="section">
+            <h1>Solo</h1>
+            <div class="graph-description">
+                Estimated buzzes where only contestant attempting, by contestant, in each game.
+            </div>
             <div id="box-solo" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="line-solo-j-dj" style="width:600px;height:500px;margin-bottom:1em;"></div>
+        </div>
+        <div class="section">
+            <h1>Speed plus Solo</h1>
+            <div class="graph-description">
+                Speed plus Solo, by contestant, in each game. Each value varies widely based on the competition, but the sum is meaningful.
+            </div>
+            <div id="box-speed-plus-solo" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="line-speed-plus-solo-j-dj" style="width:600px;height:500px;margin-bottom:1em;"></div>
+        </div>
+        <div class="section">
+            <h1>DD+</h1>
+            <div class="graph-description">
+                Daily Doubles found above expected number, by contestant, in each game.
+            </div>
+            <div id="box-dd+" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="line-dd+-j-dj" style="width:600px;height:500px;margin-bottom:1em;"></div>
+        </div>
+        <div class="section">
+            <h1>DD$</h1>
+            <div class="graph-description">
+                Money earned/lost on Daily Doubles, by contestant, in each game.
+            </div>
+            <div id="box-dd$" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="line-dd$-j-dj" style="width:600px;height:500px;margin-bottom:1em;"></div>
+        </div>
+        <div class="section">
+            <h1>FJ$</h1>
+            <div class="graph-description">
+                Money earned/lost on Final Jeopardy, by contestant, in each game.
+            </div>
+            <div id="box-fj$" style="width:1000px;height:500px;margin-bottom:1em;"></div>
         </div>
         <div class="section">
             <h1>Buz$/Buz vs Buz plot</h1>
             <div class="graph-description">
-                Description.
+                Buz$/Buz vs Buz, per game. 4+ game champions are marked larger.
             </div>
             <div id="scatter-buz$-buz-vs-buz" style="width:1000px;height:500px;"></div>
         </div>
         <div class="section">
             <h1>Avg Buz$/Buz vs Buz plot</h1>
             <div class="graph-description">
-                Description.
+                Average Buz$/Buz vs Buz, per contestant.
             </div>
             <div id="scatter-avg-buz$-buz-vs-buz" style="width:1000px;height:500px;"></div>
         </div>
@@ -161,9 +229,12 @@
                 //Data transformations
                 data.forEach(function(d) {
                     d['Date'] = csvDateParse(d['Date']);
+                    d['BuzC'] = +d['JBuzC'] + +d['DJBuzC'];
+                    d['BuzI'] = +d['JBuzInc'] + +d['DJBuzInc'];
                     d['JBuz%'] = 100.0 * d['JBuz'] / d['JAtt'];
                     d['DJBuz%'] = 100.0 * d['DJBuz'] / d['DJAtt'];
                     d['Buz%'] = 100.0 * d['Buz'] / d['Att'];
+                    d['FJ$'] = d['FJCor'] === "" ? 0 : (2 * +d['FJCor'] - 1) * +d['FJWager'];
                 });
 
                 var highlightContestantCounts = d3.rollup(data, v => d3.sum(d3.map(v, cd => (+cd['Wins']))), d => d['Contestant']);
@@ -173,7 +244,7 @@
 
                 var latestDate = d3.max(d3.map(data, d => d['Date']));
                 var currentChampionToHighlight = d3.map(d3.filter(data, d => d['Date'] >= latestDate && +d['Wins'] > 0), d => d['Contestant']);
-                highlightContestants = highlightContestants.concat(Array.from(d3.difference(currentChampionToHighlight, highlightContestants)));
+                //highlightContestants = highlightContestants.concat(Array.from(d3.difference(currentChampionToHighlight, highlightContestants)));
 
                 highlightContestants.sort(function(a,b) {
                     var winsDiff = highlightContestantCounts.get(b) - highlightContestantCounts.get(a);
@@ -189,7 +260,7 @@
                 //Graphics functions
                 var color = d3.scaleOrdinal()
                     .domain(highlightContestants)
-                    .range(d3.schemeCategory10.concat(d3.schemeSet3));
+                    .range(d3.schemeCategory10.concat(d3.schemeDark2));
                 var colorFunction = function(d) {
                     if (d['highlightContestant']) {
                         return color(d['Contestant']);
@@ -249,6 +320,7 @@
                         'DJDDF': d3.mean(d3.map(contestantData, cd => (+cd['DJDDF']))),
                         'DJDD+': d3.mean(d3.map(contestantData, cd => (+cd['DJDD+']))),
                         'DJDD$': d3.mean(d3.map(contestantData, cd => (+cd['DJDD1'] + +cd['DJDD2']))),
+                        'FJ$': d3.mean(d3.map(contestantData, cd => (+cd['FJ$']))),
                         'Buz%': 100.0 * d3.sum(d3.map(contestantData, cd => (+cd['Buz']))) / d3.sum(d3.map(contestantData, cd => (+cd['Att'])))
                     };
                 }
@@ -299,6 +371,7 @@
                             d['DDF'].toFixed(1),
                             (d['DD+'] >= 0 ? "+" : "") + d['DD+'].toFixed(1),
                             d['DD$'].toFixed(0),
+                            d['FJ$'].toFixed(0),
                         ];
                     })
                     .enter()
@@ -367,101 +440,67 @@
                         return '<span style="color: ' + color(d) + '">&#9632;</span>&nbsp;<a href="contestant.html?toc_period=' + tocPeriodId + '&contestant=' + d + '">' + d + "</a>";
                     });
 
+                //Buzzes
+                var attemptsTraceBuzC = {
+                    x: highlightContestants,
+                    y: d3.map(highlightContestants, c => d3.mean(d3.map(d3.filter(data, cd => cd['Contestant'] === c), cd1 => +cd1['BuzC']))),
+                    text: d3.map(highlightContestants, c => d3.mean(d3.map(d3.filter(data, cd => cd['Contestant'] === c), cd1 => +cd1['BuzC'])).toFixed(1)),
+                    type: 'bar',
+                    marker: {
+                        color: d3.map(highlightContestants, color),
+                        line: {
+                            color: 'black',
+                            width: 1.5
+                        }
+                    }
+                };
+                var attemptsTraceBuzI = {
+                    x: highlightContestants,
+                    y: d3.map(highlightContestants, c => d3.mean(d3.map(d3.filter(data, cd => cd['Contestant'] === c), cd1 => +cd1['BuzI']))),
+                    text: d3.map(highlightContestants, c => d3.mean(d3.map(d3.filter(data, cd => cd['Contestant'] === c), cd1 => +cd1['BuzI'])).toFixed(1)),
+                    type: 'bar',
+                    marker: {
+                        color: d3.map(highlightContestants, color),
+                        line: {
+                            color: 'black',
+                            width: 1.5
+                        },
+                        opacity: 0.5
+                    }
+                };
+                var attemptsData = [attemptsTraceBuzC, attemptsTraceBuzI];
+                var attemptsLayout = {
+                    barmode: 'stack',
+                    showlegend: false,
+                    yaxis: {
+                        title: {
+                            text: "Buzzes",
+                            standoff: 20
+                        }
+                    }
+                };
+                Plotly.newPlot('bar-buzzes', attemptsData, attemptsLayout);
 
-                //Attempt Distribution
-                svg = d3.select("#bar-attempts").append("svg")
-                                .attr("width", width + margin.left + margin.right)
-                                .attr("height", height + margin.top + margin.bottom)
-                            .append("g")
-                            .attr("transform",
-                                "translate(" + margin.left + "," + margin.top + ")");
-                var x = d3.scaleBand()
-                    .domain(['J!', 'DJ!'])
-                    .range([0, width])
-                    .padding([0.2]);
-                var y = d3.scaleLinear().range([height, 0]);
-                y.domain([0, 30]);
-                svg.append("g")
-                    .attr("transform", "translate(0," + height + ")")
-                    .call(d3.axisBottom(x).tickSize(0));
-                svg.append("g")
-                    .call(d3.axisLeft(y));
-                svg.append("text")
-                    .attr("transform", "rotate(-90)")
-                    .attr("y", 0 - margin.left)
-                    .attr("x",0 - (height / 2))
-                    .attr("dy", "1em")
-                    .style("text-anchor", "middle")
-                    .text("Correct");  
-
-                var xSubgroup = d3.scaleBand()
-                    .domain(highlightContestants.concat([seasonAverageLabel]))
-                    .range([0, x.bandwidth()])
-                    .padding([0.05]);
-
-                var jG = svg.append('g')
-                    .attr("transform", function(d) { return "translate(" + x('J!') + ",0)"; });
-                var jGCorrectG = jG.append('g');
-                var jGIncorrectG = jG.append('g');
-                jGCorrectG.selectAll('rect')
-                    .data(summaryDataWithAverage)
-                    .enter()
-                    .append('rect')
-                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
-                    .attr('y', function(d) { return y(d['JBuzC']); })
-                    .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['JBuzC']); })
-                    .attr("fill", summaryColorFunction);
-                jGIncorrectG.selectAll('rect')
-                    .data(summaryDataWithAverage)
-                    .enter()
-                    .append('rect')
-                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
-                    .attr('y', function(d) { return y(d['JBuz']); })
-                    .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['JBuz'] - d['JBuzC']); })
-                    .attr("fill", summaryColorFunction)
-                    .attr("opacity", 0.7);
-                jG.selectAll('text')
-                    .data(summaryDataWithAverage)
-                    .enter()
-                    .append('text')
-                    .attr('x', function(d) { return xSubgroup(d['Contestant']) + 5; })
-                    .attr('y', function(d) { return y(d['JBuz']); })
-                    .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Contestant']) + 5) + ',' + y(d['JBuz']) + ')'; })
-                    .text(d => d['Contestant']);
-
-                var djG = svg.append('g')
-                    .attr("transform", function(d) { return "translate(" + x('DJ!') + ",0)"; });
-                var djGCorrectG = djG.append('g');
-                var djGIncorrectG = djG.append('g');
-                djGCorrectG.selectAll('rect')
-                    .data(summaryDataWithAverage)
-                    .enter()
-                    .append('rect')
-                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
-                    .attr('y', function(d) { return y(d['DJBuzC']); })
-                    .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['DJBuzC']); })
-                    .attr("fill", summaryColorFunction);
-                djGIncorrectG.selectAll('rect')
-                    .data(summaryDataWithAverage)
-                    .enter()
-                    .append('rect')
-                    .attr('x', function(d) { return xSubgroup(d['Contestant']); })
-                    .attr('y', function(d) { return y(d['DJBuz']); })
-                    .attr("width", xSubgroup.bandwidth())
-                    .attr("height", function(d) { return height - y(d['DJBuz'] - d['DJBuzC']); })
-                    .attr("fill", summaryColorFunction)
-                    .attr("opacity", 0.7);
-                djG.selectAll('text')
-                    .data(summaryDataWithAverage)
-                    .enter()
-                    .append('text')
-                    .attr('x', function(d) { return xSubgroup(d['Contestant']) + 5; })
-                    .attr('y', function(d) { return y(d['DJBuz']); })
-                    .attr('transform', function(d) { return 'rotate(-45, ' + (xSubgroup(d['Contestant']) + 5) + ',' + y(d['DJBuz']) + ')'; })
-                    .text(d => d['Contestant']);
+                renderHighlightContestantRoundLinePlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['JBuzC'],
+                    cd1 => +cd1['DJBuzC'],
+                    'line-buzc-j-dj',
+                    'BuzC difference',
+                    cd => true,
+                    'BuzC'
+                );
+                renderHighlightContestantRoundLinePlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['JBuzInc'],
+                    cd1 => +cd1['DJBuzInc'],
+                    'line-buzi-j-dj',
+                    'BuzI difference',
+                    cd => true,
+                    'BuzI'
+                );
 
 
                 //Histogram set
@@ -471,53 +510,178 @@
                     cd1 => +cd1['Buz'],
                     'box-buz',
                     'Buz',
-                    5,
                     cd1 => true
                 );
+                renderHighlightContestantRoundLinePlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['JBuz'],
+                    cd1 => +cd1['DJBuz'],
+                    'line-buz-j-dj',
+                    'Buz difference',
+                    cd => true,
+                    'Buz'
+                );
+
                 renderHighlightContestantBoxPlot(
                     data,
                     highlightContestants,
                     cd1 => +cd1['Att'],
                     'box-att',
                     'Att',
-                    5,
                     cd1 => cd1['Att'] !== ""
                 );
+                renderHighlightContestantRoundLinePlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['JAtt'],
+                    cd1 => +cd1['DJAtt'],
+                    'line-att-j-dj',
+                    'Att difference',
+                    cd1 => cd1['Att'] !== "",
+                    'Att'
+                );
+
                 renderHighlightContestantBoxPlot(
                     data,
                     highlightContestants,
                     cd1 => +cd1['Buz$'],
                     'box-buz$',
                     'Buz$',
-                    5000,
                     cd1 => true
                 );
+                renderHighlightContestantRoundLinePlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['JBuz$'],
+                    cd1 => +cd1['DJBuz$'] / 2.0,
+                    'line-buz$-j-dj',
+                    'Buz$ difference',
+                    cd => true,
+                    'Buz$ (J dollars)'
+                );
+
                 renderHighlightContestantBoxPlot(
                     data,
                     highlightContestants,
                     cd1 => 1.0 * +cd1['Buz$'] / +cd1['Buz'],
                     'box-buz$-per-buz',
                     'Buz$/Buz',
-                    100,
                     cd1 => true
                 );
+                renderHighlightContestantRoundLinePlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['JBuz$'] / +cd1['JBuz'],
+                    cd1 => +cd1['DJBuz$'] / 2.0 / +cd1['DJBuz'],
+                    'line-buz$-per-buz-j-dj',
+                    'Buz$/Buz difference',
+                    cd => true,
+                    'Buz$ (J dollars)'
+                );
+
                 renderHighlightContestantBoxPlot(
                     data,
                     highlightContestants,
                     cd1 => +cd1['Speed'],
                     'box-speed',
                     'Speed',
-                    1,
                     cd1 => cd1['Speed'] !== ""
                 );
+                renderHighlightContestantRoundLinePlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['JSpeed'],
+                    cd1 => +cd1['DJSpeed'],
+                    'line-speed-j-dj',
+                    'Speed difference',
+                    cd1 => cd1['Speed'] !== "",
+                    'Speed'
+                );
+
                 renderHighlightContestantBoxPlot(
                     data,
                     highlightContestants,
                     cd1 => +cd1['Solo'],
                     'box-solo',
                     'Solo',
-                    1,
                     cd1 => cd1['Solo'] !== ""
+                );
+                renderHighlightContestantRoundLinePlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['JSolo'],
+                    cd1 => +cd1['DJSolo'],
+                    'line-solo-j-dj',
+                    'Solo difference',
+                    cd1 => cd1['Solo'] !== "",
+                    'Solo'
+                );
+
+                renderHighlightContestantBoxPlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['Speed'] + +cd1['Solo'],
+                    'box-speed-plus-solo',
+                    'Speed + Solo',
+                    cd1 => cd1['Solo'] !== ""
+                );
+                renderHighlightContestantRoundLinePlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['JSpeed'] + +cd1['JSolo'],
+                    cd1 => +cd1['DJSpeed'] + +cd1['DJSolo'],
+                    'line-speed-plus-solo-j-dj',
+                    'Speed+Solo difference',
+                    cd1 => cd1['Solo'] !== "",
+                    'Speed + Solo'
+                );
+
+                renderHighlightContestantBoxPlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['DD+'],
+                    'box-dd+',
+                    'DD+',
+                    cd1 => cd1['DD+'] !== ""
+                );
+                renderHighlightContestantRoundLinePlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['JDD+'],
+                    cd1 => +cd1['DJDD+'],
+                    'line-dd+-j-dj',
+                    'DD+ difference',
+                    cd => true,
+                    'DD+'
+                );
+
+                renderHighlightContestantBoxPlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['JDD'] + +cd1['DJDD1'] + +cd1['DJDD2'],
+                    'box-dd$',
+                    'DD$',
+                    cd1 => true
+                );
+                renderHighlightContestantRoundLinePlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['JDD'],
+                    cd1 => (+cd1['DJDD1'] + +cd1['DJDD2']) / 2.0,
+                    'line-dd$-j-dj',
+                    'DD$ difference',
+                    cd => true,
+                    'DD$ (J dollars)'
+                );
+
+                renderHighlightContestantBoxPlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['FJ$'],
+                    'box-fj$',
+                    'FJ$',
+                    cd1 => cd1['FJ$'] !== ""
                 );
                 
                 
@@ -531,11 +695,7 @@
                         mode: 'markers',
                         type: 'scatter',
                         name: cid,
-                        /*text: d3.map(d3.filter(data, cd => cd['Contestant'] === cid), cd1 => cd1['Date']),
-                        textposition: 'top center',
-                        textfont: {
-                            family:  'Raleway, sans-serif'
-                        },*/
+                        text: d3.map(d3.filter(data, cd => cd['Contestant'] === cid), cd1 => cid + ", " + dateFormat(cd1['Date'])),
                         marker: { size: 5 }
                     };
                     plotData.push(trace);
@@ -546,11 +706,7 @@
                     mode: 'markers',
                     type: 'scatter',
                     name: "Others",
-                    /*text: d3.map(d3.filter(data, cd => !highlightContestants.includes(cd['Contestant'])), cd1 => cd1['Date']),
-                    textposition: 'top center',
-                    textfont: {
-                        family:  'Raleway, sans-serif'
-                    },*/
+                    text: d3.map(d3.filter(data, cd => !highlightContestants.includes(cd['Contestant'])), cd1 => cd1['Contestant'] + ", " + dateFormat(cd1['Date'])),
                     marker: { size: 2 }
                 };
                 plotData.push(trace);
@@ -571,57 +727,37 @@
                         color: 'grey',
                         }
                     },
-                    title:'Data Labels on the Plot'
+                    xaxis: {
+                        title: 'Buz'
+                    },
+                    yaxis: {
+                        title: 'Buz$/Buz'
+                    },
+                    title:'Buz$/Buz vs Buz'
                 };
 
                 Plotly.newPlot('scatter-buz$-buz-vs-buz', plotData, layout);
 
                 plotData = [];
-                /*for ( var i = 0; i < highlightContestants.length; i ++ ) {
-                    var cid = highlightContestants[i];
-                    var trace = {
-                        x: [d3.mean(d3.map(d3.filter(data, cd => cd['Contestant'] === cid), cd1 => +cd1['Buz']))],
-                        y: [d3.mean(d3.map(d3.filter(data, cd => cd['Contestant'] === cid), cd1 => +cd1['Buz$'] / +cd1['Buz']))],
-                        mode: 'markers',
-                        type: 'scatter',
-                        name: cid,
-                        /*text: d3.map(d3.filter(data, cd => cd['Contestant'] === cid), cd1 => cd1['Date']),
-                        textposition: 'top center',
-                        textfont: {
-                            family:  'Raleway, sans-serif'
-                        },*//*
-                        marker: { size: 7 }
-                    };
-                    plotData.push(trace);
-                }*/
-                var othersData = d3.group(data, cd => cd['Contestant']);
-                othersData.forEach((value, key) => {
-//                    if (!highlightContestants.includes(key)) {
+                var groupedData = d3.group(data, cd => cd['Contestant']);
+                groupedData.forEach((value, key) => {
+                    if (highlightContestants.includes(key)) {
                         var trace = {
                             x: [d3.mean(d3.map(value, cd1 => +cd1['Buz']))],
                             y: [d3.mean(d3.map(value, cd1 => +cd1['Buz$'] / +cd1['Buz']))],
-                            mode: 'markers',
+                            mode: 'markers+text',
                             type: 'scatter',
-                            name: key,
-                            /*text: d3.map(d3.filter(data, cd => !highlightContestants.includes(cd['Contestant'])), cd1 => cd1['Date']),
+                            name: highlightContestants.includes(key) ? key : 'Others',
+                            text: key,
                             textposition: 'top center',
-                            textfont: {
-                                family:  'Raleway, sans-serif'
-                            },*/
                             marker: { size: 2 * Math.sqrt(value.length) }
                         };
                         plotData.push(trace);
-//                    }
-            });
+                    }
+                });
                 
 
                 var layout = {
-                    xaxis: {
-                        range: [ 0, 40 ]
-                    },
-                    yaxis: {
-                        range: [-500, 1200]
-                    },
                     legend: {
                         y: 0.5,
                         yref: 'paper',
@@ -631,7 +767,13 @@
                         color: 'grey',
                         }
                     },
-                    title:'Data Labels on the Plot'
+                    xaxis: {
+                        title: 'Buz'
+                    },
+                    yaxis: {
+                        title: 'Buz$/Buz'
+                    },
+                    title:'Average Buz$/Buz vs Buz'
                 };
 
                 Plotly.newPlot('scatter-avg-buz$-buz-vs-buz', plotData, layout);
