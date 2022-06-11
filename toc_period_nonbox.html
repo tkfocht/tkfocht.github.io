@@ -135,6 +135,14 @@
             <div id="line-att-j-dj" style="width:600px;height:500px;margin-bottom:1em;"></div>
         </div>
         <div class="section">
+            <h1>Buz%</h1>
+            <div class="graph-description">
+                Buzzes/Attempts, by contestant, in each game.
+            </div>
+            <div id="box-buz%" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="line-buz%-j-dj" style="width:600px;height:500px;margin-bottom:1em;"></div>
+        </div>
+        <div class="section">
             <h1>Buz$</h1>
             <div class="graph-description">
                 Money earned/lost on buzzes, by contestant, in each game.
@@ -540,6 +548,25 @@
                     'Att difference',
                     cd1 => cd1['Att'] !== "",
                     'Att'
+                );
+
+                renderHighlightContestantBoxPlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['Buz%'],
+                    'box-buz%',
+                    'Buz%',
+                    cd1 => cd1['Att'] !== ""
+                );
+                renderHighlightContestantRoundLinePlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['JBuz%'],
+                    cd1 => +cd1['DJBuz%'],
+                    'line-buz%-j-dj',
+                    'Buz% difference',
+                    cd1 => cd1['Att'] !== "",
+                    'Buz%'
                 );
 
                 renderHighlightContestantBoxPlot(
