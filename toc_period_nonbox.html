@@ -219,6 +219,18 @@
             </div>
             <div id="scatter-avg-buz$-buz-vs-buz" style="width:1000px;height:500px;"></div>
         </div>
+        <!--<div class="section">
+            <div id="box-podium-day-att" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="box-podium-day-buz" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="box-podium-day-buz%" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="box-podium-day-buz$" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="box-podium-day-buz$-per-buz" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="box-podium-day-speed" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="box-podium-day-solo" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="box-podium-day-speed-plus-solo" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="box-podium-day-dd-plus" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div id="box-podium-day-dd$" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+        </div>-->
         <div id="footer">
             <p>This site is not affiliated with Jeopardy!. Data is taken from their published <a href="https://www.jeopardy.com/jbuzz/news-events/jeopardy-daily-box-scores">box scores.</a></p>
         </div>
@@ -249,6 +261,10 @@
                 var contestantWinnings = d3.rollup(data, v => d3.sum(d3.map(v, cd => (+cd['Wins'] * +cd['FJFinal$']))), d => d['Contestant']);
                 var gameThreshold = 4;
                 highlightContestants = d3.filter(highlightContestantCounts.keys(), k => highlightContestantCounts.get(k) >= gameThreshold);
+                while (highlightContestants.length < 5) {
+                    gameThreshold--;
+                    highlightContestants = d3.filter(highlightContestantCounts.keys(), k => highlightContestantCounts.get(k) >= gameThreshold);
+                }
 
                 var latestDate = d3.max(d3.map(data, d => d['Date']));
                 var currentChampionToHighlight = d3.map(d3.filter(data, d => d['Date'] >= latestDate && +d['Wins'] > 0), d => d['Contestant']);
@@ -804,6 +820,79 @@
                 };
 
                 Plotly.newPlot('scatter-avg-buz$-buz-vs-buz', plotData, layout);
+
+
+/*                renderDayPodiumContestantBoxPlot(
+                    data,
+                    cd1 => +cd1['Att'],
+                    'box-podium-day-att',
+                    'Att',
+                    cd1 => cd1['Att'] !== ""
+                );
+                renderDayPodiumContestantBoxPlot(
+                    data,
+                    cd1 => +cd1['Buz'],
+                    'box-podium-day-buz',
+                    'Buz',
+                    cd1 => cd1['Buz'] !== ""
+                );
+                renderDayPodiumContestantBoxPlot(
+                    data,
+                    cd1 => +cd1['Buz%'],
+                    'box-podium-day-buz%',
+                    'Buz%',
+                    cd1 => cd1['Buz%'] !== ""
+                );
+                renderDayPodiumContestantBoxPlot(
+                    data,
+                    cd1 => +cd1['Buz$'],
+                    'box-podium-day-buz$',
+                    'Buz$',
+                    cd1 => cd1['Buz$'] !== ""
+                );
+                renderDayPodiumContestantBoxPlot(
+                    data,
+                    cd1 => 1.0 * +cd1['Buz$'] / +cd1['Buz'],
+                    'box-podium-day-buz$-per-buz',
+                    'Buz$/Buz',
+                    cd1 => true
+                );
+                renderDayPodiumContestantBoxPlot(
+                    data,
+                    cd1 => +cd1['Speed'],
+                    'box-podium-day-speed',
+                    'Speed',
+                    cd1 => cd1['Speed'] !== ""
+                );
+                renderDayPodiumContestantBoxPlot(
+                    data,
+                    cd1 => +cd1['Solo'],
+                    'box-podium-day-solo',
+                    'Solo',
+                    cd1 => cd1['Solo'] !== ""
+                );
+                renderDayPodiumContestantBoxPlot(
+                    data,
+                    cd1 => +cd1['Speed'] + +cd1['Solo'],
+                    'box-podium-day-speed-plus-solo',
+                    'Speed + Solo',
+                    cd1 => cd1['Speed'] !== ""
+                );
+                renderDayPodiumContestantBoxPlot(
+                    data,
+                    cd1 => +cd1['DD+'],
+                    'box-podium-day-dd-plus',
+                    'DD+',
+                    cd1 => true
+                );
+                renderDayPodiumContestantBoxPlot(
+                    data,
+                    cd1 => +cd1['JDD'] + +cd1['DJDD1'] + +cd1['DJDD2'],
+                    'box-podium-day-dd$',
+                    'DD$',
+                    cd1 => true
+                );*/
+
             });
         </script>
     </body>
