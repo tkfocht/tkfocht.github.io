@@ -206,6 +206,13 @@
             <div id="box-fj$" style="width:1000px;height:500px;margin-bottom:1em;"></div>
         </div>
         <div class="section">
+            <h1>FJFinal$</h1>
+            <div class="graph-description">
+                Final score after Final Jeopardy, by contestant, in each game.
+            </div>
+            <div id="box-fjfinal$" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+        </div>
+        <div class="section">
             <h1>Buz$/Buz vs Buz plot</h1>
             <div class="graph-description">
                 Buz$/Buz vs Buz, per game. 4+ game champions are marked larger.
@@ -729,6 +736,14 @@
                     cd1 => cd1['FJ$'] !== ""
                 );
                 
+                renderHighlightContestantBoxPlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['FJFinal$'],
+                    'box-fjfinal$',
+                    'FJFinal$',
+                    cd1 => cd1['FJFinal$'] !== ""
+                );
                 
 
                 plotData = [];
