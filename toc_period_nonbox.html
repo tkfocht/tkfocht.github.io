@@ -199,6 +199,13 @@
             <div id="line-dd$-j-dj" style="width:600px;height:500px;margin-bottom:1em;"></div>
         </div>
         <div class="section">
+            <h1>DJFinal$</h1>
+            <div class="graph-description">
+                Score after Double Jeopardy, by contestant, in each game.
+            </div>
+            <div id="box-djfinal$" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+        </div>
+        <div class="section">
             <h1>FJ$</h1>
             <div class="graph-description">
                 Money earned/lost on Final Jeopardy, by contestant, in each game.
@@ -725,6 +732,15 @@
                     'DD$ difference',
                     cd => true,
                     'DD$ (J dollars)'
+                );
+
+                renderHighlightContestantBoxPlot(
+                    data,
+                    highlightContestants,
+                    cd1 => +cd1['DJFinal$'],
+                    'box-djfinal$',
+                    'DJFinal$',
+                    cd1 => cd1['DJFinal$'] !== ""
                 );
 
                 renderHighlightContestantBoxPlot(
