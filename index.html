@@ -14,16 +14,7 @@
         </div>
         <h1>Recorded Games</h1>
         <div class="season" id="TOC2022R">
-            <h2>TOC2022 Qualification Regular Play <a href="toc_period_nonbox.html?toc_period=TOC2022R">(summary)</a></h2>
-        </div>
-        <div class="season" id="TOC2022R">
-            <h2>TOC2021 Qualification Regular Play <a href="toc_period_nonbox.html?toc_period=TOC2021R">(summary)</a></h2>
-        </div>
-        <div class="season" id="TOC2022R">
-            <h2>TOC2019 Qualification Regular Play <a href="toc_period_nonbox.html?toc_period=TOC2019R">(summary)</a></h2>
-        </div>
-        <div class="season" id="S38R">
-            <h2>Season 38 Regular Play <a href="season.html?season=S38R">(summary)</a></h2>
+            <h2>TOC2022 Qualification Regular Play <a href="toc_period.html?toc_period=TOC2022R">(summary)</a></h2>
             <table class="game-list">
                 <thead>
                     <tr>
@@ -36,7 +27,33 @@
             </table>
         </div>
         <div class="season" id="NCC2022">
-            <h2>National College Championship 2022 <a href="season.html?season=NCC2022">(summary)</a></h2>
+            <h2>National College Championship 2022 <a href="toc_period.html?toc_period=NCC2022">(summary)</a></h2>
+            <table class="game-list">
+                <thead>
+                    <tr>
+                        <th>Game</th>
+                        <th>Date</th>
+                        <th>Contestants</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="season" id="TOC2021R">
+            <h2>TOC2021 Qualification Regular Play <a href="toc_period.html?toc_period=TOC2021R">(summary)</a></h2>
+            <table class="game-list">
+                <thead>
+                    <tr>
+                        <th>Game</th>
+                        <th>Date</th>
+                        <th>Contestants</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="season" id="TOC2019R">
+            <h2>TOC2019 Qualification Regular Play <a href="toc_period.html?toc_period=TOC2019R">(summary)</a></h2>
             <table class="game-list">
                 <thead>
                     <tr>
@@ -77,10 +94,37 @@
                             '<td>' + d.slice(2,5).join(' vs ') + '</td>';
                     });
             };
+            var renderTocPeriodAndTypeSection = function(
+                tocPeriodId,
+                data
+            ) {
+                data.forEach(function(d) {
+                    d['Date'] = csvDateParse(d['Date']);
+                });
+                data = Array.from(d3.group(data, d => d['Jometry Game Id']),
+                    ([gameId,gameData]) => [
+                        gameId,
+                        gameData[0]['Date'],
+                        gameData[0]['Contestant'], gameData[1]['Contestant'], gameData[2]['Contestant'],
+                        gameData[0]['Season'],
+                        gameData[0]['Game In Season']]);
+                data.sort(d => d[0]);
+                data.reverse();
 
-            for (const seasonId of ['S38R', 'NCC2022']) {
-                d3.csv(csvUrlForSeason(seasonId)).then(function(data) {
-                    renderSeason(seasonId, data);
+                d3.select("#" + tocPeriodId + " table.game-list tbody").selectAll('tr')
+                    .data(data)
+                    .enter()
+                    .append('tr')
+                    .html(function(d) {
+                        return '<td><a href="game.html?toc_period_id=' + tocPeriodId + '&game_id=' + d[0] + '">Season ' + d[5] + ' Game ' + d[6] + '</a></td>' +
+                            '<td>' + dateFormat(d[1]) + '</td>' +
+                            '<td>' + d.slice(2,5).join(' vs ') + '</td>';
+                    });
+            }
+
+            for (const tocPeriodId of ['TOC2022R','NCC2022','TOC2021R','TOC2019R']) {
+                d3.csv(csvUrlForTocPeriod(tocPeriodId)).then(function(data) {
+                    renderTocPeriodAndTypeSection(tocPeriodId, data);
                 });
             }
         </script>

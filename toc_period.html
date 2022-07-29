@@ -115,6 +115,11 @@
                 on top.
             </div>
             <div id="bar-buzzes" style="width:1000px;height:500px;margin-bottom:1em;"></div>
+            <div class="graph-description">
+                Average score on buzzes, by contestant. Score is shown full color. Score lost on incorrect buzz responses is shown lighter on top.
+                Score on correct buzz responses is the sum of the two.
+            </div>
+            <div id="bar-buz$" style="width:1000px;height:500px;margin-bottom:1em;"></div>
             <div id="line-buzc-j-dj" style="width:600px;height:500px;margin-bottom:1em;"></div>
             <div id="line-buzi-j-dj" style="width:600px;height:500px;margin-bottom:1em;"></div>
         </div>
@@ -233,33 +238,16 @@
             </div>
             <div id="scatter-avg-buz$-buz-vs-buz" style="width:1000px;height:500px;"></div>
         </div>
-        <!--<div class="section">
-            <div id="box-podium-day-att" style="width:1000px;height:500px;margin-bottom:1em;"></div>
-            <div id="box-podium-day-buz" style="width:1000px;height:500px;margin-bottom:1em;"></div>
-            <div id="box-podium-day-buz%" style="width:1000px;height:500px;margin-bottom:1em;"></div>
-            <div id="box-podium-day-buz$" style="width:1000px;height:500px;margin-bottom:1em;"></div>
-            <div id="box-podium-day-buz$-per-buz" style="width:1000px;height:500px;margin-bottom:1em;"></div>
-            <div id="box-podium-day-speed" style="width:1000px;height:500px;margin-bottom:1em;"></div>
-            <div id="box-podium-day-solo" style="width:1000px;height:500px;margin-bottom:1em;"></div>
-            <div id="box-podium-day-speed-plus-solo" style="width:1000px;height:500px;margin-bottom:1em;"></div>
-            <div id="box-podium-day-dd-plus" style="width:1000px;height:500px;margin-bottom:1em;"></div>
-            <div id="box-podium-day-dd$" style="width:1000px;height:500px;margin-bottom:1em;"></div>
-        </div>-->
         <div id="footer">
             <p>This site is not affiliated with Jeopardy!. Data is taken from their published <a href="https://www.jeopardy.com/jbuzz/news-events/jeopardy-daily-box-scores">box scores.</a></p>
         </div>
         <script type="text/javascript">
             var tocPeriodId = new URLSearchParams(window.location.search).get('toc_period');
-            var seasonAverageLabel = tocPeriodId + " Average";
+            var tocPeriodAverageLabel = tocPeriodId + " Average";
             d3.select("#toc-period-id")
                 .data([tocPeriodId])
                 .text(d => d);
-            d3.csv(csvUrlForSeasonNonbox(tocPeriodId)).then(function(data) {
-                //Baseline for graphs
-                var margin = {top: 20, right: 20, bottom: 50, left: 70},
-                    width = 960 - margin.left - margin.right,
-                    height = 500 - margin.top - margin.bottom;
-
+            d3.csv(csvUrlForTocPeriod(tocPeriodId)).then(function(data) {
                 //Data transformations
                 data.forEach(function(d) {
                     d['Date'] = csvDateParse(d['Date']);
@@ -271,22 +259,22 @@
                     d['FJ$'] = d['FJCor'] === "" ? 0 : (2 * +d['FJCor'] - 1) * +d['FJWager'];
                 });
 
-                var highlightContestantCounts = d3.rollup(data, v => d3.sum(d3.map(v, cd => (+cd['Wins']))), d => d['Contestant']);
-                var contestantWinnings = d3.rollup(data, v => d3.sum(d3.map(v, cd => (+cd['Wins'] * +cd['FJFinal$']))), d => d['Contestant']);
+                var highlightContestantCounts = d3.rollup(data, v => d3.sum(d3.map(v, cd => (+cd['Wins']))), d => d['Jometry Contestant Id']);
+                var contestantWinnings = d3.rollup(data, v => d3.sum(d3.map(v, cd => (+cd['Wins'] * +cd['FJFinal$']))), d => d['Jometry Contestant Id']);
                 var gameThreshold = 4;
-                highlightContestants = d3.filter(highlightContestantCounts.keys(), k => highlightContestantCounts.get(k) >= gameThreshold);
-                while (highlightContestants.length < 5) {
+                highlightContestantIds = d3.filter(highlightContestantCounts.keys(), k => highlightContestantCounts.get(k) >= gameThreshold);
+                while (highlightContestantIds.length < 5) {
                     gameThreshold--;
-                    highlightContestants = d3.filter(highlightContestantCounts.keys(), k => highlightContestantCounts.get(k) >= gameThreshold);
+                    highlightContestantIds = d3.filter(highlightContestantCounts.keys(), k => highlightContestantCounts.get(k) >= gameThreshold);
                 }
 
                 var latestDate = d3.max(d3.map(data, d => d['Date']));
-                var currentChampionToHighlight = d3.map(d3.filter(data, d => d['Date'] >= latestDate && +d['Wins'] > 0), d => d['Contestant']);
+                var currentChampionToHighlight = d3.map(d3.filter(data, d => d['Date'] >= latestDate && +d['Wins'] > 0), d => d['Jometry Contestant Id']);
                 if ((new Date().getTime() - latestDate.getTime()) / (1000 * 3600 * 24) <= 5) {
-                    highlightContestants = highlightContestants.concat(Array.from(d3.difference(currentChampionToHighlight, highlightContestants)));
+                    highlightContestantIds = highlightContestantIds.concat(Array.from(d3.difference(currentChampionToHighlight, highlightContestantIds)));
                 }
 
-                highlightContestants.sort(function(a,b) {
+                highlightContestantIds.sort(function(a,b) {
                     var winsDiff = highlightContestantCounts.get(b) - highlightContestantCounts.get(a);
                     if (winsDiff !== 0) {
                         return winsDiff;
@@ -294,16 +282,16 @@
                     return contestantWinnings.get(b) - contestantWinnings.get(a);
                 });
                 data.forEach(function(d) {
-                    d['highlightContestant'] = highlightContestants.includes(d['Contestant']);
+                    d['highlightContestant'] = highlightContestantIds.includes(d['Jometry Contestant Id']);
                 });
 
                 //Graphics functions
                 var color = d3.scaleOrdinal()
-                    .domain(highlightContestants)
+                    .domain(highlightContestantIds)
                     .range(d3.schemeCategory10.concat(d3.schemeDark2));
                 var colorFunction = function(d) {
                     if (d['highlightContestant']) {
-                        return color(d['Contestant']);
+                        return color(d['Jometry Contestant Id']);
                     } else {
                         return "black";
                     }
@@ -319,9 +307,10 @@
                     return "";
                 };
 
-                var summarizeContestantData = function(contestant, contestantData) {
+                var summarizeContestantData = function(contestantId, contestantData) {
                     return {
-                        'Contestant': contestant,
+                        'Contestant': contestantId >= 0 ? d3.map(contestantData, cd => cd['Contestant'])[0] : tocPeriodAverageLabel,
+                        'Jometry Contestant Id': contestantId,
                         'Wins': d3.sum(d3.map(contestantData, cd => (+cd['Wins']))),
                         'Leads': d3.sum(d3.map(contestantData, cd => (+cd['Leads']))),
                         'Crushes': d3.sum(d3.map(contestantData, cd => (+cd['Crushes']))),
@@ -368,11 +357,11 @@
 
                 //Summary table
                 var summaryData = Array.from(
-                    d3.group(d3.filter(data, d => d['highlightContestant']), d => d['Contestant']),
-                    ([contestant, contestantData]) => summarizeContestantData(contestant, contestantData));
-                summaryData.sort(function(a,b) { return highlightContestants.indexOf(a['Contestant']) - highlightContestants.indexOf(b['Contestant']); });
+                    d3.group(d3.filter(data, d => d['highlightContestant']), d => d['Jometry Contestant Id']),
+                    ([contestantId, contestantData]) => summarizeContestantData(contestantId, contestantData));
+                summaryData.sort(function(a,b) { return highlightContestantIds.indexOf(a['Jometry Contestant Id']) - highlightContestantIds.indexOf(b['Jometry Contestant Id']); });
 
-                var averageSummary = summarizeContestantData(seasonAverageLabel, data);
+                var averageSummary = summarizeContestantData(-1, data);
                 averageSummary['Wins'] = "";
                 averageSummary['Leads'] = "";
                 averageSummary['Crushes'] = "";
@@ -380,7 +369,7 @@
                 averageSummary['TotalWin$'] = "";
                 var summaryDataWithAverage = summaryData.concat(averageSummary);
                 var summaryColorFunction = function(d) {
-                    if (d['Contestant'] === seasonAverageLabel) {
+                    if (d['Contestant'] === tocPeriodAverageLabel) {
                         return "black";
                     } else {
                         return color(d['Contestant']);
@@ -395,7 +384,7 @@
                 summaryTr.selectAll("td")
                     .data(function(d,i) {
                         return [
-                            d['Contestant'],
+                            [d['Jometry Contestant Id'], d['Contestant']],
                             d['Wins'],
                             d['Leads'],
                             d['Crushes'],
@@ -418,8 +407,8 @@
                     .append("td")
                     .html(function(d,i) {
                         if (i>0) return d;
-                        if (d === seasonAverageLabel) return '<span style="color:black">&#9632;</span>&nbsp;' + d;
-                        return '<span style="color: ' + color(d) + '">&#9632;</span>&nbsp;<a href="contestant.html?toc_period=' + tocPeriodId + '&contestant=' + d + '">' + d + "</a>";
+                        if (d[1] === tocPeriodAverageLabel) return '<span style="color:black">&#9632;</span>&nbsp;' + d[1];
+                        return '<span style="color: ' + color(d[0]) + '">&#9632;</span>&nbsp;<a href="contestant.html?toc_period_id=' + tocPeriodId + '&contestant=' + d[0] + '">' + d[1] + "</a>";
                     });
 
                 var summaryTr = d3.select("#season-contestant-summary-j table tbody")
@@ -430,7 +419,7 @@
                 summaryTr.selectAll("td")
                     .data(function(d,i) {
                         return [
-                            d['Contestant'],
+                            [d['Jometry Contestant Id'], d['Contestant']],
                             d['JBuzC'].toFixed(1),
                             d['JBuzI'].toFixed(1),
                             d['JBuzC$'].toFixed(0),
@@ -447,8 +436,8 @@
                     .append("td")
                     .html(function(d,i) {
                         if (i>0) return d;
-                        if (d === seasonAverageLabel) return '<span style="color:black">&#9632;</span>&nbsp;' + d;
-                        return '<span style="color: ' + color(d) + '">&#9632;</span>&nbsp;<a href="contestant.html?toc_period=' + tocPeriodId + '&contestant=' + d + '">' + d + "</a>";
+                        if (d[1] === tocPeriodAverageLabel) return '<span style="color:black">&#9632;</span>&nbsp;' + d[1];
+                        return '<span style="color: ' + color(d[0]) + '">&#9632;</span>&nbsp;<a href="contestant.html?toc_period=' + tocPeriodId + '&contestant=' + d[0] + '">' + d[1] + "</a>";
                     });
 
                 var summaryTr = d3.select("#season-contestant-summary-dj table tbody")
@@ -459,7 +448,7 @@
                 summaryTr.selectAll("td")
                     .data(function(d,i) {
                         return [
-                            d['Contestant'],
+                            [d['Jometry Contestant Id'], d['Contestant']],
                             d['DJBuzC'].toFixed(1),
                             d['DJBuzI'].toFixed(1),
                             d['DJBuzC$'].toFixed(0),
@@ -476,34 +465,34 @@
                     .append("td")
                     .html(function(d,i) {
                         if (i>0) return d;
-                        if (d === seasonAverageLabel) return '<span style="color:black">&#9632;</span>&nbsp;' + d;
-                        return '<span style="color: ' + color(d) + '">&#9632;</span>&nbsp;<a href="contestant.html?toc_period=' + tocPeriodId + '&contestant=' + d + '">' + d + "</a>";
+                        if (d[1] === tocPeriodAverageLabel) return '<span style="color:black">&#9632;</span>&nbsp;' + d[1];
+                        return '<span style="color: ' + color(d[0]) + '">&#9632;</span>&nbsp;<a href="contestant.html?toc_period=' + tocPeriodId + '&contestant=' + d[0] + '">' + d[1] + "</a>";
                     });
 
                 //Buzzes
                 var attemptsTraceBuzC = {
-                    x: highlightContestants,
-                    y: d3.map(highlightContestants, c => d3.mean(d3.map(d3.filter(data, cd => cd['Contestant'] === c), cd1 => +cd1['BuzC']))),
-                    text: d3.map(highlightContestants, c => d3.mean(d3.map(d3.filter(data, cd => cd['Contestant'] === c), cd1 => +cd1['BuzC'])).toFixed(1)),
+                    x: d3.map(highlightContestantIds, c => d3.filter(data, cd => cd['Jometry Contestant Id'] === c)[0]['Contestant']),
+                    y: d3.map(highlightContestantIds, c => d3.mean(d3.map(d3.filter(data, cd => cd['Jometry Contestant Id'] === c), cd1 => +cd1['BuzC']))),
+                    text: d3.map(highlightContestantIds, c => d3.mean(d3.map(d3.filter(data, cd => cd['Jometry Contestant Id'] === c), cd1 => +cd1['BuzC'])).toFixed(1)),
                     type: 'bar',
                     marker: {
-                        color: d3.map(highlightContestants, color),
+                        color: d3.map(highlightContestantIds, color),
                         line: {
                             color: 'black',
-                            width: 1.5
+                            width: 1
                         }
                     }
                 };
                 var attemptsTraceBuzI = {
-                    x: highlightContestants,
-                    y: d3.map(highlightContestants, c => d3.mean(d3.map(d3.filter(data, cd => cd['Contestant'] === c), cd1 => +cd1['BuzI']))),
-                    text: d3.map(highlightContestants, c => d3.mean(d3.map(d3.filter(data, cd => cd['Contestant'] === c), cd1 => +cd1['BuzI'])).toFixed(1)),
+                    x: d3.map(highlightContestantIds, c => d3.filter(data, cd => cd['Jometry Contestant Id'] === c)[0]['Contestant']),
+                    y: d3.map(highlightContestantIds, c => d3.mean(d3.map(d3.filter(data, cd => cd['Jometry Contestant Id'] === c), cd1 => +cd1['BuzI']))),
+                    text: d3.map(highlightContestantIds, c => d3.mean(d3.map(d3.filter(data, cd => cd['Jometry Contestant Id'] === c), cd1 => +cd1['BuzI'])).toFixed(1)),
                     type: 'bar',
                     marker: {
-                        color: d3.map(highlightContestants, color),
+                        color: d3.map(highlightContestantIds, color),
                         line: {
                             color: 'black',
-                            width: 1.5
+                            width: 1
                         },
                         opacity: 0.5
                     }
@@ -521,9 +510,50 @@
                 };
                 Plotly.newPlot('bar-buzzes', attemptsData, attemptsLayout);
 
+                var traceBuzScore = {
+                    x: d3.map(highlightContestantIds, c => d3.filter(data, cd => cd['Jometry Contestant Id'] === c)[0]['Contestant']),
+                    y: d3.map(highlightContestantIds, c => d3.mean(d3.map(d3.filter(data, cd => cd['Jometry Contestant Id'] === c), cd1 => +cd1['Buz$']))),
+                    text: d3.map(highlightContestantIds, c => d3.mean(d3.map(d3.filter(data, cd => cd['Jometry Contestant Id'] === c), cd1 => +cd1['Buz$'])).toFixed(0)),
+                    type: 'bar',
+                    marker: {
+                        color: d3.map(highlightContestantIds, color),
+                        line: {
+                            color: 'black',
+                            width: 1
+                        }
+                    }
+                };
+                var traceBuzIScore = {
+                    x: d3.map(highlightContestantIds, c => d3.filter(data, cd => cd['Jometry Contestant Id'] === c)[0]['Contestant']),
+                    y: d3.map(highlightContestantIds, c => d3.mean(d3.map(d3.filter(data, cd => cd['Jometry Contestant Id'] === c), cd1 => +cd1['JBuzI$'] + +cd1['DJBuzI$']))),
+                    text: d3.map(highlightContestantIds, c => d3.mean(d3.map(d3.filter(data, cd => cd['Jometry Contestant Id'] === c), cd1 => +cd1['JBuzI$'] + +cd1['DJBuzI$'])).toFixed(0)),
+                    type: 'bar',
+                    marker: {
+                        color: d3.map(highlightContestantIds, color),
+                        line: {
+                            color: 'black',
+                            width: 1
+                        },
+                        opacity: 0.5
+                    }
+                };
+                var buzScoreData = [traceBuzScore, traceBuzIScore];
+                var buzScoreLayout = {
+                    barmode: 'stack',
+                    showlegend: false,
+                    yaxis: {
+                        title: {
+                            text: "Buz$",
+                            standoff: 20
+                        }
+                    }
+                };
+                Plotly.newPlot('bar-buz$', buzScoreData, buzScoreLayout);
+
+
                 renderHighlightContestantRoundLinePlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['JBuzC'],
                     cd1 => +cd1['DJBuzC'],
                     'line-buzc-j-dj',
@@ -533,7 +563,7 @@
                 );
                 renderHighlightContestantRoundLinePlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['JBuzInc'],
                     cd1 => +cd1['DJBuzInc'],
                     'line-buzi-j-dj',
@@ -546,7 +576,7 @@
                 //Histogram set
                 renderHighlightContestantBoxPlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['Buz'],
                     'box-buz',
                     'Buz',
@@ -554,7 +584,7 @@
                 );
                 renderHighlightContestantRoundLinePlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['JBuz'],
                     cd1 => +cd1['DJBuz'],
                     'line-buz-j-dj',
@@ -565,7 +595,7 @@
 
                 renderHighlightContestantBoxPlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['Att'],
                     'box-att',
                     'Att',
@@ -573,7 +603,7 @@
                 );
                 renderHighlightContestantRoundLinePlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['JAtt'],
                     cd1 => +cd1['DJAtt'],
                     'line-att-j-dj',
@@ -584,7 +614,7 @@
 
                 renderHighlightContestantBoxPlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['Buz%'],
                     'box-buz%',
                     'Buz%',
@@ -592,7 +622,7 @@
                 );
                 renderHighlightContestantRoundLinePlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['JBuz%'],
                     cd1 => +cd1['DJBuz%'],
                     'line-buz%-j-dj',
@@ -603,7 +633,7 @@
 
                 renderHighlightContestantBoxPlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['Buz$'],
                     'box-buz$',
                     'Buz$',
@@ -611,7 +641,7 @@
                 );
                 renderHighlightContestantRoundLinePlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['JBuz$'],
                     cd1 => +cd1['DJBuz$'] / 2.0,
                     'line-buz$-j-dj',
@@ -622,7 +652,7 @@
 
                 renderHighlightContestantBoxPlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => 1.0 * +cd1['Buz$'] / +cd1['Buz'],
                     'box-buz$-per-buz',
                     'Buz$/Buz',
@@ -630,7 +660,7 @@
                 );
                 renderHighlightContestantRoundLinePlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['JBuz$'] / +cd1['JBuz'],
                     cd1 => +cd1['DJBuz$'] / 2.0 / +cd1['DJBuz'],
                     'line-buz$-per-buz-j-dj',
@@ -641,7 +671,7 @@
 
                 renderHighlightContestantBoxPlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['Speed'],
                     'box-speed',
                     'Speed',
@@ -649,7 +679,7 @@
                 );
                 renderHighlightContestantRoundLinePlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['JSpeed'],
                     cd1 => +cd1['DJSpeed'],
                     'line-speed-j-dj',
@@ -660,7 +690,7 @@
 
                 renderHighlightContestantBoxPlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['Solo'],
                     'box-solo',
                     'Solo',
@@ -668,7 +698,7 @@
                 );
                 renderHighlightContestantRoundLinePlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['JSolo'],
                     cd1 => +cd1['DJSolo'],
                     'line-solo-j-dj',
@@ -679,7 +709,7 @@
 
                 renderHighlightContestantBoxPlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['Speed'] + +cd1['Solo'],
                     'box-speed-plus-solo',
                     'Speed + Solo',
@@ -687,7 +717,7 @@
                 );
                 renderHighlightContestantRoundLinePlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['JSpeed'] + +cd1['JSolo'],
                     cd1 => +cd1['DJSpeed'] + +cd1['DJSolo'],
                     'line-speed-plus-solo-j-dj',
@@ -698,7 +728,7 @@
 
                 renderHighlightContestantBoxPlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['DD+'],
                     'box-dd+',
                     'DD+',
@@ -706,7 +736,7 @@
                 );
                 renderHighlightContestantRoundLinePlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['JDD+'],
                     cd1 => +cd1['DJDD+'],
                     'line-dd+-j-dj',
@@ -717,7 +747,7 @@
 
                 renderHighlightContestantBoxPlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['JDD'] + +cd1['DJDD1'] + +cd1['DJDD2'],
                     'box-dd$',
                     'DD$',
@@ -725,7 +755,7 @@
                 );
                 renderHighlightContestantRoundLinePlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['JDD'],
                     cd1 => (+cd1['DJDD1'] + +cd1['DJDD2']) / 2.0,
                     'line-dd$-j-dj',
@@ -736,7 +766,7 @@
 
                 renderHighlightContestantBoxPlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['DJFinal$'],
                     'box-djfinal$',
                     'DJFinal$',
@@ -745,7 +775,7 @@
 
                 renderHighlightContestantBoxPlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['FJ$'],
                     'box-fj$',
                     'FJ$',
@@ -754,7 +784,7 @@
                 
                 renderHighlightContestantBoxPlot(
                     data,
-                    highlightContestants,
+                    highlightContestantIds,
                     cd1 => +cd1['FJFinal$'],
                     'box-fjfinal$',
                     'FJFinal$',
@@ -763,26 +793,26 @@
                 
 
                 plotData = [];
-                for ( var i = 0; i < highlightContestants.length; i ++ ) {
-                    var cid = highlightContestants[i];
+                for ( var i = 0; i < highlightContestantIds.length; i ++ ) {
+                    var cid = highlightContestantIds[i];
                     var trace = {
-                        x: d3.map(d3.filter(data, cd => cd['Contestant'] === cid), cd1 => +cd1['Buz']),
-                        y: d3.map(d3.filter(data, cd => cd['Contestant'] === cid), cd1 => +cd1['Buz$'] / +cd1['Buz']),
+                        x: d3.map(d3.filter(data, cd => cd['Jometry Contestant Id'] === cid), cd1 => +cd1['Buz']),
+                        y: d3.map(d3.filter(data, cd => cd['Jometry Contestant Id'] === cid), cd1 => +cd1['Buz$'] / +cd1['Buz']),
                         mode: 'markers',
                         type: 'scatter',
-                        name: cid,
-                        text: d3.map(d3.filter(data, cd => cd['Contestant'] === cid), cd1 => cid + ", " + dateFormat(cd1['Date'])),
+                        name: getContestantNameFromData(data, cid),
+                        text: d3.map(d3.filter(data, cd => cd['Jometry Contestant Id'] === cid), cd1 => cd1['Contestant'] + ", " + dateFormat(cd1['Date'])),
                         marker: { size: 5 }
                     };
                     plotData.push(trace);
                 }
                 var trace = {
-                    x: d3.map(d3.filter(data, cd => !highlightContestants.includes(cd['Contestant'])), cd1 => +cd1['Buz']),
-                    y: d3.map(d3.filter(data, cd => !highlightContestants.includes(cd['Contestant'])), cd1 => +cd1['Buz$'] / +cd1['Buz']),
+                    x: d3.map(d3.filter(data, cd => !highlightContestantIds.includes(cd['Jometry Contestant Id'])), cd1 => +cd1['Buz']),
+                    y: d3.map(d3.filter(data, cd => !highlightContestantIds.includes(cd['Jometry Contestant Id'])), cd1 => +cd1['Buz$'] / +cd1['Buz']),
                     mode: 'markers',
                     type: 'scatter',
                     name: "Others",
-                    text: d3.map(d3.filter(data, cd => !highlightContestants.includes(cd['Contestant'])), cd1 => cd1['Contestant'] + ", " + dateFormat(cd1['Date'])),
+                    text: d3.map(d3.filter(data, cd => !highlightContestantIds.includes(cd['Jometry Contestant Id'])), cd1 => cd1['Contestant'] + ", " + dateFormat(cd1['Date'])),
                     marker: { size: 2 }
                 };
                 plotData.push(trace);
@@ -815,18 +845,18 @@
                 Plotly.newPlot('scatter-buz$-buz-vs-buz', plotData, layout);
 
                 plotData = [];
-                var groupedData = d3.group(data, cd => cd['Contestant']);
+                var groupedData = d3.group(data, cd => cd['Jometry Contestant Id']);
                 groupedData.forEach((value, key) => {
-                    if (highlightContestants.includes(key)) {
+                    if (highlightContestantIds.includes(key)) {
                         var trace = {
                             x: [d3.mean(d3.map(value, cd1 => +cd1['Buz']))],
                             y: [d3.mean(d3.map(value, cd1 => +cd1['Buz$'] / +cd1['Buz']))],
                             mode: 'markers+text',
                             type: 'scatter',
-                            name: highlightContestants.includes(key) ? key : 'Others',
-                            text: key,
+                            text: getContestantNameFromData(data, key),
                             textposition: 'top center',
-                            marker: { size: 2 * Math.sqrt(value.length) }
+                            marker: { size: 2 * Math.sqrt(value.length) },
+                            showlegend: false
                         };
                         plotData.push(trace);
                     }
@@ -834,15 +864,6 @@
                 
 
                 var layout = {
-                    legend: {
-                        y: 0.5,
-                        yref: 'paper',
-                        font: {
-                        family: 'Arial, sans-serif',
-                        size: 20,
-                        color: 'grey',
-                        }
-                    },
                     xaxis: {
                         title: 'Buz'
                     },
@@ -853,78 +874,6 @@
                 };
 
                 Plotly.newPlot('scatter-avg-buz$-buz-vs-buz', plotData, layout);
-
-
-/*                renderDayPodiumContestantBoxPlot(
-                    data,
-                    cd1 => +cd1['Att'],
-                    'box-podium-day-att',
-                    'Att',
-                    cd1 => cd1['Att'] !== ""
-                );
-                renderDayPodiumContestantBoxPlot(
-                    data,
-                    cd1 => +cd1['Buz'],
-                    'box-podium-day-buz',
-                    'Buz',
-                    cd1 => cd1['Buz'] !== ""
-                );
-                renderDayPodiumContestantBoxPlot(
-                    data,
-                    cd1 => +cd1['Buz%'],
-                    'box-podium-day-buz%',
-                    'Buz%',
-                    cd1 => cd1['Buz%'] !== ""
-                );
-                renderDayPodiumContestantBoxPlot(
-                    data,
-                    cd1 => +cd1['Buz$'],
-                    'box-podium-day-buz$',
-                    'Buz$',
-                    cd1 => cd1['Buz$'] !== ""
-                );
-                renderDayPodiumContestantBoxPlot(
-                    data,
-                    cd1 => 1.0 * +cd1['Buz$'] / +cd1['Buz'],
-                    'box-podium-day-buz$-per-buz',
-                    'Buz$/Buz',
-                    cd1 => true
-                );
-                renderDayPodiumContestantBoxPlot(
-                    data,
-                    cd1 => +cd1['Speed'],
-                    'box-podium-day-speed',
-                    'Speed',
-                    cd1 => cd1['Speed'] !== ""
-                );
-                renderDayPodiumContestantBoxPlot(
-                    data,
-                    cd1 => +cd1['Solo'],
-                    'box-podium-day-solo',
-                    'Solo',
-                    cd1 => cd1['Solo'] !== ""
-                );
-                renderDayPodiumContestantBoxPlot(
-                    data,
-                    cd1 => +cd1['Speed'] + +cd1['Solo'],
-                    'box-podium-day-speed-plus-solo',
-                    'Speed + Solo',
-                    cd1 => cd1['Speed'] !== ""
-                );
-                renderDayPodiumContestantBoxPlot(
-                    data,
-                    cd1 => +cd1['DD+'],
-                    'box-podium-day-dd-plus',
-                    'DD+',
-                    cd1 => true
-                );
-                renderDayPodiumContestantBoxPlot(
-                    data,
-                    cd1 => +cd1['JDD'] + +cd1['DJDD1'] + +cd1['DJDD2'],
-                    'box-podium-day-dd$',
-                    'DD$',
-                    cd1 => true
-                );*/
 
             });
         </script>

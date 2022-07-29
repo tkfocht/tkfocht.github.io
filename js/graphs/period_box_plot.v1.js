@@ -1,6 +1,6 @@
 var renderHighlightContestantBoxPlot = function(
     data,
-    highlightContestants,
+    highlightContestantIds,
     mappingFunction,
     divId,
     title,
@@ -8,12 +8,13 @@ var renderHighlightContestantBoxPlot = function(
 ) {
     var colorList = d3.schemeCategory10.concat(d3.schemeDark2);
     data = d3.filter(data, filterFunction);
-    var xData = highlightContestants.slice();
-    var yData = d3.map(xData, cid => d3.map(d3.filter(data, cd => cd['Contestant'] === cid), mappingFunction));
-    var dateData = d3.map(xData, cid => d3.map(d3.filter(data, cd => cd['Contestant'] === cid), cd1 => dateFormat(cd1['Date'])));
+    var availableHighlightContestantIds = d3.filter(highlightContestantIds.slice(), cid => d3.map(data, cd => cd['Jometry Contestant Id']).includes(cid));
+    var xData = d3.map(availableHighlightContestantIds, cid => getContestantNameFromData(data, cid));
+    var yData = d3.map(availableHighlightContestantIds, cid => d3.map(d3.filter(data, cd => cd['Jometry Contestant Id'] === cid), mappingFunction));
+    var dateData = d3.map(availableHighlightContestantIds, cid => d3.map(d3.filter(data, cd => cd['Jometry Contestant Id'] === cid), cd1 => dateFormat(cd1['Date'])));
     xData.push('Others');
-    yData.push(d3.map(d3.filter(data, cd => !highlightContestants.includes(cd['Contestant'])), mappingFunction));
-    dateData.push(d3.map(d3.filter(data, cd => !highlightContestants.includes(cd['Contestant'])), cd1 => cd1['Contestant'] + " " + dateFormat(cd1['Date'])));
+    yData.push(d3.map(d3.filter(data, cd => !highlightContestantIds.includes(cd['Jometry Contestant Id'])), mappingFunction));
+    dateData.push(d3.map(d3.filter(data, cd => !highlightContestantIds.includes(cd['Jometry Contestant Id'])), cd1 => cd1['Contestant'] + " " + dateFormat(cd1['Date'])));
 
     var plotData = [];
     for ( var i = 0; i < xData.length; i ++ ) {
@@ -55,8 +56,6 @@ var renderHighlightContestantBoxPlot = function(
             b: 80,
             t: 100
         },
-        //paper_bgcolor: 'rgb(243, 243, 243)',
-        //plot_bgcolor: 'rgb(243, 243, 243)',
         showlegend: false
     };
 
@@ -131,7 +130,7 @@ var renderDayPodiumContestantBoxPlot = function(
 
 var renderHighlightContestantRoundLinePlot = function(
     data,
-    highlightContestants,
+    highlightContestantIds,
     mappingFunctionLeft,
     mappingFunctionRight,
     divId,
@@ -140,16 +139,18 @@ var renderHighlightContestantRoundLinePlot = function(
     yAxisLabel
 ) {
     var colorList = d3.schemeCategory10.concat(d3.schemeDark2);
+    data = d3.filter(data, filterFunction);
+    highlightContestantIds = d3.filter(highlightContestantIds, cid => d3.map(data, cd => cd['Jometry Contestant Id']).includes(cid));
     var traces = [];
-    for ( var i = 0; i < highlightContestants.length; i ++ ) {
+    for ( var i = 0; i < highlightContestantIds.length; i ++ ) {
         var trace = {
             x: ['J', 'DJ'],
             y: [
-                d3.mean(d3.map(d3.filter(d3.filter(data, filterFunction), cd => cd['Contestant'] === highlightContestants[i]), mappingFunctionLeft)),
-                d3.mean(d3.map(d3.filter(d3.filter(data, filterFunction), cd => cd['Contestant'] === highlightContestants[i]), mappingFunctionRight))
+                d3.mean(d3.map(d3.filter(d3.filter(data, filterFunction), cd => cd['Jometry Contestant Id'] === highlightContestantIds[i]), mappingFunctionLeft)),
+                d3.mean(d3.map(d3.filter(d3.filter(data, filterFunction), cd => cd['Jometry Contestant Id'] === highlightContestantIds[i]), mappingFunctionRight))
             ],
             type: 'scatter',
-            name: highlightContestants[i],
+            name: getContestantNameFromData(data, highlightContestantIds[i]),
             marker: {
                 color: colorList[i]
             }
@@ -172,8 +173,6 @@ var renderHighlightContestantRoundLinePlot = function(
             b: 80,
             t: 100
         },
-        //paper_bgcolor: 'rgb(243, 243, 243)',
-        //plot_bgcolor: 'rgb(243, 243, 243)',
         showlegend: true
     };
 
